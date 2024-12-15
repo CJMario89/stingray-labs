@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Logo from "@/public/images/Stingray-White.png";
 import IconMenu from "@/components/icons/menu";
+import ConnectButton from "@/components/connect-button";
 
 const Header = ({ onMenuOpen }: { onMenuOpen: () => void }) => {
   return (
@@ -20,9 +21,12 @@ const Header = ({ onMenuOpen }: { onMenuOpen: () => void }) => {
           <div className="font-primary text-lg font-bold">Labs</div>
         </div>
       </div>
+      <div className="flex-none">
+        <ConnectButton />
+      </div>
       <div className="flex-none md:hidden">
         <button
-          className="btn btn-square btn-ghost rounded-none"
+          className="btn btn-square btn-ghost"
           onClick={() => {
             onMenuOpen();
           }}

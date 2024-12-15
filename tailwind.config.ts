@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import daisyui from "daisyui";
 
 export default {
   content: [
@@ -12,7 +13,14 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
+        serif: ["Merriweather", "serif"],
+        mono: ["Fira Code", "monospace"],
+        primary: ["Kusanagi", "sans-serif"],
+        secondary: ["Montserrat", "sans-serif"],
+      },
     },
   },
-  plugins: [],
+  plugins: [daisyui],
 } satisfies Config;

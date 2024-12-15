@@ -1,8 +1,8 @@
 "use client";
 
-import Menu from "@/components/icons/menu";
 import Image from "next/image";
 import Logo from "@/public/images/Stingray-White.png";
+import IconMenu from "@/components/icons/menu";
 
 const Header = ({ onMenuOpen }: { onMenuOpen: () => void }) => {
   return (
@@ -27,7 +27,7 @@ const Header = ({ onMenuOpen }: { onMenuOpen: () => void }) => {
             onMenuOpen();
           }}
         >
-          <Menu />
+          <IconMenu />
         </button>
       </div>
     </div>

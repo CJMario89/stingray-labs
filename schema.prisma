@@ -1,0 +1,118 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model trader_card {
+  object_id     String          @id
+  first_name    String
+  last_name     String
+  description   String
+  image_blob_id String
+  owner_address String
+  event_seq     Int
+  tx_digest     String
+  timestamp     BigInt
+  fund          fund[]
+  settle_result settle_result[]
+}
+
+model arena {
+  object_id       String @id
+  start_time      BigInt
+  end_time        BigInt
+  attend_end_time BigInt
+  invest_end_time BigInt
+  trade_duration  BigInt //in milliseconds
+  fund            fund[]
+  event_seq       Int
+  tx_digest       String
+  timestamp       BigInt
+}
+
+model fund {
+  object_id        String             @id
+  name             String
+  description      String
+  start_time       BigInt
+  end_time         BigInt
+  invest_end_time  BigInt
+  trade_duration   BigInt
+  image_blob_id    String
+  arena            arena?             @relation(fields: [arena_object_id], references: [object_id])
+  arena_object_id  String?
+  owner_id         String
+  owner            trader_card        @relation(fields: [owner_id], references: [object_id])
+  fund_history     fund_history[]
+  trader_operation trader_operation[]
+  trader_fee       Float
+  limit_amount     Float
+  expected_roi     Float
+  event_seq        Int
+  tx_digest        String
+  timestamp        BigInt
+  settle_result    settle_result[]
+  claim_result     claim_result[]
+}
+
+// don't need to know How much a share is worth
+// amount present the flow of fund, not the value of share
+model fund_history {
+  share_id       String  @id
+  action         String
+  fund           fund    @relation(fields: [fund_object_id], references: [object_id])
+  fund_object_id String
+  redeemed       Boolean
+  amount         Float
+  investor       String
+  event_seq      Int
+  tx_digest      String
+  timestamp      BigInt
+}
+
+// trader operation
+model trader_operation {
+  id             String  @id
+  fund           fund    @relation(fields: [fund_object_id], references: [object_id])
+  fund_object_id String
+  action         String
+  protocol       String
+  token_in       String
+  amount_in      Float
+  token_in2      String?
+  amount_in2     Float?
+  token_out      String
+  amount_out     Float
+  token_out2     String?
+  amount_out2    Float?
+  event_seq      Int
+  tx_digest      String
+  timestamp      BigInt
+}
+
+model settle_result {
+  fund_object_id String      @id
+  fund           fund        @relation(fields: [fund_object_id], references: [object_id])
+  trader_id      String
+  trader         trader_card @relation(fields: [trader_id], references: [object_id])
+  match_roi      Boolean
+  roi            Float
+  event_seq      Int
+  tx_digest      String
+  timestamp      BigInt
+}
+
+model claim_result {
+  id             String @id
+  fund_object_id String
+  fund           fund   @relation(fields: [fund_object_id], references: [object_id])
+  receiver       String
+  amount         Float
+  event_seq      Int
+  tx_digest      String
+  timestamp      BigInt
+}

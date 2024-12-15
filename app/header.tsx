@@ -6,7 +6,7 @@ import Logo from "@/public/images/Stingray-White.png";
 
 const Header = ({ onMenuOpen }: { onMenuOpen: () => void }) => {
   return (
-    <div className="navbar bg-base-100">
+    <div className="navbar bg-base-200">
       <div className="flex flex-1">
         <Image
           src={Logo}

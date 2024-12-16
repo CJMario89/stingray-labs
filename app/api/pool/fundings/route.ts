@@ -1,13 +1,13 @@
-import { getFundStatistics, getQuery, investTypeDuration } from "@/app/common";
+import { getFundStatistics } from "@/app/common";
 import { prisma } from "@/prisma";
 import SuperJSON from "superjson";
 
 export const revalidate = 0;
 
-export async function GET(req: Request) {
-  const querys = getQuery({ req, keys: ["duration"] });
-  const duration = querys.duration;
-  const durationTime = investTypeDuration[duration]; // type
+export async function GET() {
+  // const querys = getQuery({ req, keys: ["duration"] });
+  // const duration = querys.duration;
+  // const durationTime = investTypeDuration[duration]; // type
   const funds = await prisma.fund.findMany({
     where: {
       start_time: {
@@ -16,7 +16,7 @@ export async function GET(req: Request) {
       invest_end_time: {
         gte: Date.now(),
       },
-      trade_duration: durationTime,
+      // trade_duration: durationTime,
     },
     include: {
       fund_history: true,

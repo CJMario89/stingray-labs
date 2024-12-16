@@ -50,6 +50,8 @@ export type Fund = {
   event_seq: number;
   tx_digest: string;
   timestamp: string;
+  totalFunded?: number;
+  totalInvestor?: number;
 };
 
 export type Arena = {

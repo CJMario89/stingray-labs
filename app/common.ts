@@ -1,3 +1,4 @@
+import { formatSuiPrice } from "@/common";
 import { Fund } from "@/type";
 
 export const getQuery = ({ req, keys }: { req: Request; keys: string[] }) => {
@@ -11,7 +12,7 @@ export const getQuery = ({ req, keys }: { req: Request; keys: string[] }) => {
   return querys;
 };
 
-export const getFundStatistics = async (_fund: unknown) => {
+export const getFundStatistics = (_fund: unknown) => {
   const fund = _fund as Fund;
   const totalFunded = fund?.fund_history?.reduce((acc, cur) => {
     if (cur.action === "Invested") {
@@ -22,11 +23,11 @@ export const getFundStatistics = async (_fund: unknown) => {
   }, 0);
 
   const investSet = new Set(
-    fund?.fund_history?.map((history) => history.investor)
+    fund?.fund_history?.map((history) => history.investor),
   );
   const investCount = investSet.size;
   return {
-    totalFunded,
+    totalFunded: formatSuiPrice(totalFunded ?? 0),
     totalInvestor: investCount,
   };
 };

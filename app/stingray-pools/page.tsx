@@ -2,7 +2,10 @@
 
 import useGetPools from "@/application/query/pool/use-get-pools";
 import IconSearch from "@/components/icons/search";
+import IconSortDown from "@/components/icons/sort-down";
+import IconSortDownAlt from "@/components/icons/sort-down-alt";
 import { Fund } from "@/type";
+import { useState } from "react";
 
 const FundStatistics = ({
   title,
@@ -70,15 +73,82 @@ const FundInfo = ({ pool }: { pool: Fund }) => {
 };
 
 const Page = () => {
-  const { data: pools } = useGetPools();
-  console.log(pools);
+  const [types, setTypes] = useState<string[]>([]);
+  const [order, setOrder] = useState<"asc" | "desc">("desc");
+  const [orderBy, setOrderBy] = useState<string>("time");
+  const {
+    data: pools,
+    isPending,
+    isLoading,
+  } = useGetPools({
+    types,
+    order,
+    orderBy,
+  });
+  const typeOptions = ["pending", "funding", "trading", "ended"];
+
+  const orderOptions = ["time", "roi", "funding amount"];
   return (
     <div className="flex h-full w-full flex-col gap-4">
-      <label className="input flex items-center gap-2 rounded-md">
-        <input type="text" className="grow" placeholder="Search" />
-        <IconSearch />
-      </label>
+      <div className="flex flex-col">
+        <label className="input flex items-center gap-2 rounded-md">
+          <input type="text" className="grow" placeholder="Search" />
+          <IconSearch />
+        </label>
+        <div className="mt-2 flex items-center justify-between">
+          <div className="flex gap-4">
+            {typeOptions.map((type) => (
+              <div className="form-control" key={type}>
+                <label className="label flex cursor-pointer items-center gap-2">
+                  <span className="label-text">{type}</span>
+                  <input
+                    type="checkbox"
+                    name="type"
+                    className="checked cursor-pointer"
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setTypes([...types, type]);
+                      } else {
+                        setTypes(types.filter((t) => t !== type));
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              className="btn btn-ghost btn-sm px-2"
+              onClick={() => {
+                setOrder(order === "asc" ? "desc" : "asc");
+              }}
+            >
+              {order === "asc" ? <IconSortDownAlt /> : <IconSortDown />}
+            </button>
+
+            <select
+              className="select select-bordered select-sm w-full max-w-xs"
+              onChange={(e) => {
+                setOrderBy(e.target.value);
+              }}
+              value={orderBy}
+            >
+              {orderOptions.map((order) => (
+                <option key={order} value={order}>
+                  {order}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
       <div className="flex flex-col gap-4">
+        {isPending &&
+          !isLoading &&
+          Array.from(Array(3)).map((_, i) => (
+            <div key={i} className="skeleton h-[60px] w-full rounded-md" />
+          ))}
         {pools?.map((pool) => (
           <div key={pool.object_id} className="collapse rounded-md bg-base-200">
             <input type="radio" name="my-accordion-1" />

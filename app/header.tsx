@@ -7,7 +7,7 @@ import ConnectButton from "@/components/connect-button";
 
 const Header = ({ onMenuOpen }: { onMenuOpen: () => void }) => {
   return (
-    <div className="navbar bg-base-200">
+    <div className="navbar bg-base-200 px-4">
       <div className="flex flex-1">
         <Image
           src={Logo}

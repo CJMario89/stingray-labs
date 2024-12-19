@@ -1,10 +1,9 @@
-import { Flex, Image, Text } from "@/styled-antd";
 import { getWalrusDisplayUrl } from "./walrus-api";
-import logo from "@/public/Stingray-Round.png";
+import logo from "@/public/images/Stingray-Round.png";
 import { TraderCard } from "@/type";
-import { formatAddress } from "./connect-button";
-import useGetTraderCard from "@/application/query/use-get-trader-card";
-import { Skeleton } from "antd";
+import useGetTraderCard from "@/application/query/trader/use-get-trader-card";
+import { formatAddress } from "@/components/connect-button";
+import Image from "next/image";
 
 const TraderInfo = ({
   traderCard,
@@ -14,48 +13,44 @@ const TraderInfo = ({
   address?: string;
 }) => {
   const { data: _traderCard, isPending } = useGetTraderCard({
-    address,
+    owner: address,
+    enabled: Boolean(address),
   });
   return (
-    <Flex gap="small" align="center">
-      <Flex
-        style={{
-          width: "30px",
-          height: "30px",
-          borderRadius: "50%",
-          overflow: "hidden",
-        }}
-        align="center"
-      >
+    <div className="flex items-center gap-2">
+      <div className="block h-8 w-8 overflow-hidden rounded-full">
         {Boolean(traderCard?.image_blob_id) ||
         Boolean(_traderCard?.image_blob_id) ? (
           <Image
-            preview={false}
+            width={32}
+            height={32}
             src={getWalrusDisplayUrl(
-              traderCard?.image_blob_id || _traderCard?.image_blob_id
+              traderCard?.image_blob_id || _traderCard?.image_blob_id,
             )}
-            alt={traderCard?.first_name}
+            alt={traderCard?.first_name || ""}
           />
         ) : (
-          <Image preview={false} src={logo.src} alt={traderCard?.first_name} />
+          <Image
+            width={32}
+            height={32}
+            src={logo.src}
+            alt={traderCard?.first_name || ""}
+          />
         )}
-      </Flex>
+      </div>
       {(traderCard || _traderCard || address) && (
-        <Text
-          style={{
-            fontSize: "16px",
-            fontWeight: 600,
-          }}
-        >{`${
-          traderCard?.first_name ??
-          _traderCard?.first_name ??
-          formatAddress(address)
-        }`}</Text>
+        <div className="text-md">
+          {`${
+            traderCard?.first_name ??
+            _traderCard?.first_name ??
+            formatAddress(address)
+          }`}
+        </div>
       )}
       {isPending && !traderCard && !address && (
-        <Skeleton.Input style={{ width: "100px", height: "20px" }} active />
+        <div className="skeleton h-4 w-20" />
       )}
-    </Flex>
+    </div>
   );
 };
 

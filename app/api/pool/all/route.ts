@@ -11,9 +11,6 @@ export async function GET(req: Request) {
   const types = url.searchParams.getAll("types");
   const order = url.searchParams.get("order") as "asc" | "desc";
   const orderBy = url.searchParams.get("orderBy");
-  console.log("types", types);
-  console.log("order", order);
-  console.log("orderBy", orderBy);
 
   const whereClause = [];
 
@@ -97,10 +94,11 @@ export async function GET(req: Request) {
     },
     include: {
       fund_history: true,
+      owner: true,
     },
     ...(isEmptyOrderClause ? {} : { orderBy: orderClause }),
   });
-  console.log({ ...(isEmptyOrderClause ? {} : { orderBy: orderClause }) });
+
   return Response.json(
     SuperJSON.serialize(
       funds.map((fund) => ({

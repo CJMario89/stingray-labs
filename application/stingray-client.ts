@@ -40,22 +40,22 @@ export class StingrayClient {
     return funds;
   }
 
+  async getTraderCard({
+    owner,
+    objectId,
+  }: {
+    owner?: string;
+    objectId?: string;
+  }) {
+    const traderCard = await this.getRequest("/trader-card", {
+      owner,
+      objectId,
+    });
+    return traderCard;
+  }
+
   async getPoolArenas({ duration }: { duration: TradeDuration }) {
     const funds = await this.getRequest("/pool/arenas", {
-      duration,
-    });
-    return funds;
-  }
-
-  async getPoolFundings({ duration }: { duration: TradeDuration }) {
-    const funds = await this.getRequest("/pool/fundings", {
-      duration,
-    });
-    return funds;
-  }
-
-  async getPoolRunningFunds({ duration }: { duration: TradeDuration }) {
-    const funds = await this.getRequest("/pool/runnings", {
       duration,
     });
     return funds;

@@ -423,8 +423,8 @@ export class SuiService {
         timestamp: number;
       } = {
         object_id: data.trader_id,
-        first_name: data.new_first_name === "" ? "Sui" : data.new_first_name,
-        last_name: data.new_last_name === "" ? "PaulWu" : data.new_last_name,
+        first_name: data.new_first_name === "" ? "PaulWu" : data.new_first_name,
+        last_name: data.new_last_name === "" ? "Sui" : data.new_last_name,
         description: data.description,
         image_blob_id: data.pfp_img,
         owner_address: data.minter,
@@ -618,7 +618,7 @@ export class SuiService {
             data: {
               redeemed: true,
             },
-          })
+          }),
         );
 
         if (share) {
@@ -629,18 +629,18 @@ export class SuiService {
                 share_id: uuid(),
                 redeemed: true,
               },
-            })
+            }),
           );
         } else {
           executions.push(
             this.prisma.fund_history.create({
               data: object,
-            })
+            }),
           );
         }
 
         return executions;
-      })
+      }),
     );
     const result = await this.prisma.$transaction(upserts.flatMap((x) => x));
     return result;
@@ -1161,7 +1161,7 @@ export class SuiService {
           },
           update: object,
           create: object,
-        })
+        }),
       );
 
       data.shares.forEach((share) => {
@@ -1175,7 +1175,7 @@ export class SuiService {
             data: {
               redeemed: true,
             },
-          })
+          }),
         );
       });
 

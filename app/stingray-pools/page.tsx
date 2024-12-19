@@ -1,6 +1,7 @@
 "use client";
 
 import useGetPools from "@/application/query/pool/use-get-pools";
+import TraderInfo from "@/common/trader-info";
 import IconSearch from "@/components/icons/search";
 import IconSortDown from "@/components/icons/sort-down";
 import IconSortDownAlt from "@/components/icons/sort-down-alt";
@@ -150,10 +151,25 @@ const Page = () => {
             <div key={i} className="skeleton h-[60px] w-full rounded-md" />
           ))}
         {pools?.map((pool) => (
-          <div key={pool.object_id} className="collapse rounded-md bg-base-200">
-            <input type="radio" name="my-accordion-1" />
+          <div
+            key={pool.object_id}
+            className="collapse collapse-arrow rounded-md bg-base-200"
+          >
+            <input type="radio" name="pool" />
             <div className="collapse-title px-6 text-xl font-medium">
-              {pool.name}
+              <div className="grid w-full grid-cols-3 items-center gap-4">
+                {pool.name}
+                <TraderInfo traderCard={pool.owner} />
+                <div className="items-center text-lg font-semibold">
+                  {Number(
+                    (
+                      (Number(pool?.totalFunded) / Number(pool?.limit_amount)) *
+                      100
+                    ).toFixed(2),
+                  )}
+                  % Funded
+                </div>
+              </div>
             </div>
             <div className="collapse-content px-0">
               <FundInfo pool={pool} />

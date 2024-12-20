@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { formatSuiPrice } from "@/common";
 import { Fund } from "@/type";
 
@@ -37,4 +38,16 @@ export const investTypeDuration: Record<string, number> = {
   "1m": 2592000000,
   "3m": 7776000000,
   "1y": 31536000000,
+};
+
+export const throttle = (fn: any, delay: number) => {
+  let last = 0;
+  return (...args: any[]) => {
+    const now = Date.now();
+    if (now - last < delay) {
+      return;
+    }
+    last = now;
+    return fn(...args);
+  };
 };

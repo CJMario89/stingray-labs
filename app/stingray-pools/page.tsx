@@ -6,7 +6,8 @@ import IconSearch from "@/components/icons/search";
 import IconSortDown from "@/components/icons/sort-down";
 import IconSortDownAlt from "@/components/icons/sort-down-alt";
 import { Fund } from "@/type";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
+import { throttle } from "../common";
 
 const FundStatistics = ({
   title,
@@ -77,6 +78,13 @@ const Page = () => {
   const [types, setTypes] = useState<string[]>([]);
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<string>("time");
+  const [searchText, setSearchText] = useState<string>("");
+
+  const onSearch = throttle((e: ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
+    setSearchText(e.target.value);
+  }, 500);
+
   const {
     data: pools,
     isPending,
@@ -85,6 +93,7 @@ const Page = () => {
     types,
     order,
     orderBy,
+    searchText,
   });
   const typeOptions = ["pending", "funding", "trading", "ended"];
 
@@ -93,7 +102,14 @@ const Page = () => {
     <div className="flex h-full w-full flex-col gap-4">
       <div className="flex flex-col">
         <label className="input flex items-center gap-2 rounded-md">
-          <input type="text" className="grow" placeholder="Search" />
+          <input
+            type="text"
+            className="grow"
+            placeholder="Search"
+            onChange={(e) => {
+              onSearch(e);
+            }}
+          />
           <IconSearch />
         </label>
         <div className="mt-2 flex items-center justify-between">

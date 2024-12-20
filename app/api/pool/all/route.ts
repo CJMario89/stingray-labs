@@ -11,6 +11,7 @@ export async function GET(req: Request) {
   const types = url.searchParams.getAll("types");
   const order = url.searchParams.get("order") as "asc" | "desc";
   const orderBy = url.searchParams.get("orderBy");
+  const searchText = url.searchParams.get("searchText");
 
   const whereClause = [];
 
@@ -90,7 +91,21 @@ export async function GET(req: Request) {
 
   const funds = await prisma.fund.findMany({
     where: {
-      ...(whereClause.length > 0 ? { OR: [...whereClause] } : {}),
+      ...(whereClause.length > 0
+        ? {
+            OR: [...whereClause],
+            ...(!!searchText
+              ? {
+                  AND: {
+                    OR: [
+                      { name: { contains: searchText } },
+                      { description: { contains: searchText } },
+                    ],
+                  },
+                }
+              : {}),
+          }
+        : {}),
     },
     include: {
       fund_history: true,

@@ -31,12 +31,19 @@ export class StingrayClient {
     types,
     order,
     orderBy,
+    searchText,
   }: {
     types: string[];
     orderBy?: string;
     order?: "asc" | "desc";
+    searchText?: string;
   }) {
-    const funds = await this.getRequest("/pool/all", { types, order, orderBy });
+    const funds = await this.getRequest("/pool/all", {
+      types,
+      order,
+      orderBy,
+      searchText,
+    });
     return funds;
   }
 

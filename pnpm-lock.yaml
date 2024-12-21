@@ -35,6 +35,9 @@ importers:
       bn.js:
         specifier: ^4.12.1
         version: 4.12.1
+      decimal.js:
+        specifier: ^10.4.3
+        version: 10.4.3
       next:
         specifier: 14.2.13
         version: 14.2.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

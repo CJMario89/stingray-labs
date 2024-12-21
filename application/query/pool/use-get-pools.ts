@@ -4,7 +4,7 @@ import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 type UseGetPoolsProps = Omit<UseQueryOptions<Fund[]>, "queryKey"> & {
   types: string[];
-  order: "asc" | "desc";
+  order?: "asc" | "desc";
   orderBy?: string;
   searchText?: string;
 };

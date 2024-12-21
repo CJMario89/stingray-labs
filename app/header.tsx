@@ -4,10 +4,19 @@ import Image from "next/image";
 import Logo from "@/public/images/Stingray-White.png";
 import IconMenu from "@/components/icons/menu";
 import ConnectButton from "@/components/connect-button";
+import IconClose from "@/components/icons/close";
 
-const Header = ({ onMenuOpen }: { onMenuOpen: () => void }) => {
+export const headerGradient = "bg-gradient-to-br from-black-200 to-base-200";
+
+const Header = ({
+  menuOpen,
+  onMenuToggle,
+}: {
+  menuOpen: boolean;
+  onMenuToggle: () => void;
+}) => {
   return (
-    <div className="navbar bg-base-200 px-4">
+    <div className={`navbar fixed z-[10000] ${headerGradient} px-4`}>
       <div className="flex flex-1">
         <Image
           src={Logo}
@@ -21,17 +30,17 @@ const Header = ({ onMenuOpen }: { onMenuOpen: () => void }) => {
           <div className="font-primary text-lg font-bold">Labs</div>
         </div>
       </div>
-      <div className="flex-none">
+      <div className="hidden flex-none lg:flex">
         <ConnectButton />
       </div>
-      <div className="flex-none md:hidden">
+      <div className="flex-none lg:hidden">
         <button
           className="btn btn-square btn-ghost"
           onClick={() => {
-            onMenuOpen();
+            onMenuToggle();
           }}
         >
-          <IconMenu />
+          {menuOpen ? <IconClose /> : <IconMenu />}
         </button>
       </div>
     </div>

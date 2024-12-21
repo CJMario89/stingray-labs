@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import IconWallet from "./icons/wallet";
 import IconCheck from "./icons/check";
+import { primaryGradient } from "@/app/stingray-pools/page";
 
 export const formatAddress = (address?: string) =>
   `${address?.slice(0, 6)}...${address?.slice(-6)}`;
@@ -40,7 +41,7 @@ const ConnectButton = () => {
           </div>
           <ul
             tabIndex={0}
-            className="menu dropdown-content z-[1] w-52 rounded-box border bg-base-200 p-2 shadow"
+            className={`menu dropdown-content z-[1] w-52 rounded-box border ${primaryGradient} p-2 shadow`}
           >
             {accounts.map((account) => (
               <li key={account.address}>

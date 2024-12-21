@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { headerGradient } from "./header";
 
-const Navbar = () => {
+const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
   const path = usePathname();
   const links = [
     {
@@ -26,12 +27,14 @@ const Navbar = () => {
     },
   ];
   return (
-    <div className="m-4 mr-0 flex min-w-[calc(200px+5vw)] flex-col items-start gap-4 rounded-md bg-base-200 py-8">
+    <div
+      className={`top-[80px] mr-0 flex h-[calc(100vh-80px)] min-w-[calc(200px+5vw)] flex-col items-start gap-4 ${headerGradient} py-8 lg:sticky lg:top-[96px] lg:m-4 lg:mr-0 lg:h-[calc(100vh-96px)] lg:rounded-md`}
+    >
       {links.map((link) => {
         const isActive = path === link.href;
         return (
           <div
-            className={`flex w-full px-4 ${isActive ? "border-primary-500 border-l-2 border-solid" : ""}`}
+            className={`flex w-full px-4 ${isActive ? "border-l-2 border-solid border-primary-500" : ""}`}
             key={link.title}
           >
             <Link
@@ -41,6 +44,9 @@ const Navbar = () => {
                   : "text-neutral-400 text-opacity-50 hover:text-neutral-50 hover:text-opacity-100"
               } `}
               href={link.href}
+              onClick={() => {
+                onSelect?.();
+              }}
             >
               {link.title}
             </Link>

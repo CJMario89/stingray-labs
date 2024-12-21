@@ -43,6 +43,10 @@ export default {
           800: "#36298b",
           900: "#251a67",
         },
+        black: {
+          100: "#0a0a0a",
+          200: "#121212",
+        },
       },
       fontFamily: {
         primary: ["Kusanagi", "sans-serif"],

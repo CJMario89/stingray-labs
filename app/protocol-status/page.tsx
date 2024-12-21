@@ -1,6 +1,7 @@
 "use client";
 import useGetPools from "@/application/query/pool/use-get-pools";
 import Decimal from "decimal.js";
+import { primaryGradient } from "../stingray-pools/page";
 
 const Page = () => {
   const { data: pools } = useGetPools({
@@ -24,10 +25,10 @@ const Page = () => {
     <div className="flex h-full w-full flex-col gap-4">
       <div className="flex flex-col gap-4">
         <div className="text-2xl font-semibold">Protocol Overview</div>
-        <div className="grid w-full grid-cols-3 gap-4">
+        <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
           {overviewStats.map((stat) => (
             <div
-              className="stat rounded-md bg-base-200 shadow"
+              className={`stat rounded-md ${primaryGradient} shadow`}
               key={stat.title}
             >
               <div className="stat-title">{stat.title}</div>

@@ -8,6 +8,11 @@ import IconSortDownAlt from "@/components/icons/sort-down-alt";
 import { Fund } from "@/type";
 import { ChangeEvent, useState } from "react";
 import { throttle } from "../common";
+export const secondaryGradient =
+  "bg-[linear-gradient(90deg,_rgba(10,10,10,0.6)_0%,_rgba(10,10,10,0.3)_100%)]";
+
+export const primaryGradient = "bg-gradient-to-br from-black-200 to-base-200";
+// "bg-[linear-gradient(90deg,_rgba(29,35,42,0.3)_0%,_rgba(29,35,42,0.6)_100%)]";
 
 const FundStatistics = ({
   title,
@@ -19,7 +24,7 @@ const FundStatistics = ({
   unit: string;
 }) => {
   return (
-    <div className="stat rounded-md bg-base-100 shadow">
+    <div className={`${secondaryGradient} stat rounded-md shadow`}>
       <div className="stat-title">{title}</div>
       <div className="stat-value text-3xl font-semibold text-neutral-300">
         {value} {unit}
@@ -36,7 +41,7 @@ const FundInfo = ({ pool }: { pool: Fund }) => {
   return (
     <div className="flex w-full gap-4">
       <div className="flex w-full flex-col gap-4">
-        <div className="grid w-full grid-cols-3 gap-4 px-4">
+        <div className="grid w-full grid-cols-1 gap-4 px-4 md:grid-cols-3">
           <div className="flex flex-col gap-4">
             <FundStatistics
               title="Target Funding Amount"
@@ -61,7 +66,9 @@ const FundInfo = ({ pool }: { pool: Fund }) => {
               unit="USDC"
             />
           </div>
-          <div className="flex flex-col justify-between gap-2">
+          <div
+            className={`${secondaryGradient} flex flex-col justify-between gap-2 rounded-md px-6 py-4`}
+          >
             <div className="flex flex-col gap-2">
               <TraderInfo traderCard={pool.owner} />
               <div className="flex items-center justify-between">
@@ -71,18 +78,22 @@ const FundInfo = ({ pool }: { pool: Fund }) => {
                 </div>
               </div>
             </div>
-            {pool.type === "funding" ? (
-              <button className="btn btn-primary">Add Fund</button>
-            ) : (
-              <></>
-            )}
           </div>
         </div>
-        <div className="flex flex-col gap-2 px-6">
-          <div className="text-[var(--fallback-bc,oklch(var(--bc)/0.6))]">
-            Strategy Description
+        <div className="mx-4 grid grid-cols-3 gap-4">
+          <div
+            className={`${secondaryGradient} col-span-2 flex flex-col gap-2 rounded-md px-6 py-4`}
+          >
+            <div className="text-[var(--fallback-bc,oklch(var(--bc)/0.6))]">
+              Strategy Description
+            </div>
+            <div className="text-md">{pool?.description}</div>
           </div>
-          <div className="text-md">{pool?.description}</div>
+          {pool.type === "funding" ? (
+            <button className="btn btn-primary self-end">Add Fund</button>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </div>
@@ -127,8 +138,8 @@ const Page = () => {
           />
           <IconSearch />
         </label>
-        <div className="mt-2 flex items-center justify-between">
-          <div className="flex gap-4">
+        <div className="mt-2 flex flex-col justify-between md:flex-row md:items-center">
+          <div className="flex gap-1 md:gap-4">
             {typeOptions.map((type) => (
               <div className="form-control" key={type}>
                 <label className="label flex cursor-pointer items-center gap-2">
@@ -184,14 +195,16 @@ const Page = () => {
         {pools?.map((pool) => (
           <div
             key={pool.object_id}
-            className="collapse collapse-arrow rounded-md bg-base-200"
+            className={`collapse collapse-arrow rounded-md ${primaryGradient}`}
           >
             <input type="checkbox" name="pool" />
             <div className="collapse-title px-6 text-xl font-medium">
               <div className="grid w-full grid-cols-3 items-center gap-4">
-                {pool.name}
-                <TraderInfo traderCard={pool.owner} />
-                <div className="items-center text-lg font-semibold">
+                <div className="whitespace-nowrap">{pool.name}</div>
+                <div className="hidden md:block">
+                  <TraderInfo traderCard={pool.owner} />
+                </div>
+                <div className="hidden items-center text-lg font-semibold md:block">
                   {Number(
                     (
                       (Number(pool?.totalFunded) / Number(pool?.limit_amount)) *

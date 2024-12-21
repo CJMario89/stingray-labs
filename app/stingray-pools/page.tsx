@@ -19,7 +19,7 @@ const FundStatistics = ({
   unit: string;
 }) => {
   return (
-    <div className="stat shadow">
+    <div className="stat rounded-md bg-base-100 shadow">
       <div className="stat-title">{title}</div>
       <div className="stat-value text-3xl font-semibold text-neutral-300">
         {value} {unit}
@@ -30,11 +30,14 @@ const FundStatistics = ({
 };
 
 const FundInfo = ({ pool }: { pool: Fund }) => {
+  const previousROI = pool.owner?.settle_result?.[0]?.roi;
+  console.log(pool);
+  console.log(previousROI);
   return (
     <div className="flex w-full gap-4">
-      <div className="flex flex-col gap-2">
-        <div className="flex gap-2">
-          <div className="flex flex-col">
+      <div className="flex w-full flex-col gap-4">
+        <div className="grid w-full grid-cols-3 gap-4 px-4">
+          <div className="flex flex-col gap-4">
             <FundStatistics
               title="Target Funding Amount"
               value={pool.limit_amount}
@@ -46,7 +49,7 @@ const FundInfo = ({ pool }: { pool: Fund }) => {
               unit="Members"
             />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-4">
             <FundStatistics
               title="Current Funding Amount"
               value={pool.totalFunded || 0}
@@ -58,6 +61,22 @@ const FundInfo = ({ pool }: { pool: Fund }) => {
               unit="USDC"
             />
           </div>
+          <div className="flex flex-col justify-between gap-2">
+            <div className="flex flex-col gap-2">
+              <TraderInfo traderCard={pool.owner} />
+              <div className="flex items-center justify-between">
+                <div>Previous Strategy</div>
+                <div>
+                  ROI: {!isNaN(Number(previousROI)) ? previousROI : "--"} %
+                </div>
+              </div>
+            </div>
+            {pool.type === "funding" ? (
+              <button className="btn btn-primary">Add Fund</button>
+            ) : (
+              <></>
+            )}
+          </div>
         </div>
         <div className="flex flex-col gap-2 px-6">
           <div className="text-[var(--fallback-bc,oklch(var(--bc)/0.6))]">
@@ -65,10 +84,6 @@ const FundInfo = ({ pool }: { pool: Fund }) => {
           </div>
           <div className="text-md">{pool?.description}</div>
         </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className="text-lg font-semibold">APY</div>
-        <button className="btn btn-primary">Add Fund</button>
       </div>
     </div>
   );
@@ -171,7 +186,7 @@ const Page = () => {
             key={pool.object_id}
             className="collapse collapse-arrow rounded-md bg-base-200"
           >
-            <input type="radio" name="pool" />
+            <input type="checkbox" name="pool" />
             <div className="collapse-title px-6 text-xl font-medium">
               <div className="grid w-full grid-cols-3 items-center gap-4">
                 {pool.name}

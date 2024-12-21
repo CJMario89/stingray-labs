@@ -20,6 +20,14 @@ export async function GET(req: Request) {
   const card =
     (await prisma.trader_card.findFirst({
       where: whereClause,
+      include: {
+        settle_result: {
+          orderBy: {
+            event_seq: "desc",
+          },
+          take: 1,
+        },
+      },
     })) ?? null;
   return Response.json(SuperJSON.serialize(card).json);
 }

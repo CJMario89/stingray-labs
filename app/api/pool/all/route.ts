@@ -1,6 +1,7 @@
 import { getFundStatistics } from "@/app/common";
 import { formatSuiPrice } from "@/common";
 import { prisma } from "@/prisma";
+import { Fund } from "@/type";
 import SuperJSON from "superjson";
 
 export const revalidate = 0;
@@ -109,7 +110,16 @@ export async function GET(req: Request) {
     },
     include: {
       fund_history: true,
-      owner: true,
+      owner: {
+        include: {
+          settle_result: {
+            orderBy: {
+              event_seq: "desc",
+            },
+            take: 1,
+          },
+        },
+      },
     },
     ...(isEmptyOrderClause ? {} : { orderBy: orderClause }),
   });
@@ -124,7 +134,30 @@ export async function GET(req: Request) {
           ...history,
           amount: formatSuiPrice(history.amount),
         })),
+        type: getPoolType(fund),
       })),
     ).json,
   );
+}
+
+function getPoolType(pool: Fund) {
+  if (pool.start_time > Date.now()) {
+    return "pending";
+  } else if (
+    pool.start_time <= Date.now() &&
+    pool.invest_end_time >= Date.now()
+  ) {
+    return "funding";
+  } else if (
+    pool.invest_end_time < Date.now() &&
+    pool.end_time >= Date.now() &&
+    pool?.settle_result?.length === 0
+  ) {
+    return "trading";
+  } else if (
+    pool.end_time < Date.now() ||
+    (pool?.settle_result?.length ?? 0) > 0
+  ) {
+    return "ended";
+  }
 }

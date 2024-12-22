@@ -25,6 +25,7 @@
     "qs": "^6.13.1",
     "react": "^18",
     "react-dom": "^18",
+    "react-hot-toast": "^2.4.1",
     "redis": "^4.7.0",
     "sqlite3": "^5.1.7",
     "superjson": "^2.2.1",

@@ -6,13 +6,63 @@ import IconSearch from "@/components/icons/search";
 import IconSortDown from "@/components/icons/sort-down";
 import IconSortDownAlt from "@/components/icons/sort-down-alt";
 import { Fund } from "@/type";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { throttle } from "../common";
+import useGetBalance from "@/application/query/use-get-balance";
+import useAddFund from "@/application/mutation/use-add-fund";
 export const secondaryGradient =
-  "bg-[linear-gradient(90deg,_rgba(10,10,10,0.6)_0%,_rgba(10,10,10,0.3)_100%)]";
+  "bg-[linear-gradient(90deg,_rgba(10,10,10,0.6)_0%,_rgba(10,10,10,0.3)_100%)] shadow-lg";
 
 export const primaryGradient = "bg-gradient-to-br from-black-200 to-base-200";
 // "bg-[linear-gradient(90deg,_rgba(29,35,42,0.3)_0%,_rgba(29,35,42,0.6)_100%)]";
+
+const FundModal = ({ pool }: { pool: Fund }) => {
+  const balance = useGetBalance();
+  const { mutate: add, isPending: isAdding } = useAddFund();
+  const amountRef = useRef<HTMLInputElement>(null);
+  return (
+    <dialog id="fund-modal" className="modal">
+      <div className={`${secondaryGradient} modal-box flex flex-col gap-4`}>
+        <h3 className="text-lg font-bold">Add Fund</h3>
+        <label className="input flex items-center gap-2 rounded-md">
+          <input
+            ref={amountRef}
+            type="number"
+            className="grow"
+            placeholder="Amount"
+          />
+        </label>
+        <div className="text-sm text-neutral-400">Balance: {balance} SUI</div>
+        <div className="modal-action">
+          <div className="flex gap-4">
+            <button
+              className={`btn btn-primary`}
+              onClick={() => {
+                if (!amountRef.current) {
+                  return;
+                }
+                add({
+                  amount: Number(amountRef.current.value),
+                  fundId: pool.object_id,
+                });
+              }}
+            >
+              {isAdding ? (
+                <span className="loading loading-spinner"></span>
+              ) : (
+                ""
+              )}
+              Add
+            </button>
+            <form method="dialog">
+              <button className={`btn ${primaryGradient}`}>Close</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </dialog>
+  );
+};
 
 const FundStatistics = ({
   title,
@@ -90,7 +140,19 @@ const FundInfo = ({ pool }: { pool: Fund }) => {
             <div className="text-md">{pool?.description}</div>
           </div>
           {pool.type === "funding" ? (
-            <button className="btn btn-primary self-end">Add Fund</button>
+            <>
+              <button
+                className="btn btn-primary self-end"
+                onClick={() => {
+                  (
+                    document.getElementById("fund-modal") as HTMLDialogElement
+                  )?.showModal();
+                }}
+              >
+                Add Fund
+              </button>
+              <FundModal pool={pool} />
+            </>
           ) : (
             <></>
           )}
@@ -127,7 +189,9 @@ const Page = () => {
   return (
     <div className="flex h-full w-full flex-col gap-4">
       <div className="flex flex-col">
-        <label className="input flex items-center gap-2 rounded-md">
+        <label
+          className={`${secondaryGradient} input flex items-center gap-2 rounded-md`}
+        >
           <input
             type="text"
             className="grow"
@@ -138,7 +202,7 @@ const Page = () => {
           />
           <IconSearch />
         </label>
-        <div className="mt-2 flex flex-col justify-between md:flex-row md:items-center">
+        <div className="mt-4 flex flex-col justify-between md:flex-row md:items-center">
           <div className="flex gap-1 md:gap-4">
             {typeOptions.map((type) => (
               <div className="form-control" key={type}>
@@ -171,7 +235,7 @@ const Page = () => {
             </button>
 
             <select
-              className="select select-bordered select-sm w-full max-w-xs"
+              className={`select select-bordered select-sm w-full max-w-xs ${secondaryGradient}`}
               onChange={(e) => {
                 setOrderBy(e.target.value);
               }}

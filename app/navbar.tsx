@@ -25,6 +25,10 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
       title: "My Profolio",
       href: "/my-profolio",
     },
+    {
+      title: "Trade",
+      href: "/trade",
+    },
   ];
   return (
     <div

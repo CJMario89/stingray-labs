@@ -13,8 +13,9 @@ import useAddFund from "@/application/mutation/use-add-fund";
 export const secondaryGradient =
   "bg-[linear-gradient(90deg,_rgba(10,10,10,0.6)_0%,_rgba(10,10,10,0.3)_100%)] shadow-lg";
 
-export const primaryGradient = "bg-gradient-to-br from-black-200 to-base-200";
-// "bg-[linear-gradient(90deg,_rgba(29,35,42,0.3)_0%,_rgba(29,35,42,0.6)_100%)]";
+// export const primaryGradient = "bg-gradient-to-br from-black-200 to-base-200";
+export const primaryGradient =
+  "bg-[linear-gradient(90deg,_rgba(34,40,47,0.3)_0%,_rgba(34,40,47,0.6)_100%)]";
 
 const FundModal = ({ pool }: { pool: Fund }) => {
   const balance = useGetBalance();

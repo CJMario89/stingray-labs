@@ -93,6 +93,45 @@ export class StingrayClient {
     const funds = await this.getRequest(`/fund/history/${fundId}`);
     return funds;
   }
+
+  async postAuth({
+    message,
+    signature,
+  }: {
+    message: string;
+    signature: string;
+  }) {
+    const response = await fetch(`${this.apiUrl}/user/auth`, {
+      method: "POST",
+      body: JSON.stringify({
+        message,
+        signature,
+      }),
+    });
+    return response;
+  }
+
+  async postUserInfo({ name }: { name?: string }) {
+    const response = await fetch(`${this.apiUrl}/user/info`, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({
+        name,
+      }),
+    });
+    return response;
+  }
+
+  async postUserAvatar({ image }: { image: Buffer }) {
+    const response = await fetch(`${this.apiUrl}/user/avatar`, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({
+        image,
+      }),
+    });
+    return response;
+  }
 }
 
 export const stingrayClient = new StingrayClient();

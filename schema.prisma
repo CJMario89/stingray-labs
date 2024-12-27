@@ -116,3 +116,10 @@ model claim_result {
   tx_digest      String
   timestamp      BigInt
 }
+
+model user {
+  address String @id
+  image   Bytes?
+  name    String?
+  signature String
+}

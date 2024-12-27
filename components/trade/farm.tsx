@@ -107,169 +107,173 @@ const Farm = ({ balance }: { balance?: FundBalance }) => {
 
   return (
     <div
-      className={`flex w-[335px] flex-col justify-between ${primaryGradient} rounded-md p-4`}
+      className={`flex w-[335px] flex-col items-center justify-between gap-4 ${primaryGradient} rounded-md p-4`}
     >
-      <SelectMenu
-        options={farms.map((farm) => ({
-          key: farm.name,
-          value: farm.name,
-          icon: farm.powerBy.src,
-        }))}
-        value={{
-          key: activeFarm.name,
-          value: activeFarm.name,
-        }}
-        onSelect={(value) => {
-          const farm = farms.find((farm) => farm.name === value.key);
-          if (!farm) {
-            return;
-          }
-          setActiveFarm(farm);
-        }}
-      />
-      <div className={`flex w-full flex-col items-center gap-4`}>
-        <TokenInput
-          protocol={name}
-          balance={balance}
-          amount={amount}
-          token={token}
-          tokens={tokens}
-          onSelectToken={(value) => {
-            setToken(value);
+      <div className="flex flex-col gap-4">
+        <SelectMenu
+          options={farms.map((farm) => ({
+            key: farm.name,
+            value: farm.name,
+            icon: farm.powerBy.src,
+          }))}
+          value={{
+            key: activeFarm.name,
+            value: activeFarm.name,
           }}
-          onChangeValue={(value) => {
-            setAmount(value);
+          onSelect={(value) => {
+            const farm = farms.find((farm) => farm.name === value.key);
+            if (!farm) {
+              return;
+            }
+            setActiveFarm(farm);
+            setToken(farm.tokens[0]);
           }}
         />
-
-        <div className="mt-5 flex w-full flex-col gap-4">
-          <button
-            className="btn btn-primary self-center"
-
-            // onClick={() => {
-            //   if (!traderCard?.object_id || !fundId) {
-            //     return;
-            //   }
-            //   if (name === "Scallop") {
-            //     scallopDeposit({
-            //       amount,
-            //       name: token,
-            //       traderId: traderCard?.object_id,
-            //       fundId,
-            //     });
-            //   } else if (name === "Bucket") {
-            //     const hasDeposit =
-            //       (balance?.find((b) => b.name === token)?.farmings?.length ??
-            //         0) > 0;
-
-            //     const buckAmount = balance
-            //       ?.find((b) => b.name === token)
-            //       ?.farmings.reduce((acc, cur) => {
-            //         return acc + Number(cur.value);
-            //       }, 0);
-
-            //     bucketDeposit({
-            //       amount,
-            //       name: token,
-            //       traderId: traderCard?.object_id,
-            //       fundId,
-            //       hasDeposit,
-            //       originalAmount: buckAmount,
-            //     });
-            //   } else if (name === "Suilend") {
-            //     suilendDeposit({
-            //       amount,
-            //       name: token,
-            //       traderId: traderCard?.object_id,
-            //       fundId,
-            //     });
-            //   }
-            // }}
-            // loading={isDepositing}
-            // disabled={
-            //   isDepositing ||
-            //   isWithdrawing ||
-            //   isAmountInvalid ||
-            //   isDepositInsuffient
-            // }
-          >
-            Deposit
-          </button>
-          <button
-            className="btn btn-primary self-center"
-            // onClick={() => {
-            //   if (!traderCard?.object_id || !fundId) {
-            //     return;
-            //   }
-            //   const farmings = balance?.find((b) => b.name === token)?.farmings;
-            //   if (name === "Scallop") {
-            //     const liquidityAmount = farmings
-            //       ?.find((f) => f.protocol === "Scallop")
-            //       ?.liquidityValue.toString();
-            //     if (!liquidityAmount) {
-            //       return;
-            //     }
-
-            //     scallopWithdraw({
-            //       // liquidityAmount: Number(liquidityAmount) - 1,
-            //       liquidityAmount: Number(liquidityAmount),
-            //       reStakeAmount,
-            //       name: token,
-            //       traderId: traderCard?.object_id,
-            //       fundId,
-            //     });
-            //   } else if (name === "Bucket") {
-            //     const liquidityAmount = farmings
-            //       ?.find((f) => f.protocol === "Bucket")
-            //       ?.liquidityValue.toString();
-
-            //     if (!liquidityAmount) {
-            //       return;
-            //     }
-
-            //     bucketWithdraw({
-            //       name: token,
-            //       traderId: traderCard?.object_id,
-            //       fundId,
-            //       reStakeAmount,
-            //     });
-            //   } else if (name === "Suilend") {
-            //     const liquidityAmount = farmings
-            //       ?.find((f) => f.protocol === "Suilend")
-            //       ?.liquidityValue.toString();
-            //     if (!liquidityAmount) {
-            //       return;
-            //     }
-            //     suilendWithdraw({
-            //       // liquidityAmount: Number(liquidityAmount) - 1,
-            //       liquidityAmount: Number(liquidityAmount),
-            //       reStakeAmount,
-            //       name: token,
-            //       traderId: traderCard?.object_id,
-            //       fundId,
-            //     });
-            //   }
-            // }}
-            // loading={isWithdrawing}
-            // disabled={
-            //   isWithdrawing ||
-            //   isDepositing ||
-            //   isAmountInvalid ||
-            //   isWithdrawInSuffient
-            // }
-          >
-            Withdraw
-          </button>
-        </div>
-        <div className="items-center">
-          <div className="text-sm">Power By</div>
-          <Image
-            width={name === "Bucket" ? 130 : 150}
-            height={name === "Bucket" ? 50 : 60}
-            src={powerBy}
-            alt={name}
+        <div className={`flex w-full flex-col items-center gap-4`}>
+          <TokenInput
+            protocol={name}
+            balance={balance}
+            amount={amount}
+            token={token}
+            tokens={tokens}
+            onSelectToken={(value) => {
+              setToken(value);
+            }}
+            onChangeValue={(value) => {
+              setAmount(value);
+            }}
           />
+
+          <div className="mt-5 flex w-full flex-row justify-center gap-4">
+            <button
+              className="btn btn-primary self-center"
+
+              // onClick={() => {
+              //   if (!traderCard?.object_id || !fundId) {
+              //     return;
+              //   }
+              //   if (name === "Scallop") {
+              //     scallopDeposit({
+              //       amount,
+              //       name: token,
+              //       traderId: traderCard?.object_id,
+              //       fundId,
+              //     });
+              //   } else if (name === "Bucket") {
+              //     const hasDeposit =
+              //       (balance?.find((b) => b.name === token)?.farmings?.length ??
+              //         0) > 0;
+
+              //     const buckAmount = balance
+              //       ?.find((b) => b.name === token)
+              //       ?.farmings.reduce((acc, cur) => {
+              //         return acc + Number(cur.value);
+              //       }, 0);
+
+              //     bucketDeposit({
+              //       amount,
+              //       name: token,
+              //       traderId: traderCard?.object_id,
+              //       fundId,
+              //       hasDeposit,
+              //       originalAmount: buckAmount,
+              //     });
+              //   } else if (name === "Suilend") {
+              //     suilendDeposit({
+              //       amount,
+              //       name: token,
+              //       traderId: traderCard?.object_id,
+              //       fundId,
+              //     });
+              //   }
+              // }}
+              // loading={isDepositing}
+              // disabled={
+              //   isDepositing ||
+              //   isWithdrawing ||
+              //   isAmountInvalid ||
+              //   isDepositInsuffient
+              // }
+            >
+              Deposit
+            </button>
+            <button
+              className="btn btn-primary self-center"
+              // onClick={() => {
+              //   if (!traderCard?.object_id || !fundId) {
+              //     return;
+              //   }
+              //   const farmings = balance?.find((b) => b.name === token)?.farmings;
+              //   if (name === "Scallop") {
+              //     const liquidityAmount = farmings
+              //       ?.find((f) => f.protocol === "Scallop")
+              //       ?.liquidityValue.toString();
+              //     if (!liquidityAmount) {
+              //       return;
+              //     }
+
+              //     scallopWithdraw({
+              //       // liquidityAmount: Number(liquidityAmount) - 1,
+              //       liquidityAmount: Number(liquidityAmount),
+              //       reStakeAmount,
+              //       name: token,
+              //       traderId: traderCard?.object_id,
+              //       fundId,
+              //     });
+              //   } else if (name === "Bucket") {
+              //     const liquidityAmount = farmings
+              //       ?.find((f) => f.protocol === "Bucket")
+              //       ?.liquidityValue.toString();
+
+              //     if (!liquidityAmount) {
+              //       return;
+              //     }
+
+              //     bucketWithdraw({
+              //       name: token,
+              //       traderId: traderCard?.object_id,
+              //       fundId,
+              //       reStakeAmount,
+              //     });
+              //   } else if (name === "Suilend") {
+              //     const liquidityAmount = farmings
+              //       ?.find((f) => f.protocol === "Suilend")
+              //       ?.liquidityValue.toString();
+              //     if (!liquidityAmount) {
+              //       return;
+              //     }
+              //     suilendWithdraw({
+              //       // liquidityAmount: Number(liquidityAmount) - 1,
+              //       liquidityAmount: Number(liquidityAmount),
+              //       reStakeAmount,
+              //       name: token,
+              //       traderId: traderCard?.object_id,
+              //       fundId,
+              //     });
+              //   }
+              // }}
+              // loading={isWithdrawing}
+              // disabled={
+              //   isWithdrawing ||
+              //   isDepositing ||
+              //   isAmountInvalid ||
+              //   isWithdrawInSuffient
+              // }
+            >
+              Withdraw
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div className="flex flex-row items-center">
+        <div className="text-sm">Power By</div>
+        <Image
+          width={name === "Bucket" ? 90 : 100}
+          height={name === "Bucket" ? 30 : 33}
+          src={powerBy}
+          alt={name}
+        />
       </div>
     </div>
   );

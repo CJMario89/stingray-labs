@@ -5,6 +5,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  background: linear-gradient(
+    90deg,
+    rgba(10, 10, 10, 1) 0%,
+    rgba(10, 10, 10, 0.8) 100%
+  );
 }
 
 @media (prefers-color-scheme: dark) {
@@ -36,5 +41,16 @@ body {
 @layer base {
   body {
     font-family: "Montserrat";
+  }
+}
+
+@layer utilities {
+  .no-stepper::-webkit-inner-spin-button,
+  .no-stepper::-webkit-outer-spin-button {
+    @apply hidden;
+  }
+
+  .no-stepper {
+    -moz-appearance: textfield;
   }
 }

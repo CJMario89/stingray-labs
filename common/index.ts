@@ -19,7 +19,7 @@ export const formatPrice = (price: number) => {
 
 export const formatSuiPrice = (price: number) => {
   return Intl.NumberFormat("en-US", { maximumSignificantDigits: 9 }).format(
-    price / 10 ** 9
+    price / 10 ** 9,
   );
 };
 
@@ -48,13 +48,13 @@ export const getFuturePeriod = (timestamp: number) => {
 
 export const getRelativeTime = (timestamp: number) => {
   const day = Number(
-    ((Date.now() / 1000 - timestamp / 1000) / (60 * 60 * 24)).toFixed(0)
+    ((Date.now() / 1000 - timestamp / 1000) / (60 * 60 * 24)).toFixed(0),
   );
   const hour = Number(
-    ((Date.now() / 1000 - timestamp / 1000) / (60 * 60)).toFixed(0)
+    ((Date.now() / 1000 - timestamp / 1000) / (60 * 60)).toFixed(0),
   );
   const minute = Number(
-    ((Date.now() / 1000 - timestamp / 1000) / 60).toFixed(0)
+    ((Date.now() / 1000 - timestamp / 1000) / 60).toFixed(0),
   );
   const second = Number((Date.now() / 1000 - timestamp / 1000).toFixed(0));
 
@@ -102,7 +102,7 @@ export async function fetchWithRetry(
   options: RequestInit = {},
   retries = 3,
   timeout = 5000,
-  otherUrls: string[] = []
+  otherUrls: string[] = [],
 ) {
   let attempts = 0;
 
@@ -134,7 +134,7 @@ export async function fetchWithRetry(
         console.warn(`Request timed out (Attempt ${attempts}/${retries})`);
       } else {
         console.warn(
-          `Fetch error: ${error?.message} (Attempt ${attempts}/${retries})`
+          `Fetch error: ${error?.message} (Attempt ${attempts}/${retries})`,
         );
       }
 
@@ -144,4 +144,10 @@ export async function fetchWithRetry(
       }
     }
   }
+}
+
+export function getCookie(name: string) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift();
 }

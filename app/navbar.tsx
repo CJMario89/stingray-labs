@@ -10,10 +10,6 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
       href: "/stingray-pools",
     },
     {
-      title: "Stingray Arena",
-      href: "/stingray-arena",
-    },
-    {
       title: "Protocol Status",
       href: "/protocol-status",
     },
@@ -28,6 +24,14 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
     {
       title: "Trade",
       href: "/trade",
+    },
+    {
+      title: "Create Fund",
+      href: "/create-fund",
+    },
+    {
+      title: "Account Settings",
+      href: "/account-settings",
     },
   ];
   return (

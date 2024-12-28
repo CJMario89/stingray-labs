@@ -6,27 +6,32 @@ import {
   UseMutationOptions,
   useQueryClient,
 } from "@tanstack/react-query";
-import useGetPoolBalance from "../query/pool/use-get-pool-balance";
+import useGetPoolBalance from "@/application/query/pool/use-get-pool-balance";
+import useGetPoolCap from "@/application/query/pool/use-get-pool-cap";
 import toast from "react-hot-toast";
-import { swap } from "../ptb-operation/swap";
+import { suilendWithdraw } from "@/application/ptb-operation/suilend-withdraw";
 
-type UseCetusSwapProps = UseMutationOptions<
+type UseSuilendWithdrawProps = UseMutationOptions<
   void,
   Error,
   {
-    cap?: string;
+    liquidityAmount: number;
+    name: string;
     fundId: string;
-    inToken: string;
-    inAmount: string;
-    outToken: string;
+    reStakeAmount: number;
   }
-> & { fundId?: string };
+> & {
+  fundId?: string;
+};
 
-const useCetusSwap = (options?: UseCetusSwapProps) => {
+const useSuilendWithdraw = (options?: UseSuilendWithdrawProps) => {
+  const client = useQueryClient();
   const { refetch: refetchBalance } = useGetPoolBalance({
     fundId: options?.fundId,
   });
-  const client = useQueryClient();
+  const { data: cap } = useGetPoolCap({
+    fundId: options?.fundId,
+  });
   const { mutateAsync: signAndExecuteTransaction } =
     useSignAndExecuteTransaction({
       onError: (error) => {
@@ -35,38 +40,32 @@ const useCetusSwap = (options?: UseCetusSwapProps) => {
     });
   return useMutation({
     mutationFn: async ({
+      liquidityAmount,
+      name,
       fundId,
-      cap,
-      inToken,
-      inAmount,
-      outToken,
-    }: // outAmount,
-    {
-      cap?: string;
+      reStakeAmount,
+    }: {
+      liquidityAmount: number;
+      name: string;
       fundId: string;
-      inToken: string;
-      inAmount: string;
-      outToken: string;
-      // outAmount: string;
+      reStakeAmount: number;
     }) => {
       const tx = new Transaction();
-
-      const { tx: transaction } = swap({
+      const { tx: transaction } = suilendWithdraw({
         tx,
+        liquidityAmount,
+        name,
         fundId,
         cap,
-        inToken,
-        inAmount,
-        outToken,
+        reStakeAmount,
       });
 
       const result = await signAndExecuteTransaction({
         transaction,
       });
       console.log(result);
-      await syncDb.swap();
-
-      return;
+      await syncDb.withdraw("Suilend");
+      await syncDb.deposit("Suilend");
     },
     onError: (error) => {
       console.error(error);
@@ -74,13 +73,13 @@ const useCetusSwap = (options?: UseCetusSwapProps) => {
     ...options,
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
-      toast.success("Swap success");
-      refetchBalance();
+      toast.success("Withdraw success");
       await client.invalidateQueries({
-        queryKey: ["poos"],
+        queryKey: ["pools"],
       });
+      refetchBalance();
     },
   });
 };
 
-export default useCetusSwap;
+export default useSuilendWithdraw;

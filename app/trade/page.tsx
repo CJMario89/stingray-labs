@@ -59,7 +59,7 @@ const Page = () => {
             fundId={selected?.object_id ?? ""}
             balance={poolBalance?.balances}
           />
-          <Farm balance={poolBalance?.balances} />
+          <Farm fundId={selected?.object_id} />
         </div>
       </div>
     </div>

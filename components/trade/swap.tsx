@@ -8,7 +8,7 @@ import TokenInput from "./token-input";
 import IconSwap from "../icons/swap";
 import { useState } from "react";
 import { primaryGradient } from "@/app/stingray-pools/page";
-import useCetusSwap from "@/application/mutation/use-cetus-swap";
+import useCetusSwap from "@/application/mutation/defi/use-cetus-swap";
 import useGetPoolCap from "@/application/query/pool/use-get-pool-cap";
 
 const Swap = ({

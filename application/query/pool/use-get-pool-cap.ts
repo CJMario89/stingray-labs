@@ -30,6 +30,7 @@ const useGetPoolCap = ({ fundId }: { fundId?: string }) => {
 
       return object?.data?.objectId;
     },
+    enabled: !!fundId && !!account,
   });
 };
 

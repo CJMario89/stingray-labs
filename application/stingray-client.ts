@@ -22,6 +22,15 @@ export class StingrayClient {
       credentials: "include",
     });
   }
+
+  async postRequest(url: string, body: Record<string, unknown>) {
+    return fetch(`${this.apiUrl}${url}`, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify(body),
+    });
+  }
+
   async getArenaInfo() {
     const arenas = await this.getRequest("/arena/info");
     return arenas;
@@ -112,23 +121,22 @@ export class StingrayClient {
   }
 
   async postUserInfo({ name }: { name?: string }) {
-    const response = await fetch(`${this.apiUrl}/user/info`, {
-      method: "POST",
-      credentials: "include",
-      body: JSON.stringify({
-        name,
-      }),
+    const response = await this.postRequest("/user/info", {
+      name,
     });
     return response;
   }
 
   async postUserAvatar({ image }: { image: Buffer }) {
-    const response = await fetch(`${this.apiUrl}/user/avatar`, {
-      method: "POST",
-      credentials: "include",
-      body: JSON.stringify({
-        image,
-      }),
+    const response = await this.postRequest("/user/avatar", {
+      image,
+    });
+    return response;
+  }
+
+  async GetUser({ address }: { address: string }) {
+    const response = await this.getRequest(`/user`, {
+      address,
     });
     return response;
   }

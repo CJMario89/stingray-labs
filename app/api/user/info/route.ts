@@ -24,8 +24,9 @@ export async function POST(req: Request) {
   if (info?.name?.length > 10) {
     return Response.json("Name too long", { status: 401 });
   }
-
-  prisma.user.update({
+  console.log(info, "info");
+  console.log(user, "user");
+  await prisma.user.update({
     where: {
       address: user.address,
     },

@@ -6,7 +6,6 @@ import Navbar from "./navbar";
 
 const Container = ({ children }: { children: React.ReactNode }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  console.log(menuOpen);
   return (
     <>
       <Header

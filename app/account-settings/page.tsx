@@ -3,15 +3,18 @@
 import usePostAuth from "@/application/mutation/use-post-auth";
 import usePostUserAvatar from "@/application/mutation/use-post-user-avatar";
 import usePostUserInfo from "@/application/mutation/use-post-user-info";
+import useGetUser from "@/application/query/user/use-get-user";
 import { getCookie } from "@/common";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Page = () => {
   const { mutate: postAuth, isPending } = usePostAuth();
-  const { mutate: postAvatar } = usePostUserAvatar();
-  const { mutate: postUserInfo } = usePostUserInfo();
+  const { mutate: postAvatar, isPending: isPostingAvatar } =
+    usePostUserAvatar();
+  const { mutate: postUserInfo, isPending: isPostingUserInfo } =
+    usePostUserInfo();
   const account = useCurrentAccount();
   const [form, setForm] = useState({
     name: "",
@@ -19,6 +22,16 @@ const Page = () => {
   });
   const [preview, setPreview] = useState<string | ArrayBuffer | null>();
   const cookie = getCookie("signature");
+  const { data: user, isSuccess } = useGetUser();
+  useEffect(() => {
+    if (isSuccess && user) {
+      setForm((prev) => ({
+        ...prev,
+        name: user?.name,
+      }));
+    }
+  }, [isSuccess, user]);
+  console.log(user);
   return (
     <div className="flex h-full w-full flex-col gap-4">
       <div className="text-2xl font-semibold">Account Setting</div>
@@ -38,7 +51,6 @@ const Page = () => {
             postAuth({ message });
             return;
           }
-          //// upload
 
           if (form.name) {
             postUserInfo({ name: form.name });
@@ -65,6 +77,7 @@ const Page = () => {
                   name: e.target.value,
                 }));
               }}
+              value={form.name}
             />
           </div>
         </label>
@@ -98,7 +111,9 @@ const Page = () => {
           )}
         </label>
         <button type="submit" className="btn btn-primary self-end">
-          {isPending && <span className="loading-spin loading" />}
+          {(isPending || isPostingAvatar || isPostingUserInfo) && (
+            <span className="loading-spin loading" />
+          )}
           {cookie ? "Update" : "Sign in"}
         </button>
       </form>

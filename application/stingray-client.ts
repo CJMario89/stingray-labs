@@ -16,7 +16,7 @@ export class StingrayClient {
       queryString.length === 0
         ? `${this.apiUrl}${url}`
         : `${this.apiUrl}${url}?${queryString}`;
-    console.log("requestUrl", requestUrl);
+
     return fetch(requestUrl, {
       method: "GET",
       credentials: "include",
@@ -55,6 +55,13 @@ export class StingrayClient {
       orderBy,
       searchText,
       owner,
+    });
+    return funds;
+  }
+
+  async getPoolBalance({ fundId }: { fundId: string }) {
+    const funds = await this.getRequest(`/pool-balance/statistics`, {
+      fundId,
     });
     return funds;
   }

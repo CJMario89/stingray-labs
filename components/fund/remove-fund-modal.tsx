@@ -1,6 +1,6 @@
 import { primaryGradient, secondaryGradient } from "@/app/stingray-pools/page";
 import useRemoveFund from "@/application/mutation/use-remove-fund";
-import useGetFundShares from "@/application/query/use-get-fund-shares";
+import useGetPoolShares from "@/application/query/pool/use-get-pool-shares";
 import { Fund } from "@/type";
 import React, { useRef } from "react";
 
@@ -11,7 +11,7 @@ const RemoveFundModal = ({
   pool: Fund;
   onSuccess: () => void;
 }) => {
-  const { total, withdrawableShares } = useGetFundShares({
+  const { total, withdrawableShares } = useGetPoolShares({
     history: pool.fund_history,
   });
 

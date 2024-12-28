@@ -1,6 +1,6 @@
 "use client";
 
-import useGetPools from "@/application/query/pool/use-get-pools";
+import useGetPools from "@/application/query/use-get-pools";
 import TraderInfo from "@/common/trader-info";
 import IconSearch from "@/components/icons/search";
 import IconSortDown from "@/components/icons/sort-down";

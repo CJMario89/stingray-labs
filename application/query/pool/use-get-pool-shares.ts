@@ -1,7 +1,7 @@
 import { FundHistory } from "@/type";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 
-const useGetFundShares = ({
+const useGetPoolShares = ({
   history: _history = [],
 }: {
   history?: FundHistory[];
@@ -36,4 +36,4 @@ const useGetFundShares = ({
   };
 };
 
-export default useGetFundShares;
+export default useGetPoolShares;

@@ -8,6 +8,8 @@ import TokenInput from "./token-input";
 import IconSwap from "../icons/swap";
 import { useState } from "react";
 import { primaryGradient } from "@/app/stingray-pools/page";
+import useCetusSwap from "@/application/mutation/use-cetus-swap";
+import useGetPoolCap from "@/application/query/pool/use-get-pool-cap";
 
 const Swap = ({
   fundId,
@@ -21,14 +23,17 @@ const Swap = ({
   const [inAmount, setInAmount] = useState("");
   const [outToken, setOutToken] = useState(tokens[1]);
   const [outAmount, setOutAmount] = useState("");
-  // const { mutate: swap, isPending: isSwaping } = useCetusSwap({
-  //   onSuccess: () => {
-  //     setInAmount("");
-  //     setOutAmount("");
-  //   },
-  //   fundId,
-  // });
-  const isSwaping = false;
+  const { mutate: swap, isPending: isSwaping } = useCetusSwap({
+    onSuccess: () => {
+      setInAmount("");
+      setOutAmount("");
+    },
+    fundId,
+  });
+
+  const { data: cap, isPending: isGettingCap } = useGetPoolCap({ fundId });
+  console.log(cap);
+
   const inTokenDecimal =
     coins.find((coin) => coin.name === inToken)?.decimal ?? 9;
   const isInSufficient =
@@ -132,21 +137,30 @@ const Swap = ({
       />
       <button
         className="btn btn-primary"
-        disabled={isSwaping || isInSufficient || !amountValid || isQuoting}
+        disabled={
+          isSwaping ||
+          isInSufficient ||
+          !amountValid ||
+          isQuoting ||
+          isGettingCap
+        }
         onClick={() => {
           if (!fundId) {
             return;
           }
 
-          // swap({
-          //   fundId,
-          //   inToken,
-          //   inAmount,
-          //   outToken,
-          // });
+          swap({
+            cap,
+            fundId,
+            inToken,
+            inAmount,
+            outToken,
+          });
         }}
       >
-        {isSwaping && <span className="loading loading-spinner"></span>}
+        {(isSwaping || isQuoting || isGettingCap) && (
+          <span className="loading loading-spinner"></span>
+        )}
         {isInSufficient ? "INSUFFICIENT" : "SWAP"}
       </button>
       <div className="flex items-center">

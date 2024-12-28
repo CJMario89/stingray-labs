@@ -1,4 +1,8 @@
-import { PaginatedEvents, SuiClient } from "@mysten/sui/client";
+import {
+  PaginatedEvents,
+  PaginatedObjectsResponse,
+  SuiClient,
+} from "@mysten/sui/client";
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuid } from "uuid";
 
@@ -52,6 +56,43 @@ export class SuiService {
         limit: this.limit,
         cursor: nextCursor,
         order: "ascending",
+      });
+      hasNextPage = event.hasNextPage;
+      nextCursor = event.nextCursor;
+      data.push(...event.data);
+    } while (hasNextPage);
+
+    return data;
+  }
+
+  async queryObjects({
+    owner,
+    module,
+    packageId,
+    type,
+    nextCursor,
+  }: {
+    owner: string;
+    module: string;
+    packageId: string;
+    type: string;
+    nextCursor?: PaginatedObjectsResponse["nextCursor"];
+  }) {
+    let hasNextPage = false;
+
+    const data: PaginatedObjectsResponse["data"] = [];
+    console.log(`${packageId}::${module}::${type}`);
+    do {
+      const event = await this.client.getOwnedObjects({
+        owner,
+        filter: {
+          StructType: `${packageId}::${module}::${type}`,
+        },
+        limit: this.limit,
+        cursor: nextCursor,
+        options: {
+          showContent: true,
+        },
       });
       hasNextPage = event.hasNextPage;
       nextCursor = event.nextCursor;

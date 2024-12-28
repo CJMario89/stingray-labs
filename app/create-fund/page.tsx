@@ -1,5 +1,6 @@
 "use client";
 import useCreateFund from "@/application/mutation/use-create-fund";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const InputFormItem = ({
@@ -146,9 +147,13 @@ const Page = () => {
     limitAmount: 0,
     expectedRoi: 0,
   });
+  const { push } = useRouter();
   const { mutate: createFund, isPending } = useCreateFund({
     onError: (error) => {
       console.error(error);
+    },
+    onSuccess: () => {
+      push("/stingray-pools");
     },
   });
   return (

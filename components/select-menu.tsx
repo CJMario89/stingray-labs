@@ -19,7 +19,7 @@ const SelectMenu = ({
 }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="dropdown dropdown-end">
+    <div className="dropdown dropdown-end w-[fit-content]">
       <div
         tabIndex={0}
         role="button"
@@ -37,7 +37,7 @@ const SelectMenu = ({
             className="h-6 w-6 overflow-hidden rounded-full"
           />
         )}
-        {value.value}
+        {value.key}
         <IconChevronDown />
       </div>
       <ul
@@ -66,7 +66,7 @@ const SelectMenu = ({
                       className="h-6 w-6 overflow-hidden rounded-full"
                     />
                   )}
-                  <div className="whitespace-nowrap">{option.value}</div>
+                  <div className="whitespace-nowrap">{option.key}</div>
                 </div>
               </button>
             </li>

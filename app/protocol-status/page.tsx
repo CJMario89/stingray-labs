@@ -1,5 +1,5 @@
 "use client";
-import useGetPools from "@/application/query/pool/use-get-pools";
+import useGetPools from "@/application/query/use-get-pools";
 import Decimal from "decimal.js";
 import { primaryGradient } from "../stingray-pools/page";
 

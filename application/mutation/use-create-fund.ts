@@ -3,8 +3,13 @@ import {
   useSignAndExecuteTransaction,
 } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { useMutation, UseMutationOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { syncDb } from "@/common/sync-db";
+import toast from "react-hot-toast";
 
 type UseCreateFundProps = UseMutationOptions<
   void,
@@ -24,6 +29,7 @@ type UseCreateFundProps = UseMutationOptions<
 
 const useCreateFund = (options?: UseCreateFundProps) => {
   const account = useCurrentAccount();
+  const client = useQueryClient();
   const { mutateAsync: signAndExecuteTransaction } =
     useSignAndExecuteTransaction({
       onError: (error) => {
@@ -64,20 +70,20 @@ const useCreateFund = (options?: UseCreateFundProps) => {
 
       const tx = new Transaction();
 
-      console.log(process.env.NEXT_PUBLIC_GLOBAL_CONFIG);
-      console.log(name, "name");
-      console.log(description, "description");
-      console.log(traderFee, "traderFee");
-      console.log(limitAmount, "limitAmount");
-      console.log(initialAmount, "initialAmount");
-      console.log(
-        new Date(fundingEndTime).getTime() -
-          new Date(fundingStartTime).getTime(),
-        "fundingStartTime",
-      );
-      console.log(fundingEndTime, "fundingEndTime");
-      console.log(tradingEndTime, "tradingEndTime");
-      console.log(expectedRoi, "expectedRoi");
+      // console.log(process.env.NEXT_PUBLIC_GLOBAL_CONFIG);
+      // console.log(name, "name");
+      // console.log(description, "description");
+      // console.log(traderFee, "traderFee");
+      // console.log(limitAmount, "limitAmount");
+      // console.log(initialAmount, "initialAmount");
+      // console.log(
+      //   new Date(fundingEndTime).getTime() -
+      //     new Date(fundingStartTime).getTime(),
+      //   "fundingStartTime",
+      // );
+      // console.log(fundingEndTime, "fundingEndTime");
+      // console.log(tradingEndTime, "tradingEndTime");
+      // console.log(expectedRoi, "expectedRoi");
 
       const fund = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
@@ -87,7 +93,7 @@ const useCreateFund = (options?: UseCreateFundProps) => {
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
           tx.pure.string(name),
           tx.pure.string(description),
-          tx.pure.string("1"), // image
+          tx.pure.string(""), // image
           tx.pure.u64(traderFee * 100), // trader fee
           tx.pure.bool(false), // is arena
           tx.pure.u64(new Date(fundingStartTime).getTime()), //start time
@@ -122,13 +128,12 @@ const useCreateFund = (options?: UseCreateFundProps) => {
         function: "mint",
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
-          fund[2], //mint request
+          fund[1], //mint request
         ],
         typeArguments: ["0x2::sui::SUI"],
       });
 
       tx.transferObjects([share], account.address);
-      tx.transferObjects([fund[1]], account.address);
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
@@ -141,7 +146,10 @@ const useCreateFund = (options?: UseCreateFundProps) => {
     onSuccess: async (data, variable, context) => {
       await syncDb.fund();
       await syncDb.invest();
-      // message.success("Congratulations! You have successfully created a fund!");
+      toast.success("Congratulations! You have successfully created a fund!");
+      await client.invalidateQueries({
+        queryKey: ["pools"],
+      });
       options?.onSuccess?.(data, variable, context);
     },
   });

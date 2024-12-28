@@ -7,20 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model trader_card {
-  object_id     String          @id
-  first_name    String
-  last_name     String
-  description   String
-  image_blob_id String
-  owner_address String
-  event_seq     Int
-  tx_digest     String
-  timestamp     BigInt
-  fund          fund[]
-  settle_result settle_result[]
-}
-
 model arena {
   object_id       String @id
   start_time      BigInt
@@ -46,7 +32,6 @@ model fund {
   arena            arena?             @relation(fields: [arena_object_id], references: [object_id])
   arena_object_id  String?
   owner_id         String
-  owner            trader_card        @relation(fields: [owner_id], references: [object_id])
   fund_history     fund_history[]
   trader_operation trader_operation[]
   trader_fee       Float
@@ -95,10 +80,9 @@ model trader_operation {
 }
 
 model settle_result {
-  fund_object_id String      @id
-  fund           fund        @relation(fields: [fund_object_id], references: [object_id])
+  fund_object_id String  @id
+  fund           fund    @relation(fields: [fund_object_id], references: [object_id])
   trader_id      String
-  trader         trader_card @relation(fields: [trader_id], references: [object_id])
   match_roi      Boolean
   roi            Float
   event_seq      Int
@@ -118,8 +102,8 @@ model claim_result {
 }
 
 model user {
-  address String @id
-  image   Bytes?
-  name    String?
+  address   String  @id
+  image     Bytes?
+  name      String?
   signature String
 }

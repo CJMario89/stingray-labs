@@ -41,38 +41,20 @@ export class StingrayClient {
     order,
     orderBy,
     searchText,
+    owner,
   }: {
     types: string[];
     orderBy?: string;
     order?: "asc" | "desc";
     searchText?: string;
+    owner?: string;
   }) {
-    const funds = await this.getRequest("/pool/all", {
+    const funds = await this.getRequest("/pool", {
       types,
       order,
       orderBy,
       searchText,
-    });
-    return funds;
-  }
-
-  async getTraderCard({
-    owner,
-    objectId,
-  }: {
-    owner?: string;
-    objectId?: string;
-  }) {
-    const traderCard = await this.getRequest("/trader-card", {
       owner,
-      objectId,
-    });
-    return traderCard;
-  }
-
-  async getPoolArenas({ duration }: { duration: TradeDuration }) {
-    const funds = await this.getRequest("/pool/arenas", {
-      duration,
     });
     return funds;
   }

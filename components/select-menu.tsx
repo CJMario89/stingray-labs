@@ -19,7 +19,7 @@ const SelectMenu = ({
 }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="dropdown">
+    <div className="dropdown dropdown-end">
       <div
         tabIndex={0}
         role="button"
@@ -44,7 +44,7 @@ const SelectMenu = ({
         tabIndex={0}
         className={`menu ${
           open ? "" : "hidden"
-        } dropdown-content z-[1] max-h-[200px] overflow-y-auto rounded-md bg-base-100 p-2 shadow`}
+        } dropdown-content z-[10] max-h-[200px] w-[max-content] overflow-y-auto rounded-md bg-base-100 p-2 shadow`}
       >
         <div className="flex w-full flex-col">
           {options.map((option) => (
@@ -66,7 +66,7 @@ const SelectMenu = ({
                       className="h-6 w-6 overflow-hidden rounded-full"
                     />
                   )}
-                  <div>{option.value}</div>
+                  <div className="whitespace-nowrap">{option.value}</div>
                 </div>
               </button>
             </li>

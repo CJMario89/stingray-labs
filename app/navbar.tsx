@@ -16,6 +16,7 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
     {
       title: "Sting Points",
       href: "/sting-points",
+      isComingSoon: true,
     },
     {
       title: "My Profolio",
@@ -34,7 +35,7 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
     <div
       className={`top-[80px] mr-0 flex h-[calc(100vh-80px)] min-w-[calc(200px+5vw)] flex-col items-start justify-between gap-4 ${headerGradient} py-8 lg:sticky lg:top-[96px] lg:m-4 lg:mr-0 lg:h-[calc(100vh-96px)] lg:rounded-md`}
     >
-      <div className="flex flex-col items-start gap-4">
+      <div className="flex w-full flex-col items-start gap-4">
         {links.map((link) => {
           const isActive = path === link.href;
           return (
@@ -47,13 +48,20 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
                   isActive
                     ? "bg-neutral-50 bg-opacity-10 text-neutral-50 text-opacity-100"
                     : "text-neutral-400 text-opacity-50 hover:text-neutral-50 hover:text-opacity-100"
-                } `}
+                } ${link.isComingSoon ? "cursor-not-allowed hover:text-neutral-400 hover:text-opacity-50" : ""} `}
                 href={link.href}
-                onClick={() => {
+                onClick={(e) => {
+                  if (link.isComingSoon) {
+                    e.preventDefault();
+                    return;
+                  }
                   onSelect?.();
                 }}
               >
-                {link.title}
+                {link.title}{" "}
+                <span className="text-xs">
+                  {link.isComingSoon ? "(Coming Soon)" : ""}
+                </span>
               </Link>
             </div>
           );

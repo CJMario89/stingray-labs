@@ -31,7 +31,6 @@ const Page = () => {
       }));
     }
   }, [isSuccess, user]);
-  console.log(user);
   return (
     <div className="flex h-full w-full flex-col gap-4">
       <div className="text-2xl font-semibold">Account Setting</div>

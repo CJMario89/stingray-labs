@@ -14,7 +14,7 @@ import IconCheck from "./icons/check";
 import { primaryGradient } from "@/app/stingray-pools/page";
 
 export const formatAddress = (address?: string) =>
-  `${address?.slice(0, 6)}...${address?.slice(-6)}`;
+  `${address?.slice(0, 6)}...${address?.slice(-4)}`;
 
 const ConnectButton = () => {
   const { mutate: switchAccount } = useSwitchAccount();

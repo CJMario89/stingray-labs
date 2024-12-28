@@ -29,22 +29,6 @@ export class SuiService {
     return suiNSs;
   }
 
-  async getOwnedTraderCard({ owner }: { owner: string }) {
-    if (!process.env.NEXT_PUBLIC_PACKAGE_ASSET) {
-      throw new Error("PACKAGE not found");
-    }
-    const traderCards = await this.client.getOwnedObjects({
-      filter: {
-        StructType: `${process.env.NEXT_PUBLIC_PACKAGE_ASSET}::trader::Trader`,
-      },
-      options: {
-        showDisplay: true,
-      },
-      owner,
-    });
-    return traderCards;
-  }
-
   async queryEvents({
     module,
     packageId,
@@ -371,81 +355,6 @@ export class SuiService {
     return result;
   }
 
-  async upsertTraderCardEvents() {
-    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
-    if (!packageId) {
-      throw new Error("Package not found");
-    }
-    const lastFund = await this.prisma.trader_card.findFirst({
-      orderBy: {
-        timestamp: "desc",
-      },
-      select: {
-        tx_digest: true,
-        event_seq: true,
-      },
-    });
-    const nextCursor: PaginatedEvents["nextCursor"] = lastFund
-      ? {
-          txDigest: lastFund.tx_digest,
-          eventSeq: lastFund.event_seq.toString(),
-        }
-      : undefined;
-    const events = await this.queryEvents({
-      module: "trader",
-      packageId,
-      eventType: "Mint",
-      nextCursor,
-    });
-
-    type TraderCardData = {
-      trader_id: string;
-      new_first_name: string;
-      new_last_name: string;
-      minter: string;
-      description: string;
-      pfp_img: string;
-    };
-
-    const upserts = events.map((event) => {
-      console.log(event);
-      const data: TraderCardData = event.parsedJson as TraderCardData;
-      const timestamp = event.timestampMs ?? "0";
-      const object: {
-        object_id: string;
-        first_name: string;
-        last_name: string;
-        description: string;
-        image_blob_id: string;
-        owner_address: string;
-        event_seq: number;
-        tx_digest: string;
-        timestamp: number;
-      } = {
-        object_id: data.trader_id,
-        first_name: data.new_first_name === "" ? "PaulWu" : data.new_first_name,
-        last_name: data.new_last_name === "" ? "Sui" : data.new_last_name,
-        description: data.description,
-        image_blob_id: data.pfp_img,
-        owner_address: data.minter,
-        event_seq: Number(event.id.eventSeq),
-        tx_digest: event.id.txDigest,
-        timestamp: Number(timestamp),
-      };
-      return this.prisma.trader_card.upsert({
-        where: {
-          object_id: data.trader_id,
-          event_seq: Number(event.id.eventSeq),
-          tx_digest: event.id.txDigest,
-        },
-        update: object,
-        create: object,
-      });
-    });
-    const result = await this.prisma.$transaction(upserts);
-    return result;
-  }
-
   async upsertInvestedEvents() {
     const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
     if (!packageId) {
@@ -574,10 +483,10 @@ export class SuiService {
           tx_digest: string;
           timestamp: number;
         } = {
-          share_id: data.remain_share,
+          share_id: data.remain_share ?? uuid(),
           action: "Deinvested",
           fund_object_id: data.fund_id,
-          redeemed: false,
+          redeemed: data.remain_share ? false : true,
           amount: Number(data.withdraw_invest_amount),
           investor: data.investor,
           event_seq: Number(event.id.eventSeq),
@@ -587,20 +496,18 @@ export class SuiService {
 
         const share = await this.prisma.fund_history.findFirst({
           where: {
-            share_id: data.remain_share,
+            share_id: object.share_id,
           },
         });
 
         const executions = [];
-        console.log(data);
-        console.log(data.remain_share);
         executions.push(
           this.prisma.fund_history.updateMany({
             where: {
               AND: [
                 {
                   NOT: {
-                    share_id: { equals: data.remain_share },
+                    share_id: { equals: object.share_id ?? "" },
                   },
                 },
                 {

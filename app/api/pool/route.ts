@@ -13,6 +13,7 @@ export async function GET(req: Request) {
   const order = url.searchParams.get("order") as "asc" | "desc";
   const orderBy = url.searchParams.get("orderBy");
   const searchText = url.searchParams.get("searchText");
+  const owner = url.searchParams.get("owner");
 
   const whereClause = [];
 
@@ -105,21 +106,16 @@ export async function GET(req: Request) {
                   },
                 }
               : {}),
+            ...(!!owner
+              ? {
+                  owner_id: owner,
+                }
+              : {}),
           }
         : {}),
     },
     include: {
       fund_history: true,
-      owner: {
-        include: {
-          settle_result: {
-            orderBy: {
-              event_seq: "desc",
-            },
-            take: 1,
-          },
-        },
-      },
     },
     ...(isEmptyOrderClause ? {} : { orderBy: orderClause }),
   });

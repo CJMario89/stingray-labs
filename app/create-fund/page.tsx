@@ -146,7 +146,7 @@ const Page = () => {
     limitAmount: 0,
     expectedRoi: 0,
   });
-  const { mutate: createFund } = useCreateFund({
+  const { mutate: createFund, isPending } = useCreateFund({
     onError: (error) => {
       console.error(error);
     },
@@ -178,6 +178,7 @@ const Page = () => {
           />
         ))}
         <button type="submit" className="btn btn-primary self-end">
+          {isPending ? <span className="loading loading-spinner"></span> : ""}
           Create Fund
         </button>
       </form>

@@ -41,7 +41,6 @@ export type Fund = {
   image_blob_id: string;
   arena?: Arena;
   owner_id: string;
-  owner: TraderCard;
   fund_history?: FundHistory[];
   trader_operation?: TraderOperation[];
   trader_fee: number;
@@ -66,20 +65,6 @@ export type Arena = {
   event_seq: number;
   tx_digest: string;
   timestamp: bigint;
-};
-
-export type TraderCard = {
-  object_id: string;
-  first_name: string;
-  last_name: string;
-  description: string;
-  image_blob_id: string;
-  owner_address: string;
-  event_seq: number;
-  tx_digest: string;
-  timestamp: bigint;
-  trader_operation?: TraderOperation[];
-  settle_result?: SettleResult[];
 };
 
 export type SwapInfo = {
@@ -134,7 +119,6 @@ export type SettleResult = {
   fund_object_id: string;
   fund?: Fund;
   trader_id: string;
-  trader?: TraderCard;
   match_roi: boolean;
   roi: number;
 };

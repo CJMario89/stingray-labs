@@ -6,14 +6,14 @@ type UseGetUserProps = UseQueryOptions<
   {
     address: string;
     name: string;
-    image: Buffer;
+    image: string;
     signature: string;
   },
   Error,
   {
     address: string;
     name: string;
-    image: Buffer;
+    image: string;
     signature: string;
   }
 >;

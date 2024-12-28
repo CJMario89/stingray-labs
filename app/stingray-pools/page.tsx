@@ -6,64 +6,18 @@ import IconSearch from "@/components/icons/search";
 import IconSortDown from "@/components/icons/sort-down";
 import IconSortDownAlt from "@/components/icons/sort-down-alt";
 import { Fund } from "@/type";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { throttle } from "../common";
-import useGetBalance from "@/application/query/use-get-balance";
-import useAddFund from "@/application/mutation/use-add-fund";
+import SelectMenu from "@/components/select-menu";
+import AddFundModal from "@/components/fund/add-fund-modal";
+import RemoveFundModal from "@/components/fund/remove-fund-modal";
+import IconMinus from "@/components/icons/minus";
 export const secondaryGradient =
   "bg-[linear-gradient(90deg,_rgba(10,10,10,0.6)_0%,_rgba(10,10,10,0.3)_100%)] shadow-lg";
 
 // export const primaryGradient = "bg-gradient-to-br from-black-200 to-base-200";
 export const primaryGradient =
   "bg-[linear-gradient(90deg,_rgba(34,40,47,0.3)_0%,_rgba(34,40,47,0.6)_100%)]";
-
-const FundModal = ({ pool }: { pool: Fund }) => {
-  const balance = useGetBalance();
-  const { mutate: add, isPending: isAdding } = useAddFund();
-  const amountRef = useRef<HTMLInputElement>(null);
-  return (
-    <dialog id="fund-modal" className="modal">
-      <div className={`${secondaryGradient} modal-box flex flex-col gap-4`}>
-        <h3 className="text-lg font-bold">Add Fund</h3>
-        <label className="input flex items-center gap-2 rounded-md">
-          <input
-            ref={amountRef}
-            type="number"
-            className="grow"
-            placeholder="Amount"
-          />
-        </label>
-        <div className="text-sm text-neutral-400">Balance: {balance} SUI</div>
-        <div className="modal-action">
-          <div className="flex gap-4">
-            <button
-              className={`btn btn-primary`}
-              onClick={() => {
-                if (!amountRef.current) {
-                  return;
-                }
-                add({
-                  amount: Number(amountRef.current.value),
-                  fundId: pool.object_id,
-                });
-              }}
-            >
-              {isAdding ? (
-                <span className="loading loading-spinner"></span>
-              ) : (
-                ""
-              )}
-              Add
-            </button>
-            <form method="dialog">
-              <button className={`btn ${primaryGradient}`}>Close</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </dialog>
-  );
-};
 
 const FundStatistics = ({
   title,
@@ -85,10 +39,15 @@ const FundStatistics = ({
   );
 };
 
-const FundInfo = ({ pool }: { pool: Fund }) => {
-  const previousROI = pool.owner?.settle_result?.[0]?.roi;
+const FundInfo = ({
+  pool,
+  onSuccess,
+}: {
+  pool: Fund;
+  onSuccess: () => void;
+}) => {
   console.log(pool);
-  console.log(previousROI);
+  const previousROI = undefined;
   return (
     <div className="flex w-full gap-4">
       <div className="flex w-full flex-col gap-4">
@@ -121,7 +80,7 @@ const FundInfo = ({ pool }: { pool: Fund }) => {
             className={`${secondaryGradient} flex flex-col justify-between gap-2 rounded-md px-6 py-4`}
           >
             <div className="flex flex-col gap-2">
-              <TraderInfo traderCard={pool.owner} />
+              <TraderInfo address={pool.owner_id} />
               <div className="flex items-center justify-between">
                 <div>Previous Strategy</div>
                 <div>
@@ -140,22 +99,79 @@ const FundInfo = ({ pool }: { pool: Fund }) => {
             </div>
             <div className="text-md">{pool?.description}</div>
           </div>
-          {pool.type === "funding" ? (
-            <>
-              <button
-                className="btn btn-primary self-end"
-                onClick={() => {
-                  (
-                    document.getElementById("fund-modal") as HTMLDialogElement
-                  )?.showModal();
-                }}
-              >
-                Add Fund
-              </button>
-              <FundModal pool={pool} />
-            </>
-          ) : (
-            <></>
+          {pool.type === "funding" && (
+            <div className="flex flex-col gap-4">
+              <div className="text-xs">Funding end at </div>
+              <div className="text-xs">
+                {pool?.invest_end_time
+                  ? new Date(Number(pool?.invest_end_time)).toLocaleString()
+                  : ""}
+              </div>
+              <div className="flex w-full gap-2 self-end">
+                <button
+                  className="btn btn-primary flex-1"
+                  onClick={() => {
+                    (
+                      document.getElementById(
+                        "add-fund-modal",
+                      ) as HTMLDialogElement
+                    )?.showModal();
+                  }}
+                >
+                  Deposit
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    (
+                      document.getElementById(
+                        "remove-fund-modal",
+                      ) as HTMLDialogElement
+                    )?.showModal();
+                  }}
+                >
+                  <IconMinus />
+                </button>
+                <AddFundModal
+                  pool={pool}
+                  onSuccess={() => {
+                    onSuccess();
+                    document
+                      .getElementById("add-fund-modal")
+                      ?.removeAttribute("open");
+                  }}
+                />
+                <RemoveFundModal
+                  pool={pool}
+                  onSuccess={() => {
+                    onSuccess();
+                    document
+                      .getElementById("remove-fund-modal")
+                      ?.removeAttribute("open");
+                  }}
+                />
+              </div>
+            </div>
+          )}
+          {pool.type === "pending" && (
+            <div className="flex flex-col gap-4">
+              <div className="text-xs">Funding start at </div>
+              <div className="text-xs">
+                {pool?.start_time
+                  ? new Date(Number(pool?.start_time)).toLocaleString()
+                  : ""}
+              </div>
+            </div>
+          )}
+          {pool.type === "trading" && (
+            <div className="flex flex-col gap-4">
+              <div className="text-xs">Trading end at </div>
+              <div className="text-xs">
+                {pool?.end_time
+                  ? new Date(Number(pool?.end_time)).toLocaleString()
+                  : ""}
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -178,6 +194,7 @@ const Page = () => {
     data: pools,
     isPending,
     isLoading,
+    refetch,
   } = useGetPools({
     types,
     order,
@@ -234,8 +251,20 @@ const Page = () => {
             >
               {order === "asc" ? <IconSortDownAlt /> : <IconSortDown />}
             </button>
-
-            <select
+            <SelectMenu
+              options={orderOptions.map((order) => ({
+                value: order,
+                key: order,
+              }))}
+              value={{
+                key: orderBy,
+                value: orderBy,
+              }}
+              onSelect={(value: { key: string; value: string }) => {
+                setOrderBy(value.value);
+              }}
+            />
+            {/* <select
               className={`select select-bordered select-sm w-full max-w-xs ${secondaryGradient}`}
               onChange={(e) => {
                 setOrderBy(e.target.value);
@@ -247,7 +276,7 @@ const Page = () => {
                   {order}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
         </div>
       </div>
@@ -267,7 +296,7 @@ const Page = () => {
               <div className="grid w-full grid-cols-3 items-center gap-4">
                 <div className="whitespace-nowrap">{pool.name}</div>
                 <div className="hidden md:block">
-                  <TraderInfo traderCard={pool.owner} />
+                  <TraderInfo address={pool.owner_id} />
                 </div>
                 <div className="hidden items-center text-lg font-semibold md:block">
                   {Number(
@@ -281,7 +310,12 @@ const Page = () => {
               </div>
             </div>
             <div className="collapse-content px-0">
-              <FundInfo pool={pool} />
+              <FundInfo
+                pool={pool}
+                onSuccess={() => {
+                  refetch();
+                }}
+              />
             </div>
           </div>
         ))}

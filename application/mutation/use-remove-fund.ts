@@ -10,21 +10,19 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-// import useRefetchWholeFund from "./use-refetch-whole-fund";
 
 type UseAddFundProps = UseMutationOptions<
   void,
   Error,
   {
     amount: number;
-    fundId: string;
+    shares: string[];
   }
 >;
 
-const useAddFund = (options?: UseAddFundProps) => {
+const useRemoveFund = (options?: UseAddFundProps) => {
   const account = useCurrentAccount();
   const client = useQueryClient();
-
   const { mutateAsync: signAndExecuteTransaction } =
     useSignAndExecuteTransaction({
       onError: (error) => {
@@ -33,15 +31,23 @@ const useAddFund = (options?: UseAddFundProps) => {
     });
   return useMutation({
     mutationFn: async ({
-      amount = 0.01,
+      amount,
+      shares,
       fundId,
     }: {
       amount: number;
+      shares: string[];
       fundId: string;
     }) => {
       if (!account) {
         throw new Error("Account not found");
       }
+
+      console.log(shares);
+      if (!shares.length) {
+        throw new Error("Share not found");
+      }
+
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
         !process.env.NEXT_PUBLIC_PACKAGE
@@ -50,38 +56,26 @@ const useAddFund = (options?: UseAddFundProps) => {
       }
 
       const tx = new Transaction();
-
-      const mintRequest = tx.moveCall({
+      console.log(amount * 10 ** 9);
+      tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "fund",
-        function: "invest_with_asset",
+        function: "deinvest",
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
           tx.object(fundId), //fund id
-          tx.splitCoins(tx.gas, [amount * 10 ** 9]), // coin // temporary sui only
+          tx.makeMoveVec({
+            elements: shares.map((share) => tx.object(share)),
+          }), //shares
+          tx.pure.u64(amount * 10 ** 9), //amount
           tx.object("0x6"),
         ],
         typeArguments: ["0x2::sui::SUI"],
       }); //fund
 
-      // mint share
-      const share = tx.moveCall({
-        package: process.env.NEXT_PUBLIC_PACKAGE,
-        module: "fund_share",
-        function: "mint",
-        arguments: [
-          tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
-          mintRequest, //mint request
-        ],
-        typeArguments: ["0x2::sui::SUI"],
-      });
-
-      tx.transferObjects([share], account.address);
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
-      await syncDb.invest();
-
       console.log(result);
     },
     onError: (error) => {
@@ -90,12 +84,13 @@ const useAddFund = (options?: UseAddFundProps) => {
     ...options,
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
-      toast.success("Fund added successfully");
+      await syncDb.deinvest();
       await client.invalidateQueries({
         queryKey: ["pools"],
       });
+      toast.success("Fund removed successfully");
     },
   });
 };
 
-export default useAddFund;
+export default useRemoveFund;

@@ -20,7 +20,16 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
     <QueryClientProvider client={queryClient}>
       <SuiClientProvider networks={networkConfig} defaultNetwork="mainnet">
         <WalletProvider autoConnect>
-          <Toaster />
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: "#333",
+                color: "#fff",
+              },
+            }}
+          />
           {children}
         </WalletProvider>
       </SuiClientProvider>

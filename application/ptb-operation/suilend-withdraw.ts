@@ -39,6 +39,10 @@ export const suilendWithdraw = ({
     throw new Error("Cap not found");
   }
 
+  if (!process.env.NEXT_PUBLIC_FUND_BASE) {
+    throw new Error("Fund base not found");
+  }
+
   const [takeAsset, takeRequest] = tx.moveCall({
     package: packageId,
     module: "fund",
@@ -53,7 +57,7 @@ export const suilendWithdraw = ({
     typeArguments: [
       suilendWithdrawInfo.inputType,
       suilendWithdrawInfo.outputType,
-      "0x2::sui::SUI",
+      process.env.NEXT_PUBLIC_FUND_BASE,
     ],
   });
 
@@ -99,7 +103,7 @@ export const suilendWithdraw = ({
     typeArguments: [
       suilendWithdrawInfo.inputType,
       suilendWithdrawInfo.outputType,
-      "0x2::sui::SUI",
+      process.env.NEXT_PUBLIC_FUND_BASE,
     ],
   });
   if (!isNaN(Number(reStakeAmount)) && Number(reStakeAmount) > 0) {
@@ -125,7 +129,7 @@ export const suilendWithdraw = ({
       typeArguments: [
         suilendDepositInfo.inputType,
         suilendDepositInfo.outputType,
-        "0x2::sui::SUI",
+        process.env.NEXT_PUBLIC_FUND_BASE,
       ],
     });
 
@@ -172,7 +176,7 @@ export const suilendWithdraw = ({
       typeArguments: [
         suilendDepositInfo.inputType,
         suilendDepositInfo.outputType,
-        "0x2::sui::SUI",
+        process.env.NEXT_PUBLIC_FUND_BASE,
       ],
     });
   }

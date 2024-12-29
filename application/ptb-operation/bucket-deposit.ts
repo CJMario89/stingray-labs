@@ -40,6 +40,10 @@ export const bucketDeposit = ({
     throw new Error("Cap not found");
   }
 
+  if (!process.env.NEXT_PUBLIC_FUND_BASE) {
+    throw new Error("Fund base not found");
+  }
+
   if (hasDeposit) {
     // Withdraw
     const bucketWithdrawInfo = BUCKET_WITHDRAW.find(
@@ -62,7 +66,7 @@ export const bucketDeposit = ({
         bucketWithdrawInfo.inputType,
         bucketWithdrawInfo.outputType1,
         bucketWithdrawInfo.outputType2,
-        "0x2::sui::SUI",
+        process.env.NEXT_PUBLIC_FUND_BASE,
       ],
     });
 
@@ -95,7 +99,7 @@ export const bucketDeposit = ({
         bucketWithdrawInfo.inputType,
         bucketWithdrawInfo.outputType1,
         bucketWithdrawInfo.outputType2,
-        "0x2::sui::SUI",
+        process.env.NEXT_PUBLIC_FUND_BASE,
       ],
     });
   }
@@ -118,7 +122,7 @@ export const bucketDeposit = ({
     typeArguments: [
       bucketDepositInfo.inputType,
       bucketDepositInfo.outputType,
-      "0x2::sui::SUI",
+      process.env.NEXT_PUBLIC_FUND_BASE,
     ],
   });
 
@@ -149,7 +153,7 @@ export const bucketDeposit = ({
     typeArguments: [
       bucketDepositInfo.inputType,
       bucketDepositInfo.outputType,
-      "0x2::sui::SUI",
+      process.env.NEXT_PUBLIC_FUND_BASE,
     ],
   });
   return { tx };

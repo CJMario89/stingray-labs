@@ -1,5 +1,4 @@
 "use client";
-import useGetPoolBalance from "@/application/query/pool/use-get-pool-balance";
 import useGetPools from "@/application/query/use-get-pools";
 import SelectMenu from "@/components/select-menu";
 import Farm from "@/components/trade/farm";
@@ -10,7 +9,11 @@ import { useEffect, useState } from "react";
 
 const Page = () => {
   const account = useCurrentAccount();
-  const { data: pools, isSuccess } = useGetPools({
+  const {
+    data: pools,
+    isSuccess,
+    isPending,
+  } = useGetPools({
     owner: account?.address,
     types: ["trading"],
   });
@@ -29,36 +32,34 @@ const Page = () => {
     setSelected(pools[0]);
   }, [account, isSuccess, pools]);
 
-  const { data: poolBalance } = useGetPoolBalance({
-    fundId: selected?.object_id,
-  });
   return (
     <div className="flex h-full w-full flex-col gap-4">
       <div className="flex flex-col gap-4">
         <div className="text-2xl font-semibold">Trade</div>
         <div className="w-[fit-content]">
-          <SelectMenu
-            options={
-              pools?.map((pool) => ({
-                key: pool.name,
-                value: pool.object_id,
-              })) ?? []
-            }
-            value={{
-              key: selected?.name ?? "",
-              value: selected?.object_id ?? "",
-            }}
-            onSelect={(pool) =>
-              setSelected(pools?.find((p) => p.object_id === pool.value))
-            }
-          />
+          {!isPending && pools?.length === 0 ? (
+            <div className="text-neutral-400">No running pools found</div>
+          ) : (
+            <SelectMenu
+              options={
+                pools?.map((pool) => ({
+                  key: pool.name,
+                  value: pool.object_id,
+                })) ?? []
+              }
+              value={{
+                key: selected?.name ?? "",
+                value: selected?.object_id ?? "",
+              }}
+              onSelect={(pool) =>
+                setSelected(pools?.find((p) => p.object_id === pool.value))
+              }
+            />
+          )}
         </div>
 
         <div className="flex flex-col gap-4 md:flex-row">
-          <Swap
-            fundId={selected?.object_id ?? ""}
-            balance={poolBalance?.balances}
-          />
+          <Swap fundId={selected?.object_id ?? ""} />
           <Farm fundId={selected?.object_id} />
         </div>
       </div>

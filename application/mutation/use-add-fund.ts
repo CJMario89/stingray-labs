@@ -44,7 +44,8 @@ const useAddFund = (options?: UseAddFundProps) => {
       }
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
-        !process.env.NEXT_PUBLIC_PACKAGE
+        !process.env.NEXT_PUBLIC_PACKAGE ||
+        !process.env.NEXT_PUBLIC_FUND_BASE
       ) {
         throw new Error("Global config or package not found");
       }
@@ -58,10 +59,12 @@ const useAddFund = (options?: UseAddFundProps) => {
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
           tx.object(fundId), //fund id
-          tx.splitCoins(tx.gas, [amount * 10 ** 9]), // coin // temporary sui only
+          tx.splitCoins(tx.gas, [
+            amount * 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
+          ]), // coin // temporary sui only
           tx.object("0x6"),
         ],
-        typeArguments: ["0x2::sui::SUI"],
+        typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
       }); //fund
 
       // mint share
@@ -73,7 +76,7 @@ const useAddFund = (options?: UseAddFundProps) => {
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
           mintRequest, //mint request
         ],
-        typeArguments: ["0x2::sui::SUI"],
+        typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
       });
 
       tx.transferObjects([share], account.address);

@@ -4,6 +4,7 @@ import SelectMenu from "../select-menu";
 import { secondaryGradient } from "@/app/stingray-pools/page";
 
 const TokenInput = ({
+  isGettingBalance,
   protocol,
   balance,
   isInputLoading,
@@ -14,6 +15,7 @@ const TokenInput = ({
   onSelectToken,
   onChangeValue,
 }: {
+  isGettingBalance?: boolean;
   protocol?: string;
   balance?: FundBalance;
   isInputLoading?: boolean;
@@ -58,9 +60,9 @@ const TokenInput = ({
               placeholder="0"
             />
           </div>
-
           <div className="text-sm text-neutral-400">
             Balance: {tokenBalance?.value}
+            {isGettingBalance && <span className="skeleton" />}
           </div>
         </div>
         <div className="relative flex shrink-0 self-center">

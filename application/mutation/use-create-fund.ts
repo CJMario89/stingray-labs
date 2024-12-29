@@ -63,7 +63,8 @@ const useCreateFund = (options?: UseCreateFundProps) => {
       }
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
-        !process.env.NEXT_PUBLIC_PACKAGE
+        !process.env.NEXT_PUBLIC_PACKAGE ||
+        !process.env.NEXT_PUBLIC_FUND_BASE
       ) {
         throw new Error("Global config or package not found");
       }
@@ -103,11 +104,17 @@ const useCreateFund = (options?: UseCreateFundProps) => {
           ), //invest duration
           // tx.pure.u64(endTime + 1000 * 60 * 60 * 12), // end time
           tx.pure.u64(new Date(tradingEndTime).getTime()), // end time
-          tx.pure.u64(limitAmount * 10 ** 9), // limit amount
+          tx.pure.u64(
+            limitAmount *
+              10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
+          ), // limit amount
           tx.pure.u64(expectedRoi * 100), // roi
-          tx.splitCoins(tx.gas, [initialAmount * 10 ** 9]), // coin // temporary sui only
+          tx.splitCoins(tx.gas, [
+            initialAmount *
+              10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
+          ]), // coin // temporary sui only
         ],
-        typeArguments: ["0x2::sui::SUI"],
+        typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
       }); //fund
 
       // fund to share object
@@ -118,7 +125,7 @@ const useCreateFund = (options?: UseCreateFundProps) => {
         arguments: [
           fund[0], //fund
         ],
-        typeArguments: ["0x2::sui::SUI"],
+        typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
       });
 
       // mint share
@@ -130,7 +137,7 @@ const useCreateFund = (options?: UseCreateFundProps) => {
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
           fund[1], //mint request
         ],
-        typeArguments: ["0x2::sui::SUI"],
+        typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
       });
 
       tx.transferObjects([share], account.address);

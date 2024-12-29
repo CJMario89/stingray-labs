@@ -50,13 +50,14 @@ const useRemoveFund = (options?: UseAddFundProps) => {
 
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
-        !process.env.NEXT_PUBLIC_PACKAGE
+        !process.env.NEXT_PUBLIC_PACKAGE ||
+        !process.env.NEXT_PUBLIC_FUND_BASE
       ) {
         throw new Error("Global config or package not found");
       }
 
       const tx = new Transaction();
-      console.log(amount * 10 ** 9);
+
       tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "fund",
@@ -67,10 +68,12 @@ const useRemoveFund = (options?: UseAddFundProps) => {
           tx.makeMoveVec({
             elements: shares.map((share) => tx.object(share)),
           }), //shares
-          tx.pure.u64(amount * 10 ** 9), //amount
+          tx.pure.u64(
+            amount * Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
+          ), //amount
           tx.object("0x6"),
         ],
-        typeArguments: ["0x2::sui::SUI"],
+        typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
       }); //fund
 
       const result = await signAndExecuteTransaction({

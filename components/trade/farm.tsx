@@ -4,18 +4,14 @@ import Image from "next/image";
 import { primaryGradient } from "@/app/stingray-pools/page";
 import { BUCKET_DEPOSIT } from "@/constant/defi-data/bucket";
 import { SCALLOP_DEPOSIT } from "@/constant/defi-data/scallop";
-import { SUILEND_DEPOSIT } from "@/constant/defi-data/suilend";
 import bucket from "@/public/images/partner-bucket.png";
 import scallop from "@/public/images/partner-scallop.png";
-import suilend from "@/public/images/partner-suilend.png";
 import { useState } from "react";
 import SelectMenu from "../select-menu";
 import useScallopDeposit from "@/application/mutation/defi/use-scallop-deposit";
 import useBucketDeposit from "@/application/mutation/defi/use-bucket-deposit";
-import useSuilendDeposit from "@/application/mutation/defi/use-suilend-deposit";
 import useScallopWithdraw from "@/application/mutation/defi/use-scallop-withdraw";
 import useBucketWithdraw from "@/application/mutation/defi/use-bucket-withdraw";
-import useSuilendWithdraw from "@/application/mutation/defi/use-suilend-withdraw";
 import useGetPoolBalance from "@/application/query/pool/use-get-pool-balance";
 import { coins } from "@/constant/coin";
 
@@ -31,16 +27,16 @@ const Farm = ({ fundId }: { fundId?: string }) => {
       powerBy: scallop,
       tokens: SCALLOP_DEPOSIT.map((info) => info.name),
     },
-    {
-      name: "Suilend",
-      powerBy: suilend,
-      tokens: SUILEND_DEPOSIT.map((info) => info.name),
-    },
+    // {
+    //   name: "Suilend",
+    //   powerBy: suilend,
+    //   tokens: SUILEND_DEPOSIT.map((info) => info.name),
+    // },
   ];
   const [activeFarm, setActiveFarm] = useState(farms[0]);
   const { name, powerBy, tokens } = activeFarm;
 
-  const { data: poolBalance } = useGetPoolBalance({
+  const { data: poolBalance, isPending: isGettingBalance } = useGetPoolBalance({
     fundId,
   });
   console.log(poolBalance);
@@ -61,13 +57,13 @@ const Farm = ({ fundId }: { fundId?: string }) => {
         setAmount("");
       },
     });
-  const { mutate: suilendDeposit, isPending: isSuilendDepositing } =
-    useSuilendDeposit({
-      fundId,
-      onSuccess: () => {
-        setAmount("");
-      },
-    });
+  // const { mutate: suilendDeposit, isPending: isSuilendDepositing } =
+  //   useSuilendDeposit({
+  //     fundId,
+  //     onSuccess: () => {
+  //       setAmount("");
+  //     },
+  //   });
   const { mutate: scallopWithdraw, isPending: isScallopWithdrawing } =
     useScallopWithdraw({
       fundId,
@@ -82,19 +78,19 @@ const Farm = ({ fundId }: { fundId?: string }) => {
         setAmount("");
       },
     });
-  const { mutate: suilendWithdraw, isPending: isSuilendWithdrawing } =
-    useSuilendWithdraw({
-      fundId,
-      onSuccess: () => {
-        setAmount("");
-      },
-    });
+  // const { mutate: suilendWithdraw, isPending: isSuilendWithdrawing } =
+  //   useSuilendWithdraw({
+  //     fundId,
+  //     onSuccess: () => {
+  //       setAmount("");
+  //     },
+  //   });
 
-  const isDepositing =
-    isScallopDepositing || isBucketDepositing || isSuilendDepositing;
+  const isDepositing = isScallopDepositing || isBucketDepositing;
+  // || isSuilendDepositing;
 
-  const isWithdrawing =
-    isScallopWithdrawing || isBucketWithdrawing || isSuilendWithdrawing;
+  const isWithdrawing = isScallopWithdrawing || isBucketWithdrawing;
+  // || isSuilendWithdrawing;
 
   const balance = poolBalance?.balances;
 
@@ -139,6 +135,7 @@ const Farm = ({ fundId }: { fundId?: string }) => {
         />
         <div className={`flex w-full flex-col items-center gap-4`}>
           <TokenInput
+            isGettingBalance={isGettingBalance}
             protocol={name}
             balance={balance}
             amount={amount}
@@ -183,13 +180,14 @@ const Farm = ({ fundId }: { fundId?: string }) => {
                     hasDeposit,
                     originalAmount: buckAmount,
                   });
-                } else if (name === "Suilend") {
-                  suilendDeposit({
-                    amount,
-                    name: token,
-                    fundId,
-                  });
                 }
+                // else if (name === "Suilend") {
+                //   suilendDeposit({
+                //     amount,
+                //     name: token,
+                //     fundId,
+                //   });
+                // }
               }}
               disabled={
                 isDepositing ||
@@ -243,21 +241,22 @@ const Farm = ({ fundId }: { fundId?: string }) => {
                     fundId,
                     reStakeAmount,
                   });
-                } else if (name === "Suilend") {
-                  const liquidityAmount = farmings
-                    ?.find((f) => f.protocol === "Suilend")
-                    ?.liquidityValue.toString();
-                  if (!liquidityAmount) {
-                    return;
-                  }
-                  suilendWithdraw({
-                    // liquidityAmount: Number(liquidityAmount) - 1,
-                    liquidityAmount: Number(liquidityAmount),
-                    reStakeAmount,
-                    name: token,
-                    fundId,
-                  });
                 }
+                // else if (name === "Suilend") {
+                //   const liquidityAmount = farmings
+                //     ?.find((f) => f.protocol === "Suilend")
+                //     ?.liquidityValue.toString();
+                //   if (!liquidityAmount) {
+                //     return;
+                //   }
+                //   suilendWithdraw({
+                //     // liquidityAmount: Number(liquidityAmount) - 1,
+                //     liquidityAmount: Number(liquidityAmount),
+                //     reStakeAmount,
+                //     name: token,
+                //     fundId,
+                //   });
+                // }
               }}
               disabled={
                 isWithdrawing ||

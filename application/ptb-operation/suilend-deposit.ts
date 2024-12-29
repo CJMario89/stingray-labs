@@ -32,6 +32,10 @@ export const suilendDeposit = ({
     throw new Error("Cap not found");
   }
 
+  if (!process.env.NEXT_PUBLIC_FUND_BASE) {
+    throw new Error("Fund base not found");
+  }
+
   const [takeAsset, takeRequest] = tx.moveCall({
     package: packageId,
     module: "fund",
@@ -46,7 +50,7 @@ export const suilendDeposit = ({
     typeArguments: [
       suilendDepositInfo.inputType,
       suilendDepositInfo.outputType,
-      "0x2::sui::SUI",
+      process.env.NEXT_PUBLIC_FUND_BASE,
     ],
   });
 
@@ -93,7 +97,7 @@ export const suilendDeposit = ({
     typeArguments: [
       suilendDepositInfo.inputType,
       suilendDepositInfo.outputType,
-      "0x2::sui::SUI",
+      process.env.NEXT_PUBLIC_FUND_BASE,
     ],
   });
   return { tx };

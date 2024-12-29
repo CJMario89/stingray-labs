@@ -1,6 +1,5 @@
 import cetus from "@/public/images/partner-cetus.png";
 import { CETUS_SWAP } from "@/constant/defi-data/cetus";
-import { FundBalance } from "@/type";
 import { coins } from "@/constant/coin";
 import useGetQuote from "@/application/query/use-get-quote";
 import Image from "next/image";
@@ -10,14 +9,9 @@ import { useState } from "react";
 import { primaryGradient } from "@/app/stingray-pools/page";
 import useCetusSwap from "@/application/mutation/defi/use-cetus-swap";
 import useGetPoolCap from "@/application/query/pool/use-get-pool-cap";
+import useGetPoolBalance from "@/application/query/pool/use-get-pool-balance";
 
-const Swap = ({
-  fundId,
-  balance,
-}: {
-  fundId?: string;
-  balance?: FundBalance;
-}) => {
+const Swap = ({ fundId }: { fundId?: string }) => {
   const tokens = ["SUI", ...CETUS_SWAP.map((info) => info.name)];
   const [inToken, setInToken] = useState(tokens[0]);
   const [inAmount, setInAmount] = useState("");
@@ -31,7 +25,13 @@ const Swap = ({
     fundId,
   });
 
-  const { data: cap, isPending: isGettingCap } = useGetPoolCap({ fundId });
+  const { data: poolBalance, isPending: isGettingBalance } = useGetPoolBalance({
+    fundId,
+  });
+
+  const balance = poolBalance?.balances;
+
+  const { data: cap, isLoading: isGettingCap } = useGetPoolCap({ fundId });
   console.log(cap);
 
   const inTokenDecimal =
@@ -76,12 +76,15 @@ const Swap = ({
         )
         .replace(/\.?0+$/, "")
     : "";
-
+  console.log(isGettingCap);
+  console.log(isSwaping);
+  console.log(isQuoting);
   return (
     <div
       className={`flex flex-col items-center justify-center gap-4 rounded-md ${primaryGradient} w-[335px] p-4`}
     >
       <TokenInput
+        isGettingBalance={isGettingBalance}
         balance={balance}
         isSwap
         isInputLoading={inLoading}
@@ -118,6 +121,7 @@ const Swap = ({
       </button>
 
       <TokenInput
+        isGettingBalance={isGettingBalance}
         balance={balance}
         isSwap
         isInputLoading={outLoading}

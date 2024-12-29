@@ -29,6 +29,7 @@ const useGetPoolBalance = (options?: UseGetPoolBalanceProps) => {
     },
     ...options,
     enabled: !!fundId,
+    refetchInterval: 3000,
   });
 };
 

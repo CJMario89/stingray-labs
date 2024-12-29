@@ -32,6 +32,10 @@ export const swap = ({
     throw new Error("Cap not found");
   }
 
+  if (!process.env.NEXT_PUBLIC_FUND_BASE) {
+    throw new Error("Fund base not found");
+  }
+
   if (inToken === "SUI" || outToken === "SUI") {
     const suiAmount = inToken === "SUI" ? inAmount : 0;
     const otherAmount = inToken === "SUI" ? 0 : inAmount;
@@ -61,7 +65,7 @@ export const swap = ({
         typeArguments: [
           swapInfo.secondToken.type,
           swapInfo.firstToken.type,
-          "0x2::sui::SUI",
+          process.env.NEXT_PUBLIC_FUND_BASE,
         ],
       });
 
@@ -107,7 +111,7 @@ export const swap = ({
         typeArguments: [
           swapInfo.secondToken.type,
           swapInfo.firstToken.type,
-          "0x2::sui::SUI",
+          process.env.NEXT_PUBLIC_FUND_BASE,
         ],
       });
 
@@ -137,7 +141,7 @@ export const swap = ({
         typeArguments: [
           swapInfo.firstToken.type,
           swapInfo.secondToken.type,
-          "0x2::sui::SUI",
+          process.env.NEXT_PUBLIC_FUND_BASE,
         ],
       });
 
@@ -183,7 +187,7 @@ export const swap = ({
         typeArguments: [
           swapInfo.firstToken.type,
           swapInfo.secondToken.type,
-          "0x2::sui::SUI",
+          process.env.NEXT_PUBLIC_FUND_BASE,
         ],
       });
 
@@ -225,7 +229,7 @@ export const swap = ({
       typeArguments: [
         swapInfo.firstToken.type,
         swapInfo.secondToken.type,
-        "0x2::sui::SUI",
+        process.env.NEXT_PUBLIC_FUND_BASE,
       ],
     });
 
@@ -263,7 +267,7 @@ export const swap = ({
       module: "balance",
       function: "value",
       arguments: [secondAsset],
-      typeArguments: ["0x2::sui::SUI"],
+      typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
     });
 
     tx.moveCall({
@@ -279,7 +283,7 @@ export const swap = ({
       typeArguments: [
         swapInfo.firstToken.type,
         swapInfo.secondToken.type,
-        "0x2::sui::SUI",
+        process.env.NEXT_PUBLIC_FUND_BASE,
       ],
     });
 
@@ -307,7 +311,7 @@ export const swap = ({
       typeArguments: [
         secondSwapInfo.secondToken.type,
         secondSwapInfo.firstToken.type,
-        "0x2::sui::SUI",
+        process.env.NEXT_PUBLIC_FUND_BASE,
       ],
     });
 
@@ -353,7 +357,7 @@ export const swap = ({
       typeArguments: [
         secondSwapInfo.secondToken.type,
         secondSwapInfo.firstToken.type,
-        "0x2::sui::SUI",
+        process.env.NEXT_PUBLIC_FUND_BASE,
       ],
     });
 

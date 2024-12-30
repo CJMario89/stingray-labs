@@ -107,3 +107,12 @@ model user {
   name      String?
   signature String
 }
+
+model sponsor_pool {
+  id          String @id
+  sponsor     String
+  init_amount Float
+  event_seq   Int
+  tx_digest   String
+  timestamp   BigInt
+}

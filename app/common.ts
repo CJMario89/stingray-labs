@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { formatSuiPrice } from "@/common";
+import { formatBasePrice } from "@/common";
 import { Fund } from "@/type";
 
 export const getQuery = ({ req, keys }: { req: Request; keys: string[] }) => {
@@ -28,7 +28,7 @@ export const getFundStatistics = (_fund: unknown) => {
   );
   const investCount = investSet.size;
   return {
-    totalFunded: formatSuiPrice(totalFunded ?? 0),
+    totalFunded: formatBasePrice(totalFunded ?? 0),
     totalInvestor: investCount,
   };
 };

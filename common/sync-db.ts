@@ -18,4 +18,5 @@ export const syncDb = {
       body: JSON.stringify(protocol),
     }),
   claim: () => fetch(`${url}/sync/claim`, { method: "POST" }),
+  sponsorPool: () => fetch(`${url}/sync/sponsor-pool`, { method: "POST" }),
 };

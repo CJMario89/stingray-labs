@@ -72,7 +72,7 @@ export async function GET(req: Request) {
     const farmings: Farming[] = [];
     const coinTypeName = coin.typename.slice(2);
     // funded (spot)
-    if (coin.name === "SUI") {
+    if (coin.name === "USDC") {
       const funded =
         fund?.fund_history?.reduce((acc, curr) => {
           if (curr.action === "Invested") {
@@ -322,12 +322,12 @@ export async function GET(req: Request) {
       };
     }),
   );
-  const sui =
-    Number(balances?.find((balance) => balance.name === "SUI")?.value) ?? 0;
+  const usdc =
+    Number(balances?.find((balance) => balance.name === "USDC")?.value) ?? 0;
 
   const trading =
     balances
-      ?.filter((balance) => balance.name !== "SUI")
+      ?.filter((balance) => balance.name !== "USDC")
       ?.reduce((acc, balance) => {
         const priceRate = balance.rate;
         if (!priceRate) return acc;
@@ -350,14 +350,14 @@ export async function GET(req: Request) {
 
   return Response.json({
     balances,
-    sui,
+    usdc,
     trading,
     farming,
-    total: sui + trading + farming,
+    total: usdc + trading + farming,
     percent: {
-      sui: (sui / (sui + trading + farming)) * 100,
-      trading: (trading / (sui + trading + farming)) * 100,
-      farming: (farming / (sui + trading + farming)) * 100,
+      sui: (usdc / (usdc + trading + farming)) * 100,
+      trading: (trading / (usdc + trading + farming)) * 100,
+      farming: (farming / (usdc + trading + farming)) * 100,
     },
   });
 }

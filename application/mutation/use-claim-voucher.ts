@@ -1,4 +1,3 @@
-import { syncDb } from "@/common/sync-db";
 import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
@@ -9,18 +8,19 @@ import {
   UseMutationOptions,
   useQueryClient,
 } from "@tanstack/react-query";
+import { syncDb } from "@/common/sync-db";
 import toast from "react-hot-toast";
+import useGetCoins from "./use-get-coins";
 
-type UseAddFundProps = UseMutationOptions<
+type UseClaimVoucherProps = UseMutationOptions<
   void,
   Error,
   {
-    amount: number;
-    shares: string[];
+    sponsorPoolId: string;
   }
 >;
 
-const useRemoveFund = (options?: UseAddFundProps) => {
+const useClaimVoucher = (options?: UseClaimVoucherProps) => {
   const account = useCurrentAccount();
   const client = useQueryClient();
   const { mutateAsync: signAndExecuteTransaction } =
@@ -29,25 +29,13 @@ const useRemoveFund = (options?: UseAddFundProps) => {
         console.error(error);
       },
     });
+
+  const { mutateAsync: getCoins } = useGetCoins();
   return useMutation({
-    mutationFn: async ({
-      amount,
-      shares,
-      fundId,
-    }: {
-      amount: number;
-      shares: string[];
-      fundId: string;
-    }) => {
+    mutationFn: async ({ sponsorPoolId }: { sponsorPoolId: string }) => {
       if (!account) {
         throw new Error("Account not found");
       }
-
-      console.log(shares);
-      if (!shares.length) {
-        throw new Error("Share not found");
-      }
-
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
         !process.env.NEXT_PUBLIC_PACKAGE ||
@@ -60,21 +48,14 @@ const useRemoveFund = (options?: UseAddFundProps) => {
 
       tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
-        module: "fund",
-        function: "deinvest",
+        module: "voucher",
+        function: "mint_fund_manager_voucher",
         arguments: [
-          tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
-          tx.object(fundId), //fund id
-          tx.makeMoveVec({
-            elements: shares.map((share) => tx.object(share)),
-          }), //shares
-          tx.pure.u64(
-            amount * 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
-          ), //amount
-          tx.object("0x6"),
+          tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG),
+          tx.object(sponsorPoolId),
         ],
         typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
-      }); //fund
+      });
 
       const result = await signAndExecuteTransaction({
         transaction: tx,
@@ -85,15 +66,21 @@ const useRemoveFund = (options?: UseAddFundProps) => {
       console.error(error);
     },
     ...options,
-    onSuccess: async (_data, _variables, _context) => {
-      options?.onSuccess?.(_data, _variables, _context);
-      await syncDb.deinvest();
+    onSuccess: async (data, variable, context) => {
+      try {
+        await syncDb.fund();
+        await syncDb.invest();
+      } catch {
+        await syncDb.fund();
+        await syncDb.invest();
+      }
+      toast.success("Congratulations! You have successfully created a fund!");
       await client.invalidateQueries({
         queryKey: ["pools"],
       });
-      toast.success("Fund removed successfully");
+      options?.onSuccess?.(data, variable, context);
     },
   });
 };
 
-export default useRemoveFund;
+export default useClaimVoucher;

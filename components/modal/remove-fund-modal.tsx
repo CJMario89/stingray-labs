@@ -35,7 +35,7 @@ const RemoveFundModal = ({
           />
         </label>
         <div className="text-sm text-neutral-400">
-          Deposit Balance: {total} SUI
+          Deposit Balance: {total} USDC
         </div>
         <div className="modal-action">
           <div className="flex gap-4">

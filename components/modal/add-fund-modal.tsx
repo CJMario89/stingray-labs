@@ -11,7 +11,9 @@ const AddFundModal = ({
   pool: Fund;
   onSuccess: () => void;
 }) => {
-  const balance = useGetBalance();
+  const balance = useGetBalance({
+    coinType: process.env.NEXT_PUBLIC_FUND_BASE,
+  });
   const { mutate: add, isPending: isAdding } = useAddFund({
     onSuccess: () => {
       onSuccess();
@@ -30,7 +32,7 @@ const AddFundModal = ({
             placeholder="Amount"
           />
         </label>
-        <div className="text-sm text-neutral-400">Balance: {balance} SUI</div>
+        <div className="text-sm text-neutral-400">Balance: {balance} USDC</div>
         <div className="modal-action">
           <div className="flex gap-4">
             <button

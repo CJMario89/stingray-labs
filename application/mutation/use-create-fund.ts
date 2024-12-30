@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-query";
 import { syncDb } from "@/common/sync-db";
 import toast from "react-hot-toast";
+import useGetCoins from "./use-get-coins";
 
 type UseCreateFundProps = UseMutationOptions<
   void,
@@ -36,6 +37,8 @@ const useCreateFund = (options?: UseCreateFundProps) => {
         console.error(error);
       },
     });
+
+  const { mutateAsync: getCoins } = useGetCoins();
   return useMutation({
     mutationFn: async ({
       name = "",
@@ -86,6 +89,10 @@ const useCreateFund = (options?: UseCreateFundProps) => {
       // console.log(tradingEndTime, "tradingEndTime");
       // console.log(expectedRoi, "expectedRoi");
 
+      const coinAmount =
+        initialAmount * 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL);
+
+      console.log(process.env.NEXT_PUBLIC_FUND_BASE);
       const fund = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "fund",
@@ -109,10 +116,12 @@ const useCreateFund = (options?: UseCreateFundProps) => {
               10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
           ), // limit amount
           tx.pure.u64(expectedRoi * 100), // roi
-          tx.splitCoins(tx.gas, [
-            initialAmount *
-              10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
-          ]), // coin // temporary sui only
+          await getCoins({
+            tx,
+            coinType: process.env.NEXT_PUBLIC_FUND_BASE,
+            amount: coinAmount,
+            owner: account.address,
+          }), // coin
         ],
         typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
       }); //fund
@@ -151,8 +160,13 @@ const useCreateFund = (options?: UseCreateFundProps) => {
     },
     ...options,
     onSuccess: async (data, variable, context) => {
-      await syncDb.fund();
-      await syncDb.invest();
+      try {
+        await syncDb.fund();
+        await syncDb.invest();
+      } catch {
+        await syncDb.fund();
+        await syncDb.invest();
+      }
       toast.success("Congratulations! You have successfully created a fund!");
       await client.invalidateQueries({
         queryKey: ["pools"],

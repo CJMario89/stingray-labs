@@ -1,4 +1,3 @@
-import { syncDb } from "@/common/sync-db";
 import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
@@ -9,18 +8,20 @@ import {
   UseMutationOptions,
   useQueryClient,
 } from "@tanstack/react-query";
+import { Fund } from "@/type";
+import { claim } from "../ptb-operation/claim";
+import { syncDb } from "@/common/sync-db";
 import toast from "react-hot-toast";
 
 type UseAddFundProps = UseMutationOptions<
   void,
   Error,
   {
-    amount: number;
-    shares: string[];
+    fund?: Fund;
   }
 >;
 
-const useRemoveFund = (options?: UseAddFundProps) => {
+const useClaim = (options?: UseAddFundProps) => {
   const account = useCurrentAccount();
   const client = useQueryClient();
   const { mutateAsync: signAndExecuteTransaction } =
@@ -30,18 +31,20 @@ const useRemoveFund = (options?: UseAddFundProps) => {
       },
     });
   return useMutation({
-    mutationFn: async ({
-      amount,
-      shares,
-      fundId,
-    }: {
-      amount: number;
-      shares: string[];
-      fundId: string;
-    }) => {
+    mutationFn: async ({ fund }: { fund: Fund }) => {
       if (!account) {
         throw new Error("Account not found");
       }
+
+      const history = [...(fund.fund_history ?? [])].sort((a, b) => {
+        return Number(a.timestamp) - Number(b.timestamp);
+      });
+      console.log(fund);
+      const shares =
+        history
+          ?.filter((history) => !history?.redeemed)
+          ?.filter((history) => history.investor === account?.address)
+          ?.map((history) => history.share_id) || [];
 
       console.log(shares);
       if (!shares.length) {
@@ -50,35 +53,23 @@ const useRemoveFund = (options?: UseAddFundProps) => {
 
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
-        !process.env.NEXT_PUBLIC_PACKAGE ||
-        !process.env.NEXT_PUBLIC_FUND_BASE
+        !process.env.NEXT_PUBLIC_PACKAGE
       ) {
         throw new Error("Global config or package not found");
       }
 
       const tx = new Transaction();
-
-      tx.moveCall({
-        package: process.env.NEXT_PUBLIC_PACKAGE,
-        module: "fund",
-        function: "deinvest",
-        arguments: [
-          tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
-          tx.object(fundId), //fund id
-          tx.makeMoveVec({
-            elements: shares.map((share) => tx.object(share)),
-          }), //shares
-          tx.pure.u64(
-            amount * 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
-          ), //amount
-          tx.object("0x6"),
-        ],
-        typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
-      }); //fund
+      claim({
+        tx,
+        fundId: fund.object_id,
+        shares,
+        address: account.address,
+      });
 
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
+      await syncDb.claim();
       console.log(result);
     },
     onError: (error) => {
@@ -87,13 +78,12 @@ const useRemoveFund = (options?: UseAddFundProps) => {
     ...options,
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
-      await syncDb.deinvest();
+      toast.success("Claim successfully");
       await client.invalidateQueries({
         queryKey: ["pools"],
       });
-      toast.success("Fund removed successfully");
     },
   });
 };
 
-export default useRemoveFund;
+export default useClaim;

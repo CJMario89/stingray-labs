@@ -9,9 +9,11 @@ import { Fund } from "@/type";
 import { ChangeEvent, useState } from "react";
 import { throttle } from "../common";
 import SelectMenu from "@/components/select-menu";
-import AddFundModal from "@/components/fund/add-fund-modal";
-import RemoveFundModal from "@/components/fund/remove-fund-modal";
+import AddFundModal from "@/components/modal/add-fund-modal";
+import RemoveFundModal from "@/components/modal/remove-fund-modal";
 import IconMinus from "@/components/icons/minus";
+import useClaim from "@/application/mutation/use-claim";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 export const secondaryGradient =
   "bg-[linear-gradient(90deg,_rgba(10,10,10,0.6)_0%,_rgba(10,10,10,0.3)_100%)] shadow-lg";
 
@@ -47,6 +49,18 @@ const FundInfo = ({
   onSuccess: () => void;
 }) => {
   console.log(pool);
+  const { mutate: claim, isPending: isClaiming } = useClaim();
+  const account = useCurrentAccount();
+  const shares =
+    pool?.fund_history
+      ?.filter((history) => !history?.redeemed)
+      ?.filter((history) => history.investor === account?.address)
+      ?.map((history) => history.share_id) || [];
+  const hasShares = shares.length > 0;
+  console.log("hasShares", hasShares);
+  console.log("shares", shares);
+  console.log("shares", pool.type);
+
   const previousROI = undefined;
   return (
     <div className="flex w-full gap-4">
@@ -94,7 +108,7 @@ const FundInfo = ({
           <div
             className={`${secondaryGradient} col-span-2 flex flex-col gap-2 rounded-md px-6 py-4`}
           >
-            <div className="text-[var(--fallback-bc,oklch(var(--bc)/0.6))]">
+            <div className="text-sm text-[var(--fallback-bc,oklch(var(--bc)/0.6))]">
               Strategy Description
             </div>
             <div className="text-md">{pool?.description}</div>
@@ -136,18 +150,22 @@ const FundInfo = ({
                   pool={pool}
                   onSuccess={() => {
                     onSuccess();
-                    document
-                      .getElementById("add-fund-modal")
-                      ?.removeAttribute("open");
+                    (
+                      document.getElementById(
+                        "add-fund-modal",
+                      ) as HTMLDialogElement
+                    )?.close();
                   }}
                 />
                 <RemoveFundModal
                   pool={pool}
                   onSuccess={() => {
                     onSuccess();
-                    document
-                      .getElementById("remove-fund-modal")
-                      ?.removeAttribute("open");
+                    (
+                      document.getElementById(
+                        "remove-fund-modal",
+                      ) as HTMLDialogElement
+                    )?.close();
                   }}
                 />
               </div>
@@ -172,6 +190,19 @@ const FundInfo = ({
                   : ""}
               </div>
             </div>
+          )}
+          {pool.type === "ended" && hasShares && (
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                claim({
+                  fund: pool,
+                });
+              }}
+            >
+              {isClaiming && <div className="loading loading-spinner" />}
+              Claim
+            </button>
           )}
         </div>
       </div>
@@ -264,19 +295,6 @@ const Page = () => {
                 setOrderBy(value.value);
               }}
             />
-            {/* <select
-              className={`select select-bordered select-sm w-full max-w-xs ${secondaryGradient}`}
-              onChange={(e) => {
-                setOrderBy(e.target.value);
-              }}
-              value={orderBy}
-            >
-              {orderOptions.map((order) => (
-                <option key={order} value={order}>
-                  {order}
-                </option>
-              ))}
-            </select> */}
           </div>
         </div>
       </div>

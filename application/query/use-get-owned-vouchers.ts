@@ -2,11 +2,11 @@ import { getSuiService } from "@/common";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useQuery } from "@tanstack/react-query";
 
-const useGetPoolCap = ({ fundId }: { fundId?: string }) => {
+const useGetOwnedVouchers = () => {
   const account = useCurrentAccount();
   const suiService = getSuiService();
   return useQuery({
-    queryKey: ["pool-cap", fundId, account?.address],
+    queryKey: ["voucher", account?.address],
     queryFn: async () => {
       if (!account) {
         throw new Error("Account not found");
@@ -17,21 +17,15 @@ const useGetPoolCap = ({ fundId }: { fundId?: string }) => {
       }
       const objects = await suiService.queryOwnedObjects({
         owner: account?.address,
-        module: "fund",
+        module: "voucher",
         packageId,
-        type: "FundCap",
+        type: "Voucher",
       });
 
-      const object = objects.find((response) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const content = response.data?.content as any;
-        return content?.fields?.fund_id === fundId;
-      });
-
-      return object?.data?.objectId;
+      return objects;
     },
-    enabled: !!fundId && !!account,
+    enabled: !!account,
   });
 };
 
-export default useGetPoolCap;
+export default useGetOwnedVouchers;

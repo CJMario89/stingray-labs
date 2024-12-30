@@ -17,10 +17,10 @@ export const formatPrice = (price: number) => {
   return Intl.NumberFormat().format(price);
 };
 
-export const formatSuiPrice = (price: number) => {
-  return Intl.NumberFormat("en-US", { maximumSignificantDigits: 9 }).format(
-    price / 10 ** 9,
-  );
+export const formatBasePrice = (price: number) => {
+  return Intl.NumberFormat("en-US", {
+    maximumSignificantDigits: Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
+  }).format(price / 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL));
 };
 
 export const getDHMS = (diff: number) => {

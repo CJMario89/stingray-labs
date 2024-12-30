@@ -22,8 +22,7 @@ export async function GET(req: Request) {
       .map((tokenout) => `0x${tokenout.token_out}`)
       .filter(
         (tokenout) =>
-          tokenout !==
-            "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI" &&
+          tokenout !== process.env.NEXT_PUBLIC_FUND_BASE &&
           tokenout !==
             "0x75b23bde4de9aca930d8c1f1780aa65ee777d8b33c3045b053a178b452222e82::fountain_core::StakeProof<1798f84ee72176114ddbf5525a6d964c5f8ea1b3738d08d50d0d3de4cf584884::sbuck::SBUCK,0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>",
       ),

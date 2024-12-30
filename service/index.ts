@@ -65,7 +65,7 @@ export class SuiService {
     return data;
   }
 
-  async queryObjects({
+  async queryOwnedObjects({
     owner,
     module,
     packageId,
@@ -102,6 +102,16 @@ export class SuiService {
     return data;
   }
 
+  async queryObjects({ ids }: { ids: string[] }) {
+    const objects = await this.client.multiGetObjects({
+      ids,
+      options: {
+        showContent: true,
+      },
+    });
+    return objects;
+  }
+
   async upsertArenaEvents() {
     const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
     if (!packageId) {
@@ -125,7 +135,7 @@ export class SuiService {
     const events = await this.queryEvents({
       module: "arena",
       packageId,
-      eventType: "NewArena<0x2::sui::SUI>",
+      eventType: `NewArena<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
       nextCursor,
     });
 
@@ -318,7 +328,7 @@ export class SuiService {
     const events = await this.queryEvents({
       module: "arena",
       packageId,
-      eventType: "Attended<0x2::sui::SUI>",
+      eventType: `Attended<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
       nextCursor,
     });
 
@@ -1064,7 +1074,7 @@ export class SuiService {
     const events = await this.queryEvents({
       module: "fund",
       packageId,
-      eventType: "Claimed<0x2::sui::SUI>",
+      eventType: `Claimed<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
       nextCursor,
     });
     console.log(events);
@@ -1131,6 +1141,82 @@ export class SuiService {
     });
 
     const result = await this.prisma.$transaction(upserts.flatMap((x) => x));
+    return result;
+  }
+
+  async upsertSponsorPoolEvents() {
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
+    if (!packageId) {
+      throw new Error("Package not found");
+    }
+    const sponsorPool = await this.prisma.sponsor_pool.findFirst({
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
+
+      select: {
+        tx_digest: true,
+        event_seq: true,
+      },
+    });
+    const nextCursor: PaginatedEvents["nextCursor"] = sponsorPool
+      ? {
+          txDigest: sponsorPool.tx_digest,
+          eventSeq: sponsorPool.event_seq.toString(),
+        }
+      : undefined;
+    const events = await this.queryEvents({
+      module: "voucher",
+      packageId,
+      eventType: `CreatedSponsorPool<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
+      nextCursor,
+    });
+    console.log(events);
+
+    type SponsorPoolData = {
+      id: string;
+      init_asset_amount: string;
+      sponsor_addr?: string;
+    };
+
+    const upserts = events.map((event) => {
+      console.log(event);
+      const data: SponsorPoolData = event.parsedJson as SponsorPoolData;
+      const timestamp = event.timestampMs ?? "0";
+
+      const object: {
+        id: string;
+        sponsor: string;
+        init_amount: number;
+        event_seq: number;
+        tx_digest: string;
+        timestamp: number;
+      } = {
+        id: data.id,
+        sponsor: data.sponsor_addr ?? "",
+        init_amount: Number(data.init_asset_amount),
+        event_seq: Number(event.id.eventSeq),
+        tx_digest: event.id.txDigest,
+        timestamp: Number(timestamp),
+      };
+
+      return this.prisma.sponsor_pool.upsert({
+        where: {
+          id: data.id,
+          event_seq: Number(event.id.eventSeq),
+          tx_digest: event.id.txDigest,
+        },
+        update: object,
+        create: object,
+      });
+    });
+
+    const result = await this.prisma.$transaction(upserts);
     return result;
   }
 }

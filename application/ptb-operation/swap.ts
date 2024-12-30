@@ -261,13 +261,13 @@ export const swap = ({
         swapInfo.poolSecondType,
       ],
     });
-    console.log("secondAsset!!!!!!!!!!!!");
+
     const secondAssetValue = tx.moveCall({
       package: "0x2",
       module: "balance",
       function: "value",
       arguments: [secondAsset],
-      typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
+      typeArguments: ["0x2::sui::SUI"],
     });
 
     tx.moveCall({

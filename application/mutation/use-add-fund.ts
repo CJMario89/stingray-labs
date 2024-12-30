@@ -10,6 +10,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import useGetCoins from "./use-get-coins";
 // import useRefetchWholeFund from "./use-refetch-whole-fund";
 
 type UseAddFundProps = UseMutationOptions<
@@ -31,6 +32,7 @@ const useAddFund = (options?: UseAddFundProps) => {
         console.error(error);
       },
     });
+  const { mutateAsync: getCoins } = useGetCoins();
   return useMutation({
     mutationFn: async ({
       amount = 0.01,
@@ -52,6 +54,16 @@ const useAddFund = (options?: UseAddFundProps) => {
 
       const tx = new Transaction();
 
+      const coinAmount =
+        amount * 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL);
+
+      const coinId = await getCoins({
+        tx,
+        owner: account.address,
+        coinType: process.env.NEXT_PUBLIC_FUND_BASE,
+        amount: coinAmount,
+      });
+
       const mintRequest = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "fund",
@@ -59,9 +71,7 @@ const useAddFund = (options?: UseAddFundProps) => {
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
           tx.object(fundId), //fund id
-          tx.splitCoins(tx.gas, [
-            amount * 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
-          ]), // coin // temporary sui only
+          coinId,
           tx.object("0x6"),
         ],
         typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],

@@ -30,6 +30,14 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
       title: "Create Fund",
       href: "/create-fund",
     },
+    {
+      title: "Create Sponsor",
+      href: "/create-sponsor",
+    },
+    {
+      title: "Sponsor Pools",
+      href: "/sponsor-pools",
+    },
   ];
   return (
     <div

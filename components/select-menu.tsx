@@ -23,7 +23,7 @@ const SelectMenu = ({
       <div
         tabIndex={0}
         role="button"
-        className="btn m-1"
+        className="btn"
         onClick={() => {
           setOpen(!open);
         }}
@@ -48,7 +48,7 @@ const SelectMenu = ({
       >
         <div className="flex w-full flex-col">
           {options.map((option) => (
-            <li key={option.key} className="w-full">
+            <li key={option.value} className="w-full">
               <button
                 className="btn btn-ghost"
                 onClick={() => {

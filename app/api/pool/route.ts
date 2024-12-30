@@ -1,5 +1,5 @@
 import { getFundStatistics } from "@/app/common";
-import { formatSuiPrice } from "@/common";
+import { formatBasePrice } from "@/common";
 import { prisma } from "@/prisma";
 import { Fund } from "@/type";
 import SuperJSON from "superjson";
@@ -63,7 +63,7 @@ export async function GET(req: Request) {
         },
         {
           settle_result: {
-            none: {},
+            some: {},
           },
         },
       ],
@@ -116,6 +116,7 @@ export async function GET(req: Request) {
     },
     include: {
       fund_history: true,
+      settle_result: true,
     },
     ...(isEmptyOrderClause ? {} : { orderBy: orderClause }),
   });
@@ -125,10 +126,10 @@ export async function GET(req: Request) {
       funds.map((fund) => ({
         ...fund,
         ...getFundStatistics(fund),
-        limit_amount: formatSuiPrice(fund.limit_amount),
+        limit_amount: formatBasePrice(fund.limit_amount),
         fund_history: fund.fund_history.map((history) => ({
           ...history,
-          amount: formatSuiPrice(history.amount),
+          amount: formatBasePrice(history.amount),
         })),
         type: getPoolType(fund),
       })),
@@ -137,6 +138,7 @@ export async function GET(req: Request) {
 }
 
 function getPoolType(pool: Fund) {
+  console.log(pool);
   if (pool.start_time > Date.now()) {
     return "pending";
   } else if (

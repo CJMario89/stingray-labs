@@ -129,6 +129,11 @@ export class StingrayClient {
     });
     return response;
   }
+
+  async getSponsorPools() {
+    const response = await this.getRequest("/sponsor-pools");
+    return response;
+  }
 }
 
 export const stingrayClient = new StingrayClient();

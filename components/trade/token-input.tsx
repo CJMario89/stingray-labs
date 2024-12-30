@@ -30,10 +30,10 @@ const TokenInput = ({
   const tokenBalance = balance?.find((b) => b.name === token);
   return (
     <div className={`flex flex-col gap-4 rounded-xl ${secondaryGradient} p-4`}>
-      <div className={`"items-center" flex w-full justify-between`}>
-        <div className="flex flex-col gap-2">
+      <div className={`flex h-[100px] w-full items-center justify-between`}>
+        <div className="relative flex flex-col self-center">
           <div
-            className="cursor-pointer text-sm text-neutral-400"
+            className="btn btn-ghost btn-xs absolute left-[0px] top-[-39px] w-[fit-content] text-sm text-neutral-400"
             onClick={() => {
               const tokenBalance = balance?.find((b) => b.name === token);
               if (token && tokenBalance) {
@@ -60,12 +60,27 @@ const TokenInput = ({
               placeholder="0"
             />
           </div>
-          <div className="text-sm text-neutral-400">
+          <div className="absolute bottom-[-39px] left-1 text-sm text-neutral-400">
             Balance: {tokenBalance?.value}
             {isGettingBalance && <span className="skeleton" />}
           </div>
         </div>
-        <div className="relative flex shrink-0 self-center">
+        <div className="relative flex shrink-0 flex-col self-center">
+          {!isSwap && (
+            <div
+              className="btn btn-ghost btn-xs absolute right-[0px] top-[-30px] w-[fit-content] text-sm text-neutral-400"
+              onClick={() => {
+                const tokenBalance = balance?.find((b) => b.name === token);
+                if (token && tokenBalance) {
+                  onChangeValue?.(tokenBalance.farmings[0].value.toString());
+                } else {
+                  onChangeValue?.("");
+                }
+              }}
+            >
+              MAX FARM
+            </div>
+          )}
           <SelectMenu
             options={tokens.map((token) => {
               return {
@@ -85,7 +100,7 @@ const TokenInput = ({
             }}
           />
           {!isSwap && (
-            <div className="absolute bottom-[-16px] right-1 whitespace-nowrap text-right text-sm text-neutral-400">
+            <div className="absolute bottom-[-30px] right-1 whitespace-nowrap text-right text-sm text-neutral-400">
               Farming:{" "}
               {tokenBalance?.farmings.find(
                 (farming) => farming.protocol === protocol,

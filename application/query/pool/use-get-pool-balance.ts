@@ -5,12 +5,12 @@ import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 type UseGetPoolBalanceProps = Omit<
   UseQueryOptions<{
     balances: FundBalance;
-    sui: number;
+    usdc: number;
     trading: number;
     farming: number;
     total: number;
     percent: {
-      sui: number;
+      usdc: number;
       trading: number;
       farming: number;
     };

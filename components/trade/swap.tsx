@@ -12,7 +12,11 @@ import useGetPoolCap from "@/application/query/pool/use-get-pool-cap";
 import useGetPoolBalance from "@/application/query/pool/use-get-pool-balance";
 
 const Swap = ({ fundId }: { fundId?: string }) => {
-  const tokens = ["SUI", ...CETUS_SWAP.map((info) => info.name)];
+  const tokens = [
+    "USDC",
+    "SUI",
+    ...CETUS_SWAP.map((info) => info.name).filter((name) => name !== "USDC"),
+  ];
   const [inToken, setInToken] = useState(tokens[0]);
   const [inAmount, setInAmount] = useState("");
   const [outToken, setOutToken] = useState(tokens[1]);

@@ -78,6 +78,7 @@ const useCetusSwap = (options?: UseCetusSwapProps) => {
       refetchBalance();
       await client.invalidateQueries({
         queryKey: ["poos"],
+        type: "all",
       });
     },
   });

@@ -70,6 +70,7 @@ const useSuilendDeposit = (options?: UseSuilendDespositProps) => {
       toast.success("Deposit success");
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
       refetchBalance();
     },

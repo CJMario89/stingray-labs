@@ -441,6 +441,7 @@ export class SuiService {
       fund_id: string;
       invest_amount: string;
       investor: string;
+      sponsor: string;
       share_id: string;
     };
 
@@ -456,6 +457,7 @@ export class SuiService {
         redeemed: boolean;
         amount: number;
         investor: string;
+        sponsor: string;
         event_seq: number;
         tx_digest: string;
         timestamp: number;
@@ -466,6 +468,7 @@ export class SuiService {
         redeemed: false,
         amount: Number(data.invest_amount),
         investor: data.investor,
+        sponsor: data.sponsor,
         event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
         timestamp: Number(timestamp),

@@ -1,17 +1,35 @@
 import { getSuiService } from "@/common";
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { useQuery } from "@tanstack/react-query";
+import { UseMutationOptions, useQuery } from "@tanstack/react-query";
 
-const useGetOwnedVouchers = () => {
+type UseGetOwnedVouchersProps = UseMutationOptions<
+  {
+    sponsor: string;
+    deadline: string;
+    amount: string;
+    id: string;
+  },
+  Error,
+  {
+    sponsor: string;
+    deadline: string;
+    amount: string;
+    id: string;
+  }
+> & { sponsor?: string; sponsorPoolId?: string };
+
+const useGetOwnedVouchers = (options?: UseGetOwnedVouchersProps) => {
+  const sponsor = options?.sponsor;
+  const sponsorPoolId = options?.sponsorPoolId;
   const account = useCurrentAccount();
   const suiService = getSuiService();
   return useQuery({
-    queryKey: ["voucher", account?.address],
+    queryKey: ["voucher", account?.address, sponsor],
     queryFn: async () => {
       if (!account) {
         throw new Error("Account not found");
       }
-      const packageId = process.env.NEXT_PUBLIC_PACKAGE;
+      const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
       if (!packageId) {
         throw new Error("Package not found");
       }
@@ -21,8 +39,33 @@ const useGetOwnedVouchers = () => {
         packageId,
         type: "Voucher",
       });
+      console.log(objects);
+      return objects
+        .filter((object) => {
+          let flag = true;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const content = object.data?.content as any;
+          if (sponsor) {
+            flag = content.fields?.info?.fields?.sponsor_addr === sponsor;
+          }
 
-      return objects;
+          if (sponsorPoolId) {
+            flag = content.fields?.info?.fields?.sponsor_addr === sponsorPoolId;
+          }
+
+          return flag;
+        })
+        .map((object) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const content = object.data?.content as any;
+          const fields = content.fields?.info?.fields;
+          return {
+            sponsor: fields?.sponsor_addr,
+            deadline: fields?.deadline,
+            amount: fields?.amount,
+            id: object.data?.objectId ?? "",
+          };
+        });
     },
     enabled: !!account,
   });

@@ -12,7 +12,7 @@ import { settle } from "../ptb-operation/settle";
 import { syncDb } from "@/common/sync-db";
 import useGetPoolBalance from "../query/pool/use-get-pool-balance";
 import toast from "react-hot-toast";
-import useGetPoolTokens from "../query/use-get-pool-tokens";
+import useGetPoolTokens from "../query/pool/use-get-pool-tokens";
 
 type UseSettleProps = UseMutationOptions<
   void,
@@ -89,6 +89,7 @@ const useSettle = (options?: UseSettleProps) => {
       refetchBalance();
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
     },
   });

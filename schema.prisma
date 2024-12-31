@@ -54,6 +54,7 @@ model fund_history {
   redeemed       Boolean
   amount         Float
   investor       String
+  sponsor        String
   event_seq      Int
   tx_digest      String
   timestamp      BigInt

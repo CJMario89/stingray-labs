@@ -77,6 +77,7 @@ const useScallopWithdraw = (options?: UseScallopWithdrawProps) => {
       toast.success("Withdraw success");
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
       refetchBalance();
     },

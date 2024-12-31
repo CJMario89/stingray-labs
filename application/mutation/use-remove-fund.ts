@@ -90,6 +90,7 @@ const useRemoveFund = (options?: UseAddFundProps) => {
       await syncDb.deinvest();
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
       toast.success("Fund removed successfully");
     },

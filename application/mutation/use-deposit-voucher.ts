@@ -1,4 +1,3 @@
-import { syncDb } from "@/common/sync-db";
 import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
@@ -9,36 +8,37 @@ import {
   UseMutationOptions,
   useQueryClient,
 } from "@tanstack/react-query";
+import { syncDb } from "@/common/sync-db";
 import toast from "react-hot-toast";
-import useGetCoins from "./use-get-coins";
-// import useRefetchWholeFund from "./use-refetch-whole-fund";
 
-type UseAddFundProps = UseMutationOptions<
+type UseDepositVoucherProps = UseMutationOptions<
   void,
   Error,
   {
-    amount: number;
+    sponsorPoolId: string;
+    vouchers: string[];
     fundId: string;
   }
 >;
 
-const useAddFund = (options?: UseAddFundProps) => {
+const useDepositVoucher = (options?: UseDepositVoucherProps) => {
   const account = useCurrentAccount();
   const client = useQueryClient();
-
   const { mutateAsync: signAndExecuteTransaction } =
     useSignAndExecuteTransaction({
       onError: (error) => {
         console.error(error);
       },
     });
-  const { mutateAsync: getCoins } = useGetCoins();
+
   return useMutation({
     mutationFn: async ({
-      amount = 0.01,
+      sponsorPoolId,
+      vouchers,
       fundId,
     }: {
-      amount: number;
+      sponsorPoolId: string;
+      vouchers: string[];
       fundId: string;
     }) => {
       if (!account) {
@@ -53,29 +53,41 @@ const useAddFund = (options?: UseAddFundProps) => {
       }
 
       const tx = new Transaction();
-
-      const coinAmount =
-        amount * 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL);
-
-      const coinId = await getCoins({
-        tx,
-        owner: account.address,
-        coinType: process.env.NEXT_PUBLIC_FUND_BASE,
-        amount: coinAmount,
+      console.log(
+        `${process.env.NEXT_PUBLIC_PACKAGE_ASSET}::fund::VoucherConsumeRequest<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
+      );
+      const consumeResponse = tx.moveCall({
+        package: process.env.NEXT_PUBLIC_PACKAGE,
+        module: "voucher",
+        function: "consume",
+        arguments: [
+          tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG),
+          tx.object(sponsorPoolId),
+          tx.makeMoveVec({
+            elements: vouchers.map((voucher) => tx.object(voucher)),
+          }),
+          tx.object("0x6"),
+        ],
+        typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
       });
 
       const mintRequest = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "fund",
-        function: "invest_with_asset",
+        function: "invest_with_voucher",
         arguments: [
-          tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
-          tx.object(fundId), //fund id
-          coinId,
+          tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG),
+          tx.makeMoveVec({
+            type: `${process.env.NEXT_PUBLIC_PACKAGE_ASSET}::voucher::VoucherConsumeRequest<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
+            // type: `${process.env.NEXT_PUBLIC_PACKAGE_ASSET}::fund::VoucherConsumeRequest<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
+            elements: [consumeResponse[1]],
+          }),
+          tx.object(fundId),
+          consumeResponse[0],
           tx.object("0x6"),
         ],
         typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
-      }); //fund
+      });
 
       // mint share
       const share = tx.moveCall({
@@ -90,6 +102,7 @@ const useAddFund = (options?: UseAddFundProps) => {
       });
 
       tx.transferObjects([share], account.address);
+
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
@@ -101,15 +114,18 @@ const useAddFund = (options?: UseAddFundProps) => {
       console.error(error);
     },
     ...options,
-    onSuccess: async (_data, _variables, _context) => {
-      options?.onSuccess?.(_data, _variables, _context);
-      toast.success("Fund added successfully");
+    onSuccess: async (data, variable, context) => {
+      await syncDb.sponsorPool();
+      toast.success(
+        "Congratulations! You have successfully deposit with voucher!",
+      );
       await client.invalidateQueries({
-        queryKey: ["pools"],
+        queryKey: ["sponsor-pools"],
         type: "all",
       });
+      options?.onSuccess?.(data, variable, context);
     },
   });
 };
 
-export default useAddFund;
+export default useDepositVoucher;

@@ -11,7 +11,7 @@ const useGetPoolCap = ({ fundId }: { fundId?: string }) => {
       if (!account) {
         throw new Error("Account not found");
       }
-      const packageId = process.env.NEXT_PUBLIC_PACKAGE;
+      const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
       if (!packageId) {
         throw new Error("Package not found");
       }

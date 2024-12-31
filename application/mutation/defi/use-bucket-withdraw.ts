@@ -73,6 +73,7 @@ const useBucketWithdraw = (options?: UseBucketWithdrawProps) => {
       toast.success("Withdraw successful");
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
       refetchBalance();
     },

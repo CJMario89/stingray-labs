@@ -1,37 +1,54 @@
 import { primaryGradient, secondaryGradient } from "@/app/stingray-pools/page";
+import useDepositVoucher from "@/application/mutation/use-deposit-voucher";
+import useGetOwnedVouchers from "@/application/query/use-get-owned-vouchers";
 import useGetPools from "@/application/query/use-get-pools";
-import { SuiObjectResponse } from "@mysten/sui/client";
 import { useState } from "react";
 
 const VoucherDepositModal = ({
   onSuccess,
-  pool,
+  sponsorPoolId,
+  sponsor,
 }: {
   onSuccess: () => void;
-  pool: SuiObjectResponse;
+  sponsorPoolId?: string;
+  sponsor: string;
 }) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const content = pool.data?.content as any;
-  const poolOwner = content?.fields?.sponsor_addr;
+  const [selectedPool, setSelectedPool] = useState<string>();
+
   const { data: pools } = useGetPools({
     types: ["funding"],
-    owner: poolOwner,
+    owner: sponsor,
+  });
+
+  const { mutate: depositVoucher, isPending: isDepositingVoucher } =
+    useDepositVoucher({
+      onSuccess: () => {
+        onSuccess();
+      },
+    });
+
+  console.log(sponsorPoolId);
+  console.log(selectedPool);
+
+  const { data: vouchers, isPending: isGettingVoucher } = useGetOwnedVouchers({
+    sponsor,
   });
   console.log(pools);
-  const [selectedPool, setSelectedPool] = useState("");
+  console.log(vouchers);
   return (
     <dialog id="voucher-deposit-modal" className="modal">
       <div className={`${secondaryGradient} modal-box flex flex-col gap-4`}>
+        <h2 className="mb-4 text-2xl font-bold">Deposit Voucher</h2>
         <div className="flex flex-col gap-4">
           {pools?.map((pool) => {
             return (
               <label
                 key={pool.object_id}
-                className={`flex flex-col p-4 ${primaryGradient} cursor-pointer ${
+                className={`flex flex-col p-4 ${primaryGradient} cursor-pointer rounded-lg ${
                   pool.object_id === selectedPool
-                    ? "border border-neutral-50"
+                    ? "border border-neutral-400"
                     : ""
-                }`}
+                } hover:brightness-[130%]`}
               >
                 <input
                   type="radio"
@@ -49,11 +66,36 @@ const VoucherDepositModal = ({
         </div>
         <div className="modal-action">
           <div className="flex gap-4">
-            <button className={`btn btn-primary`} onClick={() => {}}>
+            <button
+              disabled={!selectedPool || isGettingVoucher}
+              className={`btn btn-primary`}
+              onClick={() => {
+                if (!selectedPool || !sponsorPoolId) {
+                  return;
+                }
+
+                depositVoucher({
+                  sponsorPoolId,
+                  fundId: selectedPool,
+                  vouchers: vouchers?.map((voucher) => voucher.id) ?? [],
+                });
+              }}
+            >
+              {isGettingVoucher ||
+                (isDepositingVoucher && (
+                  <span className="loading loading-spinner" />
+                ))}
               Deposit
             </button>
             <form method="dialog">
-              <button className={`btn ${primaryGradient}`}>Close</button>
+              <button
+                className={`btn ${primaryGradient}`}
+                onClick={() => {
+                  setSelectedPool(undefined);
+                }}
+              >
+                Close
+              </button>
             </form>
           </div>
         </div>

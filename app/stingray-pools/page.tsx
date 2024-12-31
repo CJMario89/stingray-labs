@@ -86,7 +86,7 @@ const FundInfo = ({
             />
             <FundStatistics
               title="Minimun Funding Amount"
-              value={pool.fund_history?.[0].amount || 0}
+              value={pool.fund_history?.[0]?.amount || 0}
               unit="USDC"
             />
           </div>
@@ -104,9 +104,9 @@ const FundInfo = ({
             </div>
           </div>
         </div>
-        <div className="mx-4 grid grid-cols-3 gap-4">
+        <div className="mx-4 grid grid-cols-1 gap-4 md:grid-cols-3">
           <div
-            className={`${secondaryGradient} col-span-2 flex flex-col gap-2 rounded-md px-6 py-4`}
+            className={`${secondaryGradient} flex flex-col gap-2 rounded-md px-6 py-4 md:col-span-2`}
           >
             <div className="text-sm text-[var(--fallback-bc,oklch(var(--bc)/0.6))]">
               Strategy Description
@@ -251,7 +251,7 @@ const Page = () => {
           />
           <IconSearch />
         </label>
-        <div className="mt-4 flex flex-col justify-between md:flex-row md:items-center">
+        <div className="mt-4 flex flex-col-reverse items-end justify-between md:flex-row md:items-center">
           <div className="flex gap-1 md:gap-4">
             {typeOptions.map((type) => (
               <div className="form-control" key={type}>

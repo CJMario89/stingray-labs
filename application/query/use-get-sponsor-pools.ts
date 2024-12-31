@@ -4,7 +4,7 @@ import { getSuiService } from "@/common";
 import { SuiObjectResponse } from "@mysten/sui/client";
 
 type UseGetSponsorPoolsProps = Omit<
-  UseQueryOptions<SuiObjectResponse[]> & {},
+  UseQueryOptions<SuiObjectResponse[], Error, SuiObjectResponse[]>,
   "queryKey"
 >;
 
@@ -12,10 +12,6 @@ const useGetSponsorPools = (options?: UseGetSponsorPoolsProps) => {
   return useQuery({
     queryKey: ["sponsor-pools"],
     queryFn: async () => {
-      const packageId = process.env.NEXT_PUBLIC_PACKAGE;
-      if (!packageId) {
-        throw new Error("Package not found");
-      }
       const response = await stingrayClient.getSponsorPools();
       const pools = await response.json();
       const suiService = getSuiService();

@@ -170,6 +170,7 @@ const useCreateFund = (options?: UseCreateFundProps) => {
       toast.success("Congratulations! You have successfully created a fund!");
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
       options?.onSuccess?.(data, variable, context);
     },

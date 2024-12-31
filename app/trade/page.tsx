@@ -51,7 +51,7 @@ const Page = () => {
         <div className="w-[fit-content]">
           {noPools ? (
             <div className="text-neutral-400">No running pools found</div>
-          ) : (
+          ) : !isPending ? (
             <SelectMenu
               options={
                 pools?.map((pool) => ({
@@ -67,6 +67,8 @@ const Page = () => {
                 setSelected(pools?.find((p) => p.object_id === pool.value))
               }
             />
+          ) : (
+            <div className="skeleton h-8 w-32" />
           )}
         </div>
 
@@ -74,7 +76,7 @@ const Page = () => {
           <Swap fundId={selected?.object_id ?? ""} />
           <Farm fundId={selected?.object_id} />
         </div>
-        {!noPools && (
+        {!noPools && !isPending && (
           <div className="flex gap-2">
             <button
               className="btn btn-primary"

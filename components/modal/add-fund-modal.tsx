@@ -11,7 +11,7 @@ const AddFundModal = ({
   pool: Fund;
   onSuccess: () => void;
 }) => {
-  const balance = useGetBalance({
+  const { data: balance } = useGetBalance({
     coinType: process.env.NEXT_PUBLIC_FUND_BASE,
   });
   const { mutate: add, isPending: isAdding } = useAddFund({

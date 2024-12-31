@@ -81,6 +81,7 @@ const useClaim = (options?: UseAddFundProps) => {
       toast.success("Claim successfully");
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
     },
   });

@@ -97,6 +97,7 @@ const useCreateSponsor = (options?: UseCreateSponsorProps) => {
       );
       await client.invalidateQueries({
         queryKey: ["sponsor-pools"],
+        type: "all",
       });
       options?.onSuccess?.(data, variable, context);
     },

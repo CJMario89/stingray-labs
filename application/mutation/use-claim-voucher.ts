@@ -8,9 +8,7 @@ import {
   UseMutationOptions,
   useQueryClient,
 } from "@tanstack/react-query";
-import { syncDb } from "@/common/sync-db";
 import toast from "react-hot-toast";
-import useGetCoins from "./use-get-coins";
 
 type UseClaimVoucherProps = UseMutationOptions<
   void,
@@ -30,7 +28,6 @@ const useClaimVoucher = (options?: UseClaimVoucherProps) => {
       },
     });
 
-  const { mutateAsync: getCoins } = useGetCoins();
   return useMutation({
     mutationFn: async ({ sponsorPoolId }: { sponsorPoolId: string }) => {
       if (!account) {
@@ -67,16 +64,10 @@ const useClaimVoucher = (options?: UseClaimVoucherProps) => {
     },
     ...options,
     onSuccess: async (data, variable, context) => {
-      try {
-        await syncDb.fund();
-        await syncDb.invest();
-      } catch {
-        await syncDb.fund();
-        await syncDb.invest();
-      }
       toast.success("Congratulations! You have successfully created a fund!");
       await client.invalidateQueries({
-        queryKey: ["pools"],
+        queryKey: ["voucher"],
+        type: "all",
       });
       options?.onSuccess?.(data, variable, context);
     },

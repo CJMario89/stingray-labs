@@ -69,6 +69,7 @@ const useTradeBackToUsdc = (options?: UseTradeBackToUsdcProps) => {
       refetchBalance();
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
     },
   });

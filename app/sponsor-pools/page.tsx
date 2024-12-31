@@ -4,27 +4,69 @@ import template from "@/public/images/stingray_element_1.png";
 import useGetSponsorPools from "@/application/query/use-get-sponsor-pools";
 import VoucherSuccessModal from "@/components/modal/voucher-success-modal";
 import VoucherDepositModal from "@/components/modal/voucher-deposit-modal";
-import { SuiObjectResponse } from "@mysten/sui/client";
 import { primaryGradient } from "../stingray-pools/page";
+import useClaimVoucher from "@/application/mutation/use-claim-voucher";
+import useGetOwnedVouchers from "@/application/query/use-get-owned-vouchers";
 
-const SponsorPool = ({ pool }: { pool: SuiObjectResponse }) => {
-  console.log(pool);
+const SponsorPool = ({
+  sponsor,
+  sponsorPoolId,
+}: {
+  sponsor: string;
+  sponsorPoolId?: string;
+}) => {
+  const { data: vouchers, isPending: isGettingVoucher } = useGetOwnedVouchers({
+    sponsor,
+  });
+  const { mutate: claim, isPending: isClaiming } = useClaimVoucher({
+    onSuccess: () => {
+      (
+        document.getElementById("voucher-success-modal") as HTMLDialogElement
+      )?.showModal();
+    },
+  });
+  const hasVoucher = vouchers && vouchers?.length > 0;
   return (
-    <div className={`flex flex-col gap-2 p-4 ${primaryGradient} items-center`}>
-      <Image alt="" src={template} width={150} height={150} />
-      <div className="text-lg font-semibold">Stingray Pool</div>
-      <div className="text-sm text-neutral-400">Total Value Locked</div>
+    <div
+      className={`flex flex-col gap-4 p-4 ${primaryGradient} w-full items-start rounded-lg`}
+    >
+      <Image
+        alt=""
+        src={template}
+        width={300}
+        height={300}
+        style={{
+          width: "100%",
+        }}
+      />
+      <div className="flex w-full flex-col gap-2">
+        <div className="text-lg font-semibold">Stingray Pool</div>
+        <div className="text-sm text-neutral-400">Total Value Locked</div>
+      </div>
       <button
-        className="btn btn-primary"
+        disabled={isClaiming || isGettingVoucher}
+        className="btn btn-outline w-full"
         onClick={() => {
-          (
-            document.getElementById(
-              "voucher-success-modal",
-            ) as HTMLDialogElement
-          )?.showModal();
+          if (hasVoucher) {
+            (
+              document.getElementById(
+                "voucher-deposit-modal",
+              ) as HTMLDialogElement
+            )?.showModal();
+            return;
+          }
+          if (!sponsorPoolId) {
+            return;
+          }
+          claim({
+            sponsorPoolId,
+          });
         }}
       >
-        Claim
+        {(isClaiming || isGettingVoucher) && (
+          <span className="loading loading-spinner" />
+        )}
+        {hasVoucher ? "Deposit" : "Claim"}
       </button>
       <VoucherSuccessModal
         onSuccess={() => {
@@ -41,7 +83,8 @@ const SponsorPool = ({ pool }: { pool: SuiObjectResponse }) => {
         }}
       />
       <VoucherDepositModal
-        pool={pool}
+        sponsor={sponsor}
+        sponsorPoolId={sponsorPoolId}
         onSuccess={() => {
           (
             document.getElementById(
@@ -50,25 +93,46 @@ const SponsorPool = ({ pool }: { pool: SuiObjectResponse }) => {
           )?.close();
         }}
       />
+      ｀
     </div>
   );
 };
 
 const Page = () => {
-  const { data: sponsorPools } = useGetSponsorPools();
-  console.log(sponsorPools);
+  const { data: sponsorPools, isPending } = useGetSponsorPools();
+
   return (
     <div className="flex h-full w-full flex-col items-center gap-4">
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex items-center">
-          <div className="text-2xl font-semibold">Fund Manager Sponsor</div>
-          <div className="divider" />
+      <div className="flex w-full flex-col items-center gap-4">
+        <div className="flex w-full items-center gap-2">
+          <div className="whitespace-nowrap text-2xl font-semibold">
+            Fund Manager Sponsor
+          </div>
+          <div className="divider w-full" />
         </div>
-        <div className="grid grid-cols-3 gap-8">
-          {sponsorPools?.map((pool) => (
-            <SponsorPool key={pool.data?.objectId} pool={pool} />
-          ))}
-        </div>
+        {!isPending && (
+          <div className="grid w-full grid-cols-3 gap-8">
+            {sponsorPools?.map((pool) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const content = pool.data?.content as any;
+              const sponsor = content?.fields?.sponsor_addr;
+              return (
+                <SponsorPool
+                  key={pool.data?.objectId}
+                  sponsor={sponsor}
+                  sponsorPoolId={pool.data?.objectId}
+                />
+              );
+            })}
+          </div>
+        )}
+        {isPending && (
+          <div className="grid w-full grid-cols-3 gap-4">
+            <div className="skeleton h-80 w-full"></div>
+            <div className="skeleton h-80 w-full"></div>
+            <div className="skeleton h-80 w-full"></div>
+          </div>
+        )}
       </div>
     </div>
   );

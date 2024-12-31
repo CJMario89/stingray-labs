@@ -72,6 +72,7 @@ const useScallopDeposit = (options?: UseScallopDespositProps) => {
       toast.success("Deposit success");
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
       refetchBalance();
     },

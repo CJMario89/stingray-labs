@@ -78,6 +78,7 @@ const useBucketDeposit = (options?: UseBucketDespositProps) => {
       toast.success("Deposit success");
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
       refetchBalance();
     },

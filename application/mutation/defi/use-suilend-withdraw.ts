@@ -76,6 +76,7 @@ const useSuilendWithdraw = (options?: UseSuilendWithdrawProps) => {
       toast.success("Withdraw success");
       await client.invalidateQueries({
         queryKey: ["pools"],
+        type: "all",
       });
       refetchBalance();
     },

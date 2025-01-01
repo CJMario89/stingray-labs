@@ -16,7 +16,7 @@ type UseTradeBackToUsdcProps = UseMutationOptions<void, Error, void> & {
 };
 
 const useTradeBackToUsdc = (options?: UseTradeBackToUsdcProps) => {
-  const { refetch: refetchBalance, data: fundBalance } = useGetPoolBalance({
+  const { data: fundBalance } = useGetPoolBalance({
     fundId: options?.fundId,
   });
   const client = useQueryClient();
@@ -66,7 +66,7 @@ const useTradeBackToUsdc = (options?: UseTradeBackToUsdcProps) => {
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
       toast.success("All trade back to SUI successfully");
-      refetchBalance();
+
       await client.invalidateQueries({
         queryKey: ["pools"],
         type: "all",

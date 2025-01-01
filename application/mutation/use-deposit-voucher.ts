@@ -17,9 +17,10 @@ type UseDepositVoucherProps = UseMutationOptions<
   {
     sponsorPoolId: string;
     vouchers: string[];
-    fundId: string;
   }
->;
+> & {
+  fundId?: string;
+};
 
 const useDepositVoucher = (options?: UseDepositVoucherProps) => {
   const account = useCurrentAccount();
@@ -35,11 +36,9 @@ const useDepositVoucher = (options?: UseDepositVoucherProps) => {
     mutationFn: async ({
       sponsorPoolId,
       vouchers,
-      fundId,
     }: {
       sponsorPoolId: string;
       vouchers: string[];
-      fundId: string;
     }) => {
       if (!account) {
         throw new Error("Account not found");
@@ -52,10 +51,13 @@ const useDepositVoucher = (options?: UseDepositVoucherProps) => {
         throw new Error("Global config or package not found");
       }
 
+      const fundId = options?.fundId;
+      if (!fundId) {
+        throw new Error("Fund id not found");
+      }
+
       const tx = new Transaction();
-      console.log(
-        `${process.env.NEXT_PUBLIC_PACKAGE_ASSET}::fund::VoucherConsumeRequest<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
-      );
+      console.log(sponsorPoolId);
       const consumeResponse = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "voucher",
@@ -79,7 +81,6 @@ const useDepositVoucher = (options?: UseDepositVoucherProps) => {
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG),
           tx.makeMoveVec({
             type: `${process.env.NEXT_PUBLIC_PACKAGE_ASSET}::voucher::VoucherConsumeRequest<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
-            // type: `${process.env.NEXT_PUBLIC_PACKAGE_ASSET}::fund::VoucherConsumeRequest<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
             elements: [consumeResponse[1]],
           }),
           tx.object(fundId),
@@ -120,7 +121,15 @@ const useDepositVoucher = (options?: UseDepositVoucherProps) => {
         "Congratulations! You have successfully deposit with voucher!",
       );
       await client.invalidateQueries({
+        queryKey: ["pool-balance", options?.fundId],
+        type: "all",
+      });
+      await client.invalidateQueries({
         queryKey: ["sponsor-pools"],
+        type: "all",
+      });
+      await client.invalidateQueries({
+        queryKey: ["voucher"],
         type: "all",
       });
       options?.onSuccess?.(data, variable, context);

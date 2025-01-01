@@ -20,7 +20,7 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
     },
     {
       title: "My Profolio",
-      href: "/my-profolio",
+      href: "/profolio",
     },
     {
       title: "Trade",

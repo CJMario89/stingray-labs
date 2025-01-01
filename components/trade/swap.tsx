@@ -29,7 +29,7 @@ const Swap = ({ fundId }: { fundId?: string }) => {
     fundId,
   });
 
-  const { data: poolBalance, isPending: isGettingBalance } = useGetPoolBalance({
+  const { data: poolBalance, isLoading: isGettingBalance } = useGetPoolBalance({
     fundId,
   });
 

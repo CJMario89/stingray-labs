@@ -69,6 +69,10 @@ const useClaimVoucher = (options?: UseClaimVoucherProps) => {
         queryKey: ["voucher"],
         type: "all",
       });
+      await client.invalidateQueries({
+        queryKey: ["sponsor-pools"],
+        type: "all",
+      });
       options?.onSuccess?.(data, variable, context);
     },
   });

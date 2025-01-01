@@ -111,7 +111,7 @@ const Page = () => {
       console.error(error);
     },
     onSuccess: () => {
-      push("/stingray-pools");
+      push("/sponsor-pools");
     },
   });
   return (
@@ -133,6 +133,9 @@ const Page = () => {
             type={item.type}
             placeholder={item.placeholder}
             onChange={(value) => {
+              console.log(value);
+              console.log(form);
+              console.log(item.dataIndex);
               setForm({
                 ...form,
                 [item.dataIndex]: value,

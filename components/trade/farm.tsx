@@ -36,7 +36,7 @@ const Farm = ({ fundId }: { fundId?: string }) => {
   const [activeFarm, setActiveFarm] = useState(farms[0]);
   const { name, powerBy, tokens } = activeFarm;
 
-  const { data: poolBalance, isPending: isGettingBalance } = useGetPoolBalance({
+  const { data: poolBalance, isLoading: isGettingBalance } = useGetPoolBalance({
     fundId,
   });
   console.log(poolBalance);

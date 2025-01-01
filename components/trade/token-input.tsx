@@ -60,9 +60,10 @@ const TokenInput = ({
               placeholder="0"
             />
           </div>
-          <div className="absolute bottom-[-39px] left-1 text-sm text-neutral-400">
+          <div className="absolute bottom-[-39px] left-1 flex items-center gap-2 text-sm text-neutral-400">
             Balance: {tokenBalance?.value}
-            {isGettingBalance && <span className="skeleton" />}
+            {isGettingBalance && <div className="skeleton mt-1 h-4 w-12" />}
+            {!balance && !isGettingBalance && "--"}
           </div>
         </div>
         <div className="relative flex shrink-0 flex-col self-center">
@@ -102,9 +103,13 @@ const TokenInput = ({
           {!isSwap && (
             <div className="absolute bottom-[-30px] right-1 whitespace-nowrap text-right text-sm text-neutral-400">
               Farming:{" "}
-              {tokenBalance?.farmings.find(
-                (farming) => farming.protocol === protocol,
-              )?.value ?? 0}{" "}
+              {
+                tokenBalance?.farmings.find(
+                  (farming) => farming.protocol === protocol,
+                )?.value
+              }{" "}
+              {isGettingBalance && <div className="skeleton mt-1 h-4 w-12" />}
+              {!balance && !isGettingBalance && "--"}
               {tokenBalance?.name}
             </div>
           )}

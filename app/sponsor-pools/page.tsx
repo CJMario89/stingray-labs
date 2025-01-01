@@ -2,21 +2,17 @@
 import Image from "next/image";
 import template from "@/public/images/stingray_element_1.png";
 import useGetSponsorPools from "@/application/query/use-get-sponsor-pools";
+import type { SponsorPool } from "@/application/query/use-get-sponsor-pools";
 import VoucherSuccessModal from "@/components/modal/voucher-success-modal";
 import VoucherDepositModal from "@/components/modal/voucher-deposit-modal";
 import { primaryGradient } from "../stingray-pools/page";
 import useClaimVoucher from "@/application/mutation/use-claim-voucher";
 import useGetOwnedVouchers from "@/application/query/use-get-owned-vouchers";
+import { formatBasePrice } from "@/common";
 
-const SponsorPool = ({
-  sponsor,
-  sponsorPoolId,
-}: {
-  sponsor: string;
-  sponsorPoolId?: string;
-}) => {
+const SponsorPool = (pool: SponsorPool) => {
   const { data: vouchers, isPending: isGettingVoucher } = useGetOwnedVouchers({
-    sponsor,
+    sponsor: pool.sponsor,
   });
   const { mutate: claim, isPending: isClaiming } = useClaimVoucher({
     onSuccess: () => {
@@ -41,7 +37,13 @@ const SponsorPool = ({
       />
       <div className="flex w-full flex-col gap-2">
         <div className="text-lg font-semibold">Stingray Pool</div>
-        <div className="text-sm text-neutral-400">Total Value Locked</div>
+        <div className="text-sm text-neutral-400">Voucher Value</div>
+        <div className="text-sm text-neutral-400">
+          {formatBasePrice(Number(pool.amountPerVoucher))} USDC
+        </div>
+        <div className="text-sm text-neutral-400">
+          {pool.remainTimes} / {pool.totalTimes}
+        </div>
       </div>
       <button
         disabled={isClaiming || isGettingVoucher}
@@ -55,11 +57,11 @@ const SponsorPool = ({
             )?.showModal();
             return;
           }
-          if (!sponsorPoolId) {
+          if (!pool.sponsorPoolId) {
             return;
           }
           claim({
-            sponsorPoolId,
+            sponsorPoolId: pool.sponsorPoolId,
           });
         }}
       >
@@ -83,8 +85,7 @@ const SponsorPool = ({
         }}
       />
       <VoucherDepositModal
-        sponsor={sponsor}
-        sponsorPoolId={sponsorPoolId}
+        {...pool}
         onSuccess={() => {
           (
             document.getElementById(
@@ -93,7 +94,6 @@ const SponsorPool = ({
           )?.close();
         }}
       />
-      ｀
     </div>
   );
 };
@@ -113,16 +113,7 @@ const Page = () => {
         {!isPending && (
           <div className="grid w-full grid-cols-3 gap-8">
             {sponsorPools?.map((pool) => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const content = pool.data?.content as any;
-              const sponsor = content?.fields?.sponsor_addr;
-              return (
-                <SponsorPool
-                  key={pool.data?.objectId}
-                  sponsor={sponsor}
-                  sponsorPoolId={pool.data?.objectId}
-                />
-              );
+              return <SponsorPool key={pool.sponsorPoolId} {...pool} />;
             })}
           </div>
         )}

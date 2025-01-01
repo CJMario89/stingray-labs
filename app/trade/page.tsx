@@ -37,6 +37,7 @@ const Page = () => {
       return;
     }
     if (pools.length === 0) {
+      setSelected(undefined);
       return;
     }
     setSelected(pools[0]);

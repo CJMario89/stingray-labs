@@ -15,6 +15,7 @@ const AddFundModal = ({
     coinType: process.env.NEXT_PUBLIC_FUND_BASE,
   });
   const { mutate: add, isPending: isAdding } = useAddFund({
+    fundId: pool.object_id,
     onSuccess: () => {
       onSuccess();
     },
@@ -43,7 +44,6 @@ const AddFundModal = ({
                 }
                 add({
                   amount: Number(amountRef.current.value),
-                  fundId: pool.object_id,
                 });
               }}
             >

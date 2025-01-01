@@ -18,7 +18,9 @@ type UseAddFundProps = UseMutationOptions<
     amount: number;
     shares: string[];
   }
->;
+> & {
+  fundId: string;
+};
 
 const useRemoveFund = (options?: UseAddFundProps) => {
   const account = useCurrentAccount();
@@ -33,11 +35,9 @@ const useRemoveFund = (options?: UseAddFundProps) => {
     mutationFn: async ({
       amount,
       shares,
-      fundId,
     }: {
       amount: number;
       shares: string[];
-      fundId: string;
     }) => {
       if (!account) {
         throw new Error("Account not found");
@@ -54,6 +54,11 @@ const useRemoveFund = (options?: UseAddFundProps) => {
         !process.env.NEXT_PUBLIC_FUND_BASE
       ) {
         throw new Error("Global config or package not found");
+      }
+
+      const fundId = options?.fundId;
+      if (!fundId) {
+        throw new Error("Fund id not found");
       }
 
       const tx = new Transaction();
@@ -79,6 +84,8 @@ const useRemoveFund = (options?: UseAddFundProps) => {
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
+      await syncDb.deinvest();
+
       console.log(result);
     },
     onError: (error) => {
@@ -87,7 +94,10 @@ const useRemoveFund = (options?: UseAddFundProps) => {
     ...options,
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
-      await syncDb.deinvest();
+      await client.invalidateQueries({
+        queryKey: ["pool-balance", options?.fundId],
+        type: "all",
+      });
       await client.invalidateQueries({
         queryKey: ["pools"],
         type: "all",

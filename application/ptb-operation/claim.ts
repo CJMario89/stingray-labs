@@ -3,11 +3,13 @@ import { Transaction } from "@mysten/sui/transactions";
 export const claim = ({
   tx,
   fundId,
+  sponsorPoolId,
   shares,
   address,
 }: {
   tx: Transaction;
   fundId: string;
+  sponsorPoolId?: string;
   shares: string[];
   address: string;
 }): { tx: Transaction } => {
@@ -28,7 +30,11 @@ export const claim = ({
     function: "claim",
     arguments: [
       tx.object(configId),
-      tx.object(fundId), //
+      tx.object.option({
+        type: `${process.env.NEXT_PUBLIC_PACKAGE_ASSET}::voucher::SponsorPool<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
+        // type: "0x2::object::ID",
+        value: sponsorPoolId ?? null,
+      }),
       tx.object(fundId),
       // tx.object(shares[0]),
       tx.makeMoveVec({

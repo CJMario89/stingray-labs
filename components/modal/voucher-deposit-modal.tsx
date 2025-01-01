@@ -2,16 +2,17 @@ import { primaryGradient, secondaryGradient } from "@/app/stingray-pools/page";
 import useDepositVoucher from "@/application/mutation/use-deposit-voucher";
 import useGetOwnedVouchers from "@/application/query/use-get-owned-vouchers";
 import useGetPools from "@/application/query/use-get-pools";
+import { SponsorPool } from "@/application/query/use-get-sponsor-pools";
+import { formatBasePrice } from "@/common";
 import { useState } from "react";
 
 const VoucherDepositModal = ({
   onSuccess,
   sponsorPoolId,
   sponsor,
-}: {
+  amountPerVoucher,
+}: SponsorPool & {
   onSuccess: () => void;
-  sponsorPoolId?: string;
-  sponsor: string;
 }) => {
   const [selectedPool, setSelectedPool] = useState<string>();
 
@@ -22,19 +23,15 @@ const VoucherDepositModal = ({
 
   const { mutate: depositVoucher, isPending: isDepositingVoucher } =
     useDepositVoucher({
+      fundId: pools?.find((pool) => pool.object_id === selectedPool)?.object_id,
       onSuccess: () => {
         onSuccess();
       },
     });
 
-  console.log(sponsorPoolId);
-  console.log(selectedPool);
-
   const { data: vouchers, isPending: isGettingVoucher } = useGetOwnedVouchers({
     sponsor,
   });
-  console.log(pools);
-  console.log(vouchers);
   return (
     <dialog id="voucher-deposit-modal" className="modal">
       <div className={`${secondaryGradient} modal-box flex flex-col gap-4`}>
@@ -64,6 +61,26 @@ const VoucherDepositModal = ({
             );
           })}
         </div>
+        <div className="divider" />
+        <div className="flex justify-between gap-2">
+          <label className="input flex items-center gap-2">
+            <input
+              className="input"
+              type="text"
+              value={formatBasePrice(Number(amountPerVoucher))}
+              disabled
+            />
+            <span>USDC</span>
+          </label>
+          <label className="input flex items-center gap-2">
+            <input
+              className="w-[50px]"
+              type="number"
+              max={vouchers?.length}
+              defaultValue={1}
+            />
+          </label>
+        </div>
         <div className="modal-action">
           <div className="flex gap-4">
             <button
@@ -76,7 +93,6 @@ const VoucherDepositModal = ({
 
                 depositVoucher({
                   sponsorPoolId,
-                  fundId: selectedPool,
                   vouchers: vouchers?.map((voucher) => voucher.id) ?? [],
                 });
               }}

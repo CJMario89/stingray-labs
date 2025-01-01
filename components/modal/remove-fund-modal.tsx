@@ -16,6 +16,7 @@ const RemoveFundModal = ({
   });
 
   const { mutate: remove, isPending: isRemoving } = useRemoveFund({
+    fundId: pool.object_id,
     onSuccess: () => {
       onSuccess();
     },
@@ -48,7 +49,6 @@ const RemoveFundModal = ({
                 remove({
                   amount: Number(amountRef.current.value),
                   shares: withdrawableShares,
-                  fundId: pool.object_id,
                 });
               }}
             >

@@ -67,7 +67,7 @@ const useCreateSponsor = (options?: UseCreateSponsorProps) => {
             Number(amountPerVoucher) *
               10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
           ),
-          tx.pure.u64(new Date(expireTime).getDate()),
+          tx.pure.u64(new Date(expireTime).getTime()),
           await getCoins({
             tx,
             owner: account.address,

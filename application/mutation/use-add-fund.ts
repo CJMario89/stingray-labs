@@ -11,16 +11,16 @@ import {
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import useGetCoins from "./use-get-coins";
-// import useRefetchWholeFund from "./use-refetch-whole-fund";
 
 type UseAddFundProps = UseMutationOptions<
   void,
   Error,
   {
     amount: number;
-    fundId: string;
   }
->;
+> & {
+  fundId: string;
+};
 
 const useAddFund = (options?: UseAddFundProps) => {
   const account = useCurrentAccount();
@@ -34,13 +34,7 @@ const useAddFund = (options?: UseAddFundProps) => {
     });
   const { mutateAsync: getCoins } = useGetCoins();
   return useMutation({
-    mutationFn: async ({
-      amount = 0.01,
-      fundId,
-    }: {
-      amount: number;
-      fundId: string;
-    }) => {
+    mutationFn: async ({ amount = 0.01 }: { amount: number }) => {
       if (!account) {
         throw new Error("Account not found");
       }
@@ -50,6 +44,10 @@ const useAddFund = (options?: UseAddFundProps) => {
         !process.env.NEXT_PUBLIC_FUND_BASE
       ) {
         throw new Error("Global config or package not found");
+      }
+      const fundId = options?.fundId;
+      if (!fundId) {
+        throw new Error("Fund id not found");
       }
 
       const tx = new Transaction();
@@ -104,6 +102,10 @@ const useAddFund = (options?: UseAddFundProps) => {
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
       toast.success("Fund added successfully");
+      await client.invalidateQueries({
+        queryKey: ["pool-balance", options?.fundId],
+        type: "all",
+      });
       await client.invalidateQueries({
         queryKey: ["pools"],
         type: "all",

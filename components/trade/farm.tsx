@@ -1,7 +1,6 @@
 import TokenInput from "./token-input";
 
 import Image from "next/image";
-import { primaryGradient } from "@/app/stingray-pools/page";
 import { BUCKET_DEPOSIT } from "@/constant/defi-data/bucket";
 import { SCALLOP_DEPOSIT } from "@/constant/defi-data/scallop";
 import bucket from "@/public/images/partner-bucket.png";
@@ -14,6 +13,7 @@ import useScallopWithdraw from "@/application/mutation/defi/use-scallop-withdraw
 import useBucketWithdraw from "@/application/mutation/defi/use-bucket-withdraw";
 import useGetPoolBalance from "@/application/query/pool/use-get-pool-balance";
 import { coins } from "@/constant/coin";
+import { primaryGradient } from "../pool-list-template";
 
 const Farm = ({ fundId }: { fundId?: string }) => {
   const farms = [

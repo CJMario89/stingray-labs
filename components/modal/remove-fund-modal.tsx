@@ -1,8 +1,8 @@
-import { primaryGradient, secondaryGradient } from "@/app/stingray-pools/page";
 import useRemoveFund from "@/application/mutation/use-remove-fund";
 import useGetPoolShares from "@/application/query/pool/use-get-pool-shares";
 import { Fund } from "@/type";
 import React, { useRef } from "react";
+import { primaryGradient, secondaryGradient } from "../pool-list-template";
 
 const RemoveFundModal = ({
   pool,

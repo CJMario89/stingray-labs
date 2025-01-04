@@ -1,7 +1,7 @@
 import { FundBalance } from "@/type";
 import { coins } from "@/constant/coin";
 import SelectMenu from "../select-menu";
-import { secondaryGradient } from "@/app/stingray-pools/page";
+import { secondaryGradient } from "../pool-list-template";
 
 const TokenInput = ({
   isGettingBalance,
@@ -61,9 +61,12 @@ const TokenInput = ({
             />
           </div>
           <div className="absolute bottom-[-39px] left-1 flex items-center gap-2 text-sm text-neutral-400">
-            Balance: {tokenBalance?.value}
-            {isGettingBalance && <div className="skeleton mt-1 h-4 w-12" />}
-            {!balance && !isGettingBalance && "--"}
+            Balance:
+            <div className="text-sm text-neutral-400">
+              {tokenBalance?.value}
+              {isGettingBalance && <div className="skeleton mt-1 h-4 w-12" />}
+              {!balance && !isGettingBalance && "--"}
+            </div>
           </div>
         </div>
         <div className="relative flex shrink-0 flex-col self-center">
@@ -109,8 +112,12 @@ const TokenInput = ({
                 )?.value
               }{" "}
               {isGettingBalance && <div className="skeleton mt-1 h-4 w-12" />}
-              {!balance && !isGettingBalance && "--"}
-              {tokenBalance?.name}
+              {(!balance ||
+                !tokenBalance?.farmings.find(
+                  (farming) => farming.protocol === protocol,
+                )?.value) &&
+                !isGettingBalance &&
+                "--"}
             </div>
           )}
         </div>

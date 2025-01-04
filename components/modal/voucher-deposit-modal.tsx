@@ -1,10 +1,10 @@
-import { primaryGradient, secondaryGradient } from "@/app/stingray-pools/page";
 import useDepositVoucher from "@/application/mutation/use-deposit-voucher";
 import useGetOwnedVouchers from "@/application/query/use-get-owned-vouchers";
 import useGetPools from "@/application/query/use-get-pools";
 import { SponsorPool } from "@/application/query/use-get-sponsor-pools";
 import { formatBasePrice } from "@/common";
 import { useState } from "react";
+import { primaryGradient, secondaryGradient } from "../pool-list-template";
 
 const VoucherDepositModal = ({
   onSuccess,

@@ -6,10 +6,10 @@ import Image from "next/image";
 import TokenInput from "./token-input";
 import IconSwap from "../icons/swap";
 import { useState } from "react";
-import { primaryGradient } from "@/app/stingray-pools/page";
 import useCetusSwap from "@/application/mutation/defi/use-cetus-swap";
 import useGetPoolCap from "@/application/query/pool/use-get-pool-cap";
 import useGetPoolBalance from "@/application/query/pool/use-get-pool-balance";
+import { primaryGradient } from "../pool-list-template";
 
 const Swap = ({ fundId }: { fundId?: string }) => {
   const tokens = [

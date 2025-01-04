@@ -1,7 +1,7 @@
 "use client";
 import useGetPools from "@/application/query/use-get-pools";
+import { primaryGradient } from "@/components/pool-list-template";
 import Decimal from "decimal.js";
-import { primaryGradient } from "../stingray-pools/page";
 
 const Page = () => {
   const { data: pools } = useGetPools({
@@ -38,9 +38,6 @@ const Page = () => {
             </div>
           ))}
         </div>
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="text-2xl font-semibold">Strategy Overview</div>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
-import { primaryGradient, secondaryGradient } from "@/app/stingray-pools/page";
 import useAddFund from "@/application/mutation/use-add-fund";
 import useGetBalance from "@/application/query/use-get-balance";
 import { Fund } from "@/type";
 import React, { useRef } from "react";
+import { primaryGradient, secondaryGradient } from "../pool-list-template";
 
 const AddFundModal = ({
   pool,

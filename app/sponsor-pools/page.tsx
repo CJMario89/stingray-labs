@@ -5,10 +5,10 @@ import useGetSponsorPools from "@/application/query/use-get-sponsor-pools";
 import type { SponsorPool } from "@/application/query/use-get-sponsor-pools";
 import VoucherSuccessModal from "@/components/modal/voucher-success-modal";
 import VoucherDepositModal from "@/components/modal/voucher-deposit-modal";
-import { primaryGradient } from "../stingray-pools/page";
 import useClaimVoucher from "@/application/mutation/use-claim-voucher";
 import useGetOwnedVouchers from "@/application/query/use-get-owned-vouchers";
 import { formatBasePrice } from "@/common";
+import { primaryGradient } from "@/components/pool-list-template";
 
 const SponsorPool = (pool: SponsorPool) => {
   const { data: vouchers, isPending: isGettingVoucher } = useGetOwnedVouchers({

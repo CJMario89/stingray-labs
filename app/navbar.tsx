@@ -9,10 +9,10 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
       title: "Stingray Pools",
       href: "/stingray-pools",
     },
-    {
-      title: "Protocol Status",
-      href: "/protocol-status",
-    },
+    // {
+    //   title: "Protocol Status",
+    //   href: "/protocol-status",
+    // },
     {
       title: "Sting Points",
       href: "/sting-points",

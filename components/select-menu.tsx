@@ -19,7 +19,7 @@ const SelectMenu = ({
 }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="dropdown dropdown-end w-[fit-content]">
+    <div className="dropdown dropdown-end w-[fit-content] shrink-0">
       <div
         tabIndex={0}
         role="button"

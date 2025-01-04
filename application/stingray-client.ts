@@ -1,4 +1,3 @@
-import { TradeDuration } from "@/type";
 import qs from "qs";
 
 export class StingrayClient {
@@ -31,23 +30,20 @@ export class StingrayClient {
     });
   }
 
-  async getArenaInfo() {
-    const arenas = await this.getRequest("/arena/info");
-    return arenas;
-  }
-
   async getPools({
     types,
     order,
     orderBy,
     searchText,
     owner,
+    investor,
   }: {
     types: string[];
     orderBy?: string;
     order?: "asc" | "desc";
     searchText?: string;
     owner?: string;
+    investor?: string;
   }) {
     const funds = await this.getRequest("/pool", {
       types,
@@ -55,6 +51,7 @@ export class StingrayClient {
       orderBy,
       searchText,
       owner,
+      investor,
     });
     return funds;
   }
@@ -62,27 +59,6 @@ export class StingrayClient {
   async getPoolBalance({ fundId }: { fundId: string }) {
     const funds = await this.getRequest(`/pool-balance/statistics`, {
       fundId,
-    });
-    return funds;
-  }
-
-  async getInvestedFundings({ duration }: { duration: TradeDuration }) {
-    const funds = await this.getRequest("/invested/fundings", {
-      duration,
-    });
-    return funds;
-  }
-
-  async getInvestedRunnings({ duration }: { duration: TradeDuration }) {
-    const funds = await this.getRequest("/invested/runnings", {
-      duration,
-    });
-    return funds;
-  }
-
-  async getInvestedClaimables({ duration }: { duration: TradeDuration }) {
-    const funds = await this.getRequest("/invested/claimables", {
-      duration,
     });
     return funds;
   }
@@ -132,6 +108,13 @@ export class StingrayClient {
 
   async getSponsorPools() {
     const response = await this.getRequest("/sponsor-pools");
+    return response;
+  }
+
+  async getPoolPriceHistory({ fundId }: { fundId: string }) {
+    const response = await this.getRequest("/pool-price-history", {
+      fundId,
+    });
     return response;
   }
 }

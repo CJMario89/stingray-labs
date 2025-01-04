@@ -289,7 +289,7 @@ export async function GET(req: Request) {
         );
 
         if (client?.isReady) {
-          const key = `${inToken}-${10}-${1}-${"in"}`;
+          const key = `${inToken}-${2}-${1}-${"in"}`;
           const cachedQuote = await client.get(key);
           if (cachedQuote) {
             const { r } = JSON.parse(cachedQuote);
@@ -300,7 +300,7 @@ export async function GET(req: Request) {
         console.log(rate, "rate1");
 
         if (!rate) {
-          rate = await quoter.quote(inToken, 10, 1, "in");
+          rate = await quoter.quote(inToken, 2, 1, "in");
           console.log(rate, "rate2");
           await client.set(
             `${inToken}-${10}-${1}-${"in"}`,
@@ -355,7 +355,7 @@ export async function GET(req: Request) {
     farming,
     total: usdc + trading + farming,
     percent: {
-      sui: (usdc / (usdc + trading + farming)) * 100,
+      usdc: (usdc / (usdc + trading + farming)) * 100,
       trading: (trading / (usdc + trading + farming)) * 100,
       farming: (farming / (usdc + trading + farming)) * 100,
     },

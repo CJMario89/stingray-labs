@@ -21,27 +21,28 @@ model arena {
 }
 
 model fund {
-  object_id        String             @id
-  name             String
-  description      String
-  start_time       BigInt
-  end_time         BigInt
-  invest_end_time  BigInt
-  trade_duration   BigInt
-  image_blob_id    String
-  arena            arena?             @relation(fields: [arena_object_id], references: [object_id])
-  arena_object_id  String?
-  owner_id         String
-  fund_history     fund_history[]
-  trader_operation trader_operation[]
-  trader_fee       Float
-  limit_amount     Float
-  expected_roi     Float
-  event_seq        Int
-  tx_digest        String
-  timestamp        BigInt
-  settle_result    settle_result[]
-  claim_result     claim_result[]
+  object_id           String                @id
+  name                String
+  description         String
+  start_time          BigInt
+  end_time            BigInt
+  invest_end_time     BigInt
+  trade_duration      BigInt
+  image_blob_id       String
+  arena               arena?                @relation(fields: [arena_object_id], references: [object_id])
+  arena_object_id     String?
+  owner_id            String
+  fund_history        fund_history[]
+  trader_operation    trader_operation[]
+  trader_fee          Float
+  limit_amount        Float
+  expected_roi        Float
+  event_seq           Int
+  tx_digest           String
+  timestamp           BigInt
+  settle_result       settle_result[]
+  claim_result        claim_result[]
+  fund_balance_record fund_balance_record[]
 }
 
 // don't need to know How much a share is worth
@@ -81,7 +82,8 @@ model trader_operation {
 }
 
 model settle_result {
-  fund_object_id String  @id
+  id             String  @id
+  fund_object_id String
   fund           fund    @relation(fields: [fund_object_id], references: [object_id])
   trader_id      String
   match_roi      Boolean
@@ -116,4 +118,14 @@ model sponsor_pool {
   event_seq   Int
   tx_digest   String
   timestamp   BigInt
+}
+
+model fund_balance_record {
+  id             String @id
+  fund           fund   @relation(fields: [fund_object_id], references: [object_id])
+  fund_object_id String
+  total          Float
+  trading        Float
+  farming        Float
+  timestamp      BigInt
 }

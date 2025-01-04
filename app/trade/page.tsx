@@ -1,7 +1,11 @@
 "use client";
 import useSettle from "@/application/mutation/use-settle";
 import useTradeBackToUsdc from "@/application/mutation/use-trade-back-to-usdc";
+import useTraderClaim from "@/application/mutation/use-trader-claim";
+import useGetPoolPriceHistory from "@/application/query/pool/use-get-pool-price-history";
 import useGetPools from "@/application/query/use-get-pools";
+import Chart from "@/components/chart";
+import Tag from "@/components/common/tag";
 import SelectMenu from "@/components/select-menu";
 import Farm from "@/components/trade/farm";
 import Swap from "@/components/trade/swap";
@@ -17,8 +21,9 @@ const Page = () => {
     isPending,
   } = useGetPools({
     owner: account?.address,
-    types: ["trading"],
+    types: ["trading", "ended"],
   });
+
   const [selected, setSelected] = useState<Fund>();
 
   const { mutate: tradeBack, isPending: isTradeBacking } = useTradeBackToUsdc({
@@ -26,6 +31,10 @@ const Page = () => {
   });
 
   const { mutate: settle, isPending: isSettling } = useSettle({
+    fundId: selected?.object_id,
+  });
+
+  const { mutate: traderClaim, isPending: isTraderClaiming } = useTraderClaim({
     fundId: selected?.object_id,
   });
 
@@ -45,6 +54,10 @@ const Page = () => {
 
   const noPools = !isPending && pools?.length === 0;
 
+  const { data: histories } = useGetPoolPriceHistory({
+    fundId: selected?.object_id,
+  });
+
   return (
     <div className="flex h-full w-full flex-col gap-4">
       <div className="flex flex-col gap-4">
@@ -53,21 +66,26 @@ const Page = () => {
           {noPools ? (
             <div className="text-neutral-400">No running pools found</div>
           ) : !isPending ? (
-            <SelectMenu
-              options={
-                pools?.map((pool) => ({
-                  key: pool.name,
-                  value: pool.object_id,
-                })) ?? []
-              }
-              value={{
-                key: selected?.name ?? "",
-                value: selected?.object_id ?? "",
-              }}
-              onSelect={(pool) =>
-                setSelected(pools?.find((p) => p.object_id === pool.value))
-              }
-            />
+            <div className="flex items-center gap-2">
+              <SelectMenu
+                options={
+                  pools?.map((pool) => ({
+                    key: pool.name,
+                    value: pool.object_id,
+                  })) ?? []
+                }
+                value={{
+                  key: selected?.name ?? "",
+                  value: selected?.object_id ?? "",
+                }}
+                onSelect={(pool) =>
+                  setSelected(pools?.find((p) => p.object_id === pool.value))
+                }
+              />
+              <div className="flex gap-2">
+                {selected?.types?.map((type) => <Tag key={type} text={type} />)}
+              </div>
+            </div>
           ) : (
             <div className="skeleton h-8 w-32" />
           )}
@@ -84,9 +102,10 @@ const Page = () => {
               onClick={() => {
                 tradeBack();
               }}
+              disabled={isTradeBacking || selected?.types?.includes("settled")}
             >
               {isTradeBacking && <div className="loading loading-spinner" />}
-              Trade Back to USDC
+              Trade Assets Back to USDC
             </button>
             <button
               onClick={() => {
@@ -98,13 +117,24 @@ const Page = () => {
                 });
               }}
               className="btn btn-primary"
+              disabled={isSettling || selected?.types?.includes("settled")}
             >
               {isSettling && <div className="loading loading-spinner" />}
               Settle
             </button>
+            <button
+              onClick={() => {
+                traderClaim();
+              }}
+              className="btn btn-primary"
+            >
+              {isTraderClaiming && <div className="loading loading-spinner" />}
+              Claim Trader Fee
+            </button>
           </div>
         )}
       </div>
+      <Chart data={histories} />
     </div>
   );
 };

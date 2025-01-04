@@ -113,7 +113,7 @@ export class Quoter {
     const price = TickMath.sqrtPriceX64ToPrice(
       new BN(pool.current_sqrt_price),
       decimalA,
-      SUI_DECIMAL
+      SUI_DECIMAL,
     );
 
     return price.toNumber();
@@ -123,39 +123,44 @@ export class Quoter {
     inputCoinIndex: number,
     outputCoinIndex: number,
     amount: number,
-    type: "in" | "out"
+    type: "in" | "out",
   ) {
     let coinAAmount;
     let coinBAmount;
+    const SUIUSD = await this.pythPriceEstimate(PRICE_FEE[10].priceFeeId);
 
     if (inputCoinIndex == 10) {
-      coinAAmount = 1;
+      coinAAmount = 1 * SUIUSD!;
     } else if (inputCoinIndex < 12) {
       const coinAUSD = await this.pythPriceEstimate(
-        PRICE_FEE[inputCoinIndex].priceFeeId
-      );
-      const SUIUSD = await this.pythPriceEstimate(PRICE_FEE[10].priceFeeId);
-      coinAAmount = coinAUSD! / SUIUSD!;
-    } else {
-      coinAAmount = await this.cetusPriceEstimateForSui(
         PRICE_FEE[inputCoinIndex].priceFeeId,
-        PRICE_FEE[inputCoinIndex].decimal
       );
+      coinAAmount = coinAUSD;
+      // const SUIUSD = await this.pythPriceEstimate(PRICE_FEE[10].priceFeeId);
+      // coinAAmount = coinAUSD! / SUIUSD!;
+    } else {
+      coinAAmount =
+        (await this.cetusPriceEstimateForSui(
+          PRICE_FEE[inputCoinIndex].priceFeeId,
+          PRICE_FEE[inputCoinIndex].decimal,
+        )) * SUIUSD!;
     }
 
     if (outputCoinIndex == 10) {
-      coinBAmount = 1;
+      coinBAmount = 1 * SUIUSD!;
     } else if (outputCoinIndex < 12) {
       const coinBUSD = await this.pythPriceEstimate(
-        PRICE_FEE[outputCoinIndex].priceFeeId
-      );
-      const SUIUSD = await this.pythPriceEstimate(PRICE_FEE[10].priceFeeId);
-      coinBAmount = coinBUSD! / SUIUSD!;
-    } else {
-      coinBAmount = await this.cetusPriceEstimateForSui(
         PRICE_FEE[outputCoinIndex].priceFeeId,
-        PRICE_FEE[outputCoinIndex].decimal
       );
+      coinBAmount = coinBUSD;
+      // const SUIUSD = await this.pythPriceEstimate(PRICE_FEE[10].priceFeeId);
+      // coinBAmount = coinBUSD! / SUIUSD!;
+    } else {
+      coinBAmount =
+        (await this.cetusPriceEstimateForSui(
+          PRICE_FEE[outputCoinIndex].priceFeeId,
+          PRICE_FEE[outputCoinIndex].decimal,
+        )) * SUIUSD!;
     }
 
     const price =

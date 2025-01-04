@@ -1,3 +1,5 @@
+import { claim_result, fund_balance_record } from "@prisma/client";
+
 export type TraderOperation = {
   id: string;
   fund: Fund;
@@ -52,7 +54,10 @@ export type Fund = {
   settle_result?: SettleResult[];
   totalFunded?: number;
   totalInvestor?: number;
-  type?: string;
+  types?: string[];
+  claim_result?: claim_result[];
+  fund_balance_record?: fund_balance_record[];
+  sponsorPool?: SponsorPool[];
 };
 
 export type Arena = {
@@ -121,4 +126,13 @@ export type SettleResult = {
   trader_id: string;
   match_roi: boolean;
   roi: number;
+};
+
+export type SponsorPool = {
+  id: string;
+  sponsor: string;
+  init_amount: number;
+  event_seq: number;
+  tx_digest: string;
+  timestamp: bigint;
 };

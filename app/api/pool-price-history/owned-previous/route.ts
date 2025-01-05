@@ -21,6 +21,9 @@ export async function GET(req: Request) {
     where: {
       owner_id: owner,
     },
+    include: {
+      fund_history: true,
+    },
     orderBy: {
       timestamp: "desc",
     },
@@ -33,7 +36,7 @@ export async function GET(req: Request) {
     });
   }
 
-  const records = await prisma.fund_balance_record.findMany({
+  const rawRecords = await prisma.fund_balance_record.findMany({
     where: {
       fund_object_id: lastFund.object_id,
     },
@@ -41,6 +44,7 @@ export async function GET(req: Request) {
       timestamp: "asc",
     },
   });
+  const records = rawRecords.filter((record) => Number(record.total) > 0);
 
   if (records.length === 0) {
     return Response.json({
@@ -50,16 +54,20 @@ export async function GET(req: Request) {
   }
 
   const lastPrice = records[records.length - 1]?.total;
-  const initPrice = records[0]?.total;
+  const initPrice = lastFund?.fund_history?.reduce((acc, cur) => {
+    if (cur.action === "Invested") {
+      return acc + cur.amount;
+    } else {
+      return acc - cur.amount;
+    }
+  }, 0);
 
   return Response.json(
     SuperJSON.serialize({
-      history: records
-        .filter((record) => !(Number(record.total) > 0))
-        .map((record) => ({
-          time: record.timestamp,
-          value: record.total,
-        })),
+      history: records.map((record) => ({
+        time: record.timestamp,
+        value: record.total,
+      })),
       roi: ((lastPrice - initPrice) / initPrice).toFixed(2),
     }).json,
   );

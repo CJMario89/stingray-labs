@@ -21,9 +21,6 @@ export async function GET(req: Request) {
     ? Buffer.from(user.image).toString("base64")
     : undefined;
 
-  console.log(image);
-  console.log(user.image);
-
   return Response.json({
     address: user.address,
     name: user.name,

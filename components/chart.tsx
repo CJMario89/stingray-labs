@@ -12,14 +12,7 @@ const CustomAxisTick = ({ x, y, payload }: any) => {
   console.log(payload, "payload");
   return (
     <g transform={`translate(${x},${y})`}>
-      <text
-        x={0}
-        y={0}
-        dy={16}
-        textAnchor="end"
-        fill="#666"
-        // transform="rotate(-35)"
-      >
+      <text x={0} y={0} dy={16} textAnchor="end" fill="#666">
         {Intl.DateTimeFormat("en-US", {
           year: "numeric",
           month: "numeric",
@@ -52,7 +45,6 @@ const Chart = ({
   const off = gradientOffset();
   return (
     <ResponsiveContainer width="100%" height={height ?? 400}>
-      {/* 100% width, fixed height */}
       <AreaChart
         data={data?.map((d) => ({
           time: d.time,
@@ -78,8 +70,8 @@ const Chart = ({
           hide
           scale="log"
           domain={[
-            `dataMin - ${Number(data?.[0]?.value) / dataDifPercent}`, // down 10%
-            `dataMax + ${Number(data?.[0]?.value) / dataDifPercent}`, // up 10%
+            `dataMin - ${Number(data?.[0]?.value) / dataDifPercent}`, // down dataDifPercent%
+            `dataMax + ${Number(data?.[0]?.value) / dataDifPercent}`, // up dataDifPercent%
           ]}
           label={<></>}
         />

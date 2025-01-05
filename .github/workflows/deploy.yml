@@ -32,3 +32,6 @@ jobs:
             npx prisma db push
             pnpm run build
             pm2 start "pnpm run start"
+
+# https://stackoverflow.com/questions/71850567/github-actions-workflow-error-ssh-handshake-failed-ssh-unable-to-authenticat
+# put local private key to the repository secrets to access server

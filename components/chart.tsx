@@ -31,7 +31,15 @@ const CustomAxisTick = ({ x, y, payload }: any) => {
   );
 };
 
-const Chart = ({ data }: { data?: { time: number; value: number }[] }) => {
+const Chart = ({
+  id,
+  data,
+  height,
+}: {
+  id: string;
+  height?: number;
+  data?: { time: number; value: number }[];
+}) => {
   const dataMax = Math.max(...(data?.map((i) => i.value) ?? []));
   const dataMin = Math.min(...(data?.map((i) => i.value) ?? []));
   const dataDifPercent = 1 / ((dataMax - dataMin) / dataMin);
@@ -43,7 +51,7 @@ const Chart = ({ data }: { data?: { time: number; value: number }[] }) => {
   console.log(dataDifPercent);
   const off = gradientOffset();
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height={height ?? 400}>
       {/* 100% width, fixed height */}
       <AreaChart
         data={data?.map((d) => ({
@@ -53,6 +61,7 @@ const Chart = ({ data }: { data?: { time: number; value: number }[] }) => {
       >
         <XAxis
           axisLine={false}
+          hide
           dataKey="time"
           tick={<CustomAxisTick />}
           tickLine={false}
@@ -64,6 +73,8 @@ const Chart = ({ data }: { data?: { time: number; value: number }[] }) => {
           domain={["auto", "auto"]}
         />
         <YAxis
+          axisLine={false}
+          tickLine={false}
           hide
           scale="log"
           domain={[
@@ -102,7 +113,7 @@ const Chart = ({ data }: { data?: { time: number; value: number }[] }) => {
           }}
         />
         <defs>
-          <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`splitColor-${id}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#4CAF50" stopOpacity={1} />
             <stop
               offset={off * 100 + "%"}
@@ -116,7 +127,7 @@ const Chart = ({ data }: { data?: { time: number; value: number }[] }) => {
             />
             <stop offset="100%" stopColor="#F44336" stopOpacity={1} />
           </linearGradient>
-          <linearGradient id="strokeColor" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`strokeColor-${id}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset={off} stopColor="#4CAF50" stopOpacity={1} />
             <stop offset={off} stopColor="#F44336" stopOpacity={1} />
           </linearGradient>
@@ -126,8 +137,8 @@ const Chart = ({ data }: { data?: { time: number; value: number }[] }) => {
           type="monotone"
           baseValue={data?.[0]?.value}
           dataKey="value"
-          stroke="url(#strokeColor)"
-          fill="url(#splitColor)"
+          stroke={`url(#strokeColor-${id})`}
+          fill={`url(#splitColor-${id})`}
           yAxisId={0}
           dot={<></>}
         />

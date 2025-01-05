@@ -1,83 +1,8 @@
 "use client";
 import useCreateFund from "@/application/mutation/use-create-fund";
+import InputFormItem from "@/components/common/input-form-item";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-const InputFormItem = ({
-  title,
-  dataIndex,
-  type,
-  placeholder,
-  onChange,
-}: {
-  title: string;
-  dataIndex: string;
-  type: string;
-  placeholder: string;
-  onChange: (value: string) => void;
-}) => {
-  return (
-    <label className="form-control w-full max-w-xs">
-      <div className="label">
-        <span className="label-text">{title}</span>
-      </div>
-      {type === "text" && (
-        <input
-          type="text"
-          name={dataIndex}
-          placeholder={placeholder}
-          className="input input-sm w-full max-w-xs"
-          onChange={(e) => {
-            onChange(e.target.value);
-          }}
-        />
-      )}
-
-      {type === "textarea" && (
-        <textarea
-          name={dataIndex}
-          placeholder={placeholder}
-          className="textarea w-full max-w-xs resize-none p-2"
-          onChange={(e) => {
-            onChange(e.target.value);
-          }}
-          aria-placeholder={placeholder}
-          rows={5}
-        ></textarea>
-      )}
-
-      {type === "number" && (
-        <input
-          type="number"
-          name={dataIndex}
-          placeholder={placeholder}
-          className="no-stepper input input-sm w-full max-w-xs"
-          onChange={(e) => {
-            onChange(e.target.value);
-          }}
-        />
-      )}
-
-      {type === "datetime-local" && (
-        <input
-          type="datetime-local"
-          name={dataIndex}
-          placeholder={placeholder}
-          className="input input-sm w-full max-w-xs"
-          onChange={(e) => {
-            onChange(e.target.value);
-          }}
-        />
-      )}
-
-      {type === ""}
-
-      {/* <div className="label">
-        <span className="label-text-alt">Bottom Left label</span>
-      </div> */}
-    </label>
-  );
-};
 
 const Page = () => {
   const items = [
@@ -160,7 +85,7 @@ const Page = () => {
     <div className="flex h-full w-full flex-col gap-4">
       <form
         noValidate
-        className="flex flex-col gap-4"
+        className="flex w-[320px] flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault();
           console.log(form);

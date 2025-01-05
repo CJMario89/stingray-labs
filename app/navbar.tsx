@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { headerGradient } from "./header";
+import TraderInfo from "@/common/trader-info";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
   const path = usePathname();
+  const account = useCurrentAccount();
   const links = [
     {
       title: "Stingray Pools",
@@ -23,6 +26,10 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
       href: "/profolio",
     },
     {
+      title: "Sponsor Pools",
+      href: "/sponsor-pools",
+    },
+    {
       title: "Trade",
       href: "/trade",
     },
@@ -33,10 +40,6 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
     {
       title: "Create Sponsor",
       href: "/create-sponsor",
-    },
-    {
-      title: "Sponsor Pools",
-      href: "/sponsor-pools",
     },
   ];
   return (
@@ -75,7 +78,7 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
           );
         })}
       </div>
-      <div className="flex w-full flex-col items-start gap-4">
+      <div className="flex w-full flex-col items-start gap-2">
         <div
           className={`flex w-full px-4 ${path === "/account-settings" ? "border-l-2 border-solid border-primary-500" : ""}`}
         >
@@ -92,6 +95,9 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
           >
             Settings
           </Link>
+        </div>
+        <div className="px-4">
+          <TraderInfo address={account?.address} />
         </div>
       </div>
     </div>

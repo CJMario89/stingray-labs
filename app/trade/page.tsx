@@ -6,6 +6,8 @@ import useGetPoolPriceHistory from "@/application/query/pool/use-get-pool-price-
 import useGetPools from "@/application/query/use-get-pools";
 import Chart from "@/components/chart";
 import Tag from "@/components/common/tag";
+import FundAssets from "@/components/fund/fund-assets";
+import FundHistory from "@/components/fund/fund-history";
 import SelectMenu from "@/components/select-menu";
 import Farm from "@/components/trade/farm";
 import Swap from "@/components/trade/swap";
@@ -38,6 +40,8 @@ const Page = () => {
     fundId: selected?.object_id,
   });
 
+  const hasSettled = selected?.types?.includes("settled");
+
   useEffect(() => {
     if (!account) {
       return;
@@ -49,8 +53,13 @@ const Page = () => {
       setSelected(undefined);
       return;
     }
-    setSelected(pools[0]);
-  }, [account, isSuccess, pools]);
+    if (
+      !selected ||
+      !pools.some((pool) => pool.object_id === selected.object_id)
+    ) {
+      setSelected(pools[0]);
+    }
+  }, [account, isSuccess, pools, selected]);
 
   const noPools = !isPending && pools?.length === 0;
 
@@ -91,12 +100,28 @@ const Page = () => {
           )}
         </div>
 
+        <div className="max-w-[670px] px-2">
+          <Chart data={histories} id={selected?.object_id ?? ""} />
+        </div>
+        <div
+          className={`grid max-w-[670px] grid-cols-1 gap-4 rounded-md md:col-span-2 md:grid-cols-2`}
+        >
+          <div className={`flex max-w-[320px] flex-col gap-2`}>
+            <div>Fund Assets</div>
+            <FundAssets fund={selected} />
+          </div>
+          <div className={`flex max-w-[320px] flex-col gap-2`}>
+            <div>Fund History</div>
+            <FundHistory fund={selected} />
+          </div>
+        </div>
+
         <div className="flex flex-col gap-4 md:flex-row">
           <Swap fundId={selected?.object_id ?? ""} />
           <Farm fundId={selected?.object_id} />
         </div>
         {!noPools && !isPending && (
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 md:flex-row">
             <button
               className="btn btn-primary"
               onClick={() => {
@@ -126,7 +151,7 @@ const Page = () => {
               onClick={() => {
                 traderClaim();
               }}
-              className="btn btn-primary"
+              className={`btn btn-primary ${hasSettled ? "" : "btn-disabled"}`}
             >
               {isTraderClaiming && <div className="loading loading-spinner" />}
               Claim Trader Fee
@@ -134,7 +159,6 @@ const Page = () => {
           </div>
         )}
       </div>
-      <Chart data={histories} />
     </div>
   );
 };

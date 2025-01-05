@@ -7,7 +7,6 @@ const Page = () => {
   const { data: pools } = useGetPools({
     types: ["trading"],
   });
-  console.log(pools);
 
   const totalValueLocked = pools?.reduce(
     (acc, pool) =>

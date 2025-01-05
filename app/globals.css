@@ -44,13 +44,12 @@ body {
   }
 }
 
-@layer utilities {
-  .no-stepper::-webkit-inner-spin-button,
-  .no-stepper::-webkit-outer-spin-button {
-    @apply hidden;
-  }
+[type="number"]::-webkit-outer-spin-button,
+[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
-  .no-stepper {
-    -moz-appearance: textfield;
-  }
+[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
 }

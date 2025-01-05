@@ -9,12 +9,21 @@ import useClaimVoucher from "@/application/mutation/use-claim-voucher";
 import useGetOwnedVouchers from "@/application/query/use-get-owned-vouchers";
 import { formatBasePrice } from "@/common";
 import { primaryGradient } from "@/components/pool-list-template";
+import { useState } from "react";
+import TraderInfo from "@/common/trader-info";
 
-const SponsorPool = (pool: SponsorPool) => {
+const SponsorPool = ({
+  pool,
+  onSelect,
+}: {
+  pool: SponsorPool;
+  onSelect: (sponsorPool: SponsorPool) => void;
+}) => {
   const { data: vouchers, isPending: isGettingVoucher } = useGetOwnedVouchers({
     sponsor: pool.sponsor,
   });
   const { mutate: claim, isPending: isClaiming } = useClaimVoucher({
+    sponsor: pool.sponsor,
     onSuccess: () => {
       (
         document.getElementById("voucher-success-modal") as HTMLDialogElement
@@ -22,6 +31,11 @@ const SponsorPool = (pool: SponsorPool) => {
     },
   });
   const hasVoucher = vouchers && vouchers?.length > 0;
+
+  const remainingTimes = pool.totalTimes; // temp // wait for contract update and mint fund manager table
+  const avaliableTimes =
+    pool.remainTimes > remainingTimes ? remainingTimes : pool.remainTimes;
+
   return (
     <div
       className={`flex flex-col gap-4 p-4 ${primaryGradient} w-full items-start rounded-lg`}
@@ -36,19 +50,26 @@ const SponsorPool = (pool: SponsorPool) => {
         }}
       />
       <div className="flex w-full flex-col gap-2">
-        <div className="text-lg font-semibold">Stingray Pool</div>
-        <div className="text-sm text-neutral-400">Voucher Value</div>
+        <div className="text-lg font-semibold">
+          {<TraderInfo address={pool.sponsor} />}
+        </div>
+        <div className="text-sm text-neutral-400">
+          Remaining: {formatBasePrice(Number(pool.remaining))} USDC
+        </div>
         <div className="text-sm text-neutral-400">
           {formatBasePrice(Number(pool.amountPerVoucher))} USDC
         </div>
         <div className="text-sm text-neutral-400">
-          {pool.remainTimes} / {pool.totalTimes}
+          {avaliableTimes} / {pool.totalTimes}
         </div>
       </div>
       <button
-        disabled={isClaiming || isGettingVoucher}
+        disabled={
+          isClaiming || isGettingVoucher || (!hasVoucher && !avaliableTimes)
+        }
         className="btn btn-outline w-full"
         onClick={() => {
+          onSelect(pool);
           if (hasVoucher) {
             (
               document.getElementById(
@@ -70,6 +91,47 @@ const SponsorPool = (pool: SponsorPool) => {
         )}
         {hasVoucher ? "Deposit" : "Claim"}
       </button>
+    </div>
+  );
+};
+
+const Page = () => {
+  const { data: sponsorPools, isPending } = useGetSponsorPools();
+
+  const [selectedPool, setSelectedPool] = useState(sponsorPools?.[0]);
+
+  return (
+    <div className="flex h-full w-full flex-col items-center gap-4">
+      <div className="flex w-full flex-col items-center gap-4">
+        <div className="flex w-full items-center gap-2">
+          <div className="whitespace-nowrap text-2xl font-semibold">
+            Fund Manager Sponsor
+          </div>
+          <div className="divider w-full" />
+        </div>
+        {!isPending && (
+          <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-3">
+            {sponsorPools?.map((pool) => {
+              return (
+                <SponsorPool
+                  key={pool.sponsorPoolId}
+                  pool={pool}
+                  onSelect={(pool) => {
+                    setSelectedPool(pool);
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
+        {isPending && (
+          <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="skeleton h-80 w-full"></div>
+            <div className="skeleton h-80 w-full"></div>
+            <div className="skeleton h-80 w-full"></div>
+          </div>
+        )}
+      </div>
       <VoucherSuccessModal
         onSuccess={() => {
           (
@@ -85,7 +147,7 @@ const SponsorPool = (pool: SponsorPool) => {
         }}
       />
       <VoucherDepositModal
-        {...pool}
+        sponsorPool={selectedPool}
         onSuccess={() => {
           (
             document.getElementById(
@@ -94,37 +156,6 @@ const SponsorPool = (pool: SponsorPool) => {
           )?.close();
         }}
       />
-    </div>
-  );
-};
-
-const Page = () => {
-  const { data: sponsorPools, isPending } = useGetSponsorPools();
-
-  return (
-    <div className="flex h-full w-full flex-col items-center gap-4">
-      <div className="flex w-full flex-col items-center gap-4">
-        <div className="flex w-full items-center gap-2">
-          <div className="whitespace-nowrap text-2xl font-semibold">
-            Fund Manager Sponsor
-          </div>
-          <div className="divider w-full" />
-        </div>
-        {!isPending && (
-          <div className="grid w-full grid-cols-3 gap-8">
-            {sponsorPools?.map((pool) => {
-              return <SponsorPool key={pool.sponsorPoolId} {...pool} />;
-            })}
-          </div>
-        )}
-        {isPending && (
-          <div className="grid w-full grid-cols-3 gap-4">
-            <div className="skeleton h-80 w-full"></div>
-            <div className="skeleton h-80 w-full"></div>
-            <div className="skeleton h-80 w-full"></div>
-          </div>
-        )}
-      </div>
     </div>
   );
 };

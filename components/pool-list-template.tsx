@@ -15,6 +15,13 @@ import useClaim from "@/application/mutation/use-claim";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { throttle } from "@/app/common";
 import Tag from "./common/tag";
+import IconVoucher from "./icons/voucher";
+import { useRouter } from "next/navigation";
+import FundAssets from "./fund/fund-assets";
+import FundHistory from "./fund/fund-history";
+import Chart from "./chart";
+import useGetPoolPriceHistory from "@/application/query/pool/use-get-pool-price-history";
+import useGetPrevPoolPrice from "@/application/query/use-get-prev-pool-price";
 export const secondaryGradient =
   "bg-[linear-gradient(90deg,_rgba(10,10,10,0.6)_0%,_rgba(10,10,10,0.3)_100%)] shadow-lg";
 
@@ -43,9 +50,11 @@ const FundStatistics = ({
 };
 
 const FundInfo = ({
+  investor,
   pool,
   onSuccess,
 }: {
+  investor?: string;
   pool: Fund;
   onSuccess: () => void;
 }) => {
@@ -58,8 +67,23 @@ const FundInfo = ({
       ?.map((history) => history.share_id) || [];
   const hasShares = shares.length > 0;
 
-  const previousROI = undefined;
-  console.log(pool.types);
+  const { data: priceHistories } = useGetPoolPriceHistory({
+    fundId: pool.object_id,
+    enabled:
+      Boolean(pool?.types?.includes("trading")) ||
+      Boolean(pool?.types?.includes("ended")),
+  });
+
+  const { data: prevPoolPrice } = useGetPrevPoolPrice({
+    owner: pool.owner_id,
+  });
+
+  const { push } = useRouter();
+
+  const lastPrice = priceHistories?.[priceHistories.length - 1]?.value || 0;
+  const initPrice = priceHistories?.[0]?.value || 0;
+  const currentROI = (((lastPrice - initPrice) / initPrice) * 100).toFixed(2);
+
   return (
     <div className="flex w-full gap-4">
       <div className="flex w-full flex-col gap-4">
@@ -93,24 +117,79 @@ const FundInfo = ({
           >
             <div className="flex flex-col gap-2">
               <TraderInfo address={pool.owner_id} />
-              <div className="flex items-center justify-between">
-                <div>Previous Strategy</div>
-                <div>
-                  ROI: {!isNaN(Number(previousROI)) ? previousROI : "--"} %
+              {(pool?.types?.includes("pending") ||
+                pool?.types?.includes("funding")) && (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <div>Previous</div>
+                    <div>
+                      ROI:{" "}
+                      {!isNaN(Number(prevPoolPrice?.roi))
+                        ? prevPoolPrice?.roi
+                        : "--"}{" "}
+                      %
+                    </div>
+                  </div>
+                  {Array.isArray(prevPoolPrice?.hisotries) &&
+                    prevPoolPrice?.hisotries.length > 0 && (
+                      <Chart
+                        height={100}
+                        data={priceHistories}
+                        id={pool.object_id}
+                      />
+                    )}
                 </div>
-              </div>
+              )}
+              {(pool?.types?.includes("trading") ||
+                pool?.types?.includes("ended")) && (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <div>Current</div>
+                    <div>
+                      ROI: {!isNaN(Number(currentROI)) ? currentROI : "--"} %
+                    </div>
+                  </div>
+                  {Array.isArray(priceHistories) &&
+                    priceHistories?.length > 0 && (
+                      <Chart
+                        height={100}
+                        data={priceHistories}
+                        id={pool.object_id}
+                      />
+                    )}
+                </div>
+              )}
             </div>
           </div>
         </div>
         <div className="mx-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div
-            className={`${secondaryGradient} flex flex-col gap-2 rounded-md px-6 py-4 md:col-span-2`}
-          >
-            <div className="text-sm text-[var(--fallback-bc,oklch(var(--bc)/0.6))]">
-              Strategy Description
+          {Boolean(investor) ? (
+            <div
+              className={`grid grid-cols-1 gap-4 rounded-md md:col-span-2 md:grid-cols-2`}
+            >
+              <div className={`flex flex-col gap-2`}>
+                <div>Fund Assets</div>
+                <FundAssets fund={pool} />
+              </div>
+              <div className={`flex flex-col gap-2`}>
+                <div>Fund History</div>
+                <FundHistory fund={pool} />
+              </div>
             </div>
-            <div className="text-md">{pool?.description}</div>
-          </div>
+          ) : (
+            <div
+              className={`${secondaryGradient} flex flex-col gap-2 rounded-md px-6 py-4 md:col-span-2`}
+            >
+              <div className="text-sm text-[var(--fallback-bc,oklch(var(--bc)/0.6))]">
+                Strategy Description
+              </div>
+              <div className="tooltip" data-tip={pool?.description}>
+                <div className="text-md line-clamp-3 overflow-hidden text-ellipsis">
+                  {pool?.description}
+                </div>
+              </div>
+            </div>
+          )}
           {pool.types?.includes("funding") && (
             <div className="flex flex-col gap-4">
               <div className="text-xs">Funding end at </div>
@@ -120,6 +199,16 @@ const FundInfo = ({
                   : ""}
               </div>
               <div className="flex w-full gap-2 self-end">
+                {pool.types?.includes("voucher") && (
+                  <button
+                    className="btn btn-outline"
+                    onClick={() => {
+                      push(`/sponsor-pools/?pool=${pool.owner_id}`);
+                    }}
+                  >
+                    <IconVoucher />
+                  </button>
+                )}
                 <button
                   className="btn btn-primary flex-1"
                   onClick={() => {
@@ -187,6 +276,16 @@ const FundInfo = ({
                   ? new Date(Number(pool?.end_time)).toLocaleString()
                   : ""}
               </div>
+              {pool.owner_id === account?.address && (
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    push(`/trade`);
+                  }}
+                >
+                  Trade
+                </button>
+              )}
             </div>
           )}
           {pool?.types?.includes("ended") &&
@@ -252,9 +351,9 @@ const PoolListTemplate = ({ investor }: { investor?: string }) => {
   });
 
   return (
-    <div className="flex h-full w-full flex-col gap-4">
-      <div className="mt-4 flex flex-col-reverse items-end justify-between md:flex-row md:items-center">
-        <div className="flex gap-1 md:gap-4">
+    <div className="flex h-full w-full flex-col gap-2 md:gap-4">
+      <div className="mt-4 flex flex-col-reverse flex-wrap items-end justify-between md:flex-row md:items-center">
+        <div className="flex flex-wrap gap-1 md:gap-4">
           {typeOptions.map((type) => (
             <div className="form-control" key={type}>
               <label className="label flex cursor-pointer items-center gap-2">
@@ -275,7 +374,7 @@ const PoolListTemplate = ({ investor }: { investor?: string }) => {
             </div>
           ))}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <label
             className={`${secondaryGradient} input flex items-center gap-2 rounded-md`}
           >
@@ -310,6 +409,21 @@ const PoolListTemplate = ({ investor }: { investor?: string }) => {
               setOrderBy(value.value);
             }}
           />
+          <button
+            className="btn btn-ghost"
+            onClick={() => {
+              setTypes([]);
+              setSearchText("");
+              document.querySelectorAll('input[name="type"]').forEach((el) => {
+                (el as HTMLInputElement).checked = false;
+              });
+              (
+                document.querySelector('input[type="text"]') as HTMLInputElement
+              ).value = "";
+            }}
+          >
+            clear
+          </button>
         </div>
       </div>
 
@@ -325,30 +439,38 @@ const PoolListTemplate = ({ investor }: { investor?: string }) => {
             className={`collapse collapse-arrow rounded-md ${primaryGradient}`}
           >
             <input type="checkbox" name="pool" />
-            <div className="collapse-title px-6 text-xl font-medium">
-              <div className="grid w-full grid-cols-3 items-center gap-4">
+            <div className="collapse-title px-4 md:px-6">
+              <div className="flex w-full items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <div className="whitespace-nowrap">{pool.name}</div>
-                  <div className="flex gap-2">
+                  <div className="tooltip" data-tip={pool.name}>
+                    <div className="text-md max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap sm:max-w-[200px] md:text-xl">
+                      {pool.name}
+                    </div>
+                  </div>
+                  <div className="flex gap-1 md:gap-2">
                     {pool?.types?.map((type) => <Tag key={type} text={type} />)}
                   </div>
                 </div>
-                <div className="hidden md:block">
-                  <TraderInfo address={pool.owner_id} />
-                </div>
-                <div className="hidden items-center text-lg font-semibold md:block">
-                  {Number(
-                    (
-                      (Number(pool?.totalFunded) / Number(pool?.limit_amount)) *
-                      100
-                    ).toFixed(2),
-                  )}
-                  % Funded
+                <div className="flex gap-2 pr-8 md:gap-4">
+                  <div className="hidden md:block">
+                    <TraderInfo address={pool.owner_id} />
+                  </div>
+                  <div className="hidden items-center text-lg md:block">
+                    {Number(
+                      (
+                        (Number(pool?.totalFunded) /
+                          Number(pool?.limit_amount)) *
+                        100
+                      ).toFixed(2),
+                    )}
+                    % Funded
+                  </div>
                 </div>
               </div>
             </div>
             <div className="collapse-content px-0">
               <FundInfo
+                investor={investor}
                 pool={pool}
                 onSuccess={() => {
                   refetch();

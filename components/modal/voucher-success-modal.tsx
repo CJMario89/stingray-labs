@@ -1,4 +1,4 @@
-import { secondaryGradient } from "@/app/stingray-pools/page";
+import { secondaryGradient } from "../pool-list-template";
 
 const VoucherSuccessModal = ({ onSuccess }: { onSuccess: () => void }) => {
   return (

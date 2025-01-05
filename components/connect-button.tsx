@@ -13,7 +13,7 @@ import IconWallet from "./icons/wallet";
 import IconCheck from "./icons/check";
 
 export const formatAddress = (address?: string) =>
-  `${address?.slice(0, 6)}...${address?.slice(-4)}`;
+  `${address?.slice(0, 4)}...${address?.slice(-4)}`;
 
 const ConnectButton = () => {
   const { mutate: switchAccount } = useSwitchAccount();

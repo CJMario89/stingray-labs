@@ -111,7 +111,7 @@ const Farm = ({ fundId }: { fundId?: string }) => {
 
   return (
     <div
-      className={`flex w-[335px] flex-col items-center justify-between gap-4 ${primaryGradient} rounded-md p-4`}
+      className={`flex flex-col items-center justify-between gap-4 md:max-w-[335px] ${primaryGradient} rounded-md p-4`}
     >
       <div className="flex flex-col gap-4">
         <SelectMenu

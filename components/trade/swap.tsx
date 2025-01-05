@@ -36,7 +36,6 @@ const Swap = ({ fundId }: { fundId?: string }) => {
   const balance = poolBalance?.balances;
 
   const { data: cap, isLoading: isGettingCap } = useGetPoolCap({ fundId });
-  console.log(cap);
 
   const inTokenDecimal =
     coins.find((coin) => coin.name === inToken)?.decimal ?? 9;
@@ -85,7 +84,7 @@ const Swap = ({ fundId }: { fundId?: string }) => {
   console.log(isQuoting);
   return (
     <div
-      className={`flex flex-col items-center justify-center gap-4 rounded-md ${primaryGradient} w-[335px] p-4`}
+      className={`flex flex-col items-center justify-center gap-4 rounded-md ${primaryGradient} p-4 md:max-w-[335px]`}
     >
       <TokenInput
         isGettingBalance={isGettingBalance}
@@ -167,7 +166,7 @@ const Swap = ({ fundId }: { fundId?: string }) => {
         }}
       >
         {(isSwaping || isQuoting || isGettingCap) && (
-          <span className="loading loading-spinner"></span>
+          <span className="loading loading-spinner" />
         )}
         {isInSufficient ? "INSUFFICIENT" : "SWAP"}
       </button>

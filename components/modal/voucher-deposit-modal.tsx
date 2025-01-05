@@ -5,16 +5,22 @@ import { SponsorPool } from "@/application/query/use-get-sponsor-pools";
 import { formatBasePrice } from "@/common";
 import { useState } from "react";
 import { primaryGradient, secondaryGradient } from "../pool-list-template";
+import IconPlus from "../icons/plus";
+import IconMinus from "../icons/minus";
 
 const VoucherDepositModal = ({
   onSuccess,
-  sponsorPoolId,
-  sponsor,
-  amountPerVoucher,
-}: SponsorPool & {
+  sponsorPool,
+}: {
+  sponsorPool?: SponsorPool;
   onSuccess: () => void;
 }) => {
   const [selectedPool, setSelectedPool] = useState<string>();
+  const [amount, setAmount] = useState(1);
+
+  const sponsor = sponsorPool?.sponsor;
+  const sponsorPoolId = sponsorPool?.sponsorPoolId;
+  const amountPerVoucher = sponsorPool?.amountPerVoucher;
 
   const { data: pools } = useGetPools({
     types: ["funding"],
@@ -28,7 +34,6 @@ const VoucherDepositModal = ({
         onSuccess();
       },
     });
-
   const { data: vouchers, isPending: isGettingVoucher } = useGetOwnedVouchers({
     sponsor,
   });
@@ -62,29 +67,55 @@ const VoucherDepositModal = ({
           })}
         </div>
         <div className="divider" />
-        <div className="flex justify-between gap-2">
+        <div className="flex flex-col justify-between gap-4 md:flex-row">
           <label className="input flex items-center gap-2">
             <input
-              className="input"
+              className="input max-w-[120px]"
               type="text"
               value={formatBasePrice(Number(amountPerVoucher))}
               disabled
             />
             <span>USDC</span>
           </label>
-          <label className="input flex items-center gap-2">
-            <input
-              className="w-[50px]"
-              type="number"
-              max={vouchers?.length}
-              defaultValue={1}
-            />
-          </label>
+          <div className="flex items-center gap-2">
+            <button
+              className={`btn btn-ghost ${amount <= 0 ? "btn-disabled" : ""}`}
+              onClick={() => {
+                setAmount((prev) => prev - 1);
+              }}
+              disabled={amount <= 0}
+            >
+              <IconMinus />
+            </button>
+            <label className="input flex items-center">
+              <input
+                className="w-[30px]"
+                type="number"
+                max={vouchers?.length}
+                min={0}
+                value={amount}
+                onChange={(e) => {
+                  setAmount(Number(e.target.value));
+                }}
+              />
+            </label>
+            <button
+              disabled={amount >= (vouchers?.length ?? 0)}
+              className={`btn btn-ghost ${
+                amount >= (vouchers?.length ?? 0) ? "btn-disabled" : ""
+              }`}
+              onClick={() => {
+                setAmount((prev) => prev + 1);
+              }}
+            >
+              <IconPlus />
+            </button>
+          </div>
         </div>
         <div className="modal-action">
           <div className="flex gap-4">
             <button
-              disabled={!selectedPool || isGettingVoucher}
+              disabled={!selectedPool || isGettingVoucher || amount <= 0}
               className={`btn btn-primary`}
               onClick={() => {
                 if (!selectedPool || !sponsorPoolId) {

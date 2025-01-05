@@ -132,6 +132,10 @@ const Page = () => {
         <button
           className="btn btn-primary max-w-[320px]"
           onClick={() => {
+            if (!account) {
+              toast.error("Please connect your wallet");
+              return;
+            }
             const message = "Sign in Stingray Labs";
             postAuth({ message });
           }}

@@ -87,7 +87,7 @@ model settle_result {
   fund           fund    @relation(fields: [fund_object_id], references: [object_id])
   trader_id      String
   match_roi      Boolean
-  roi            Float
+  final_amount   String
   event_seq      Int
   tx_digest      String
   timestamp      BigInt
@@ -133,6 +133,7 @@ model fund_balance_record {
 
 model mint_fund_manager_voucher {
   id              String       @id
+  minter          String
   sponsor_pool_id String
   sponsor_pool    sponsor_pool @relation(fields: [sponsor_pool_id], references: [id])
   amount          Float

@@ -20,15 +20,13 @@ type UseGetOwnedVouchersProps = UseMutationOptions<
 
 const useGetOwnedVouchers = (options?: UseGetOwnedVouchersProps) => {
   const sponsor = options?.sponsor;
-  const sponsorPoolId = options?.sponsorPoolId;
   const account = useCurrentAccount();
   const suiService = getSuiService();
   return useQuery({
-    queryKey: ["voucher", account?.address, sponsor, sponsorPoolId],
+    queryKey: ["voucher", account?.address, sponsor],
     queryFn: async () => {
       console.log(account, "account");
       console.log(sponsor, "sponsor");
-      console.log(sponsorPoolId, "sponsorPoolId");
       if (!account) {
         throw new Error("Account not found");
       }
@@ -49,10 +47,6 @@ const useGetOwnedVouchers = (options?: UseGetOwnedVouchersProps) => {
           const content = object.data?.content as any;
           if (sponsor) {
             flag = content.fields?.info?.fields?.sponsor_addr === sponsor;
-          }
-
-          if (sponsorPoolId) {
-            flag = content.fields?.info?.fields?.sponsor_addr === sponsorPoolId;
           }
 
           return flag;

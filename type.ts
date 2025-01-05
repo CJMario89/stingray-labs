@@ -130,7 +130,7 @@ export type SettleResult = {
   fund?: Fund;
   trader_id: string;
   match_roi: boolean;
-  roi: number;
+  final_amount: string;
 };
 
 export type SponsorPool = {

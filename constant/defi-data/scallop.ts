@@ -83,15 +83,15 @@ export const SCALLOP_DEPOSIT = [
     outputType:
       "0xefe8b36d5b2e43728cc323298626b83177803521d195cfb11e15b910e892fddf::reserve::MarketCoin<0xbde4ba4c2e274a60ce15c1cfff9e5c42e41654ac8b6d906a57efa4bd3c29f47d::hasui::HASUI>",
   },
-  // {
-  //   // 8: DEEP
-  //   name: "DEEP",
-  //   inputType:
-  //     "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
-  //   inputDecimal: 1000000,
-  //   outputType:
-  //     "0xf95b06141ed4a174f239417323bde3f209b972f5930d8521ea38a52aff3a6ddf::reserve::MarketCoin<0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP>",
-  // },
+  {
+    // 8 : DEEP
+    name: "DEEP",
+    inputType:
+      "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+    inputDecimal: 1000000,
+    outputType:
+      "0xefe8b36d5b2e43728cc323298626b83177803521d195cfb11e15b910e892fddf::reserve::MarketCoin<0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP>",
+  },
 ];
 
 export const SCALLOP_WITHDRAW = [
@@ -174,14 +174,13 @@ export const SCALLOP_WITHDRAW = [
     outputType:
       "0xbde4ba4c2e274a60ce15c1cfff9e5c42e41654ac8b6d906a57efa4bd3c29f47d::hasui::HASUI",
   },
-  // {
-  //   // 8: DEEP
-  //   name: "DEEP",
-  //   inputType:
-  //     "0xf95b06141ed4a174f239417323bde3f209b972f5930d8521ea38a52aff3a6ddf::reserve::MarketCoin<0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP>",
-
-  //   inputDecimal: 1000000,
-  //   outputType:
-  //     "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
-  // },
+  {
+    // 8 : DEEP
+    name: "DEEP",
+    inputType:
+      "0xefe8b36d5b2e43728cc323298626b83177803521d195cfb11e15b910e892fddf::reserve::MarketCoin<0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP>",
+    inputDecimal: 1000000,
+    outputType:
+      "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+  },
 ];

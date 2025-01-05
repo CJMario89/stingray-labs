@@ -112,10 +112,16 @@ export const bucketDeposit = ({
       tx.object(configId),
       tx.object(cap),
       tx.object(fundId),
+      // tx.pure.u64(
+      //   Number(amount) * bucketDepositInfo.inputDecimal +
+      //     Number(originalAmount) * bucketDepositInfo.inputDecimal -
+      //     5,
+      // ),
       tx.pure.u64(
-        Number(amount) * bucketDepositInfo.inputDecimal +
-          Number(originalAmount) * bucketDepositInfo.inputDecimal -
-          5,
+        (
+          Number(amount) * bucketDepositInfo.inputDecimal +
+          Number(originalAmount) * bucketDepositInfo.inputDecimal
+        ).toFixed(0),
       ),
       tx.object("0x6"),
     ],

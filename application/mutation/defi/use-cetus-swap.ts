@@ -73,13 +73,13 @@ const useCetusSwap = (options?: UseCetusSwapProps) => {
     },
     ...options,
     onSuccess: async (_data, _variables, _context) => {
-      options?.onSuccess?.(_data, _variables, _context);
       toast.success("Swap success");
       refetchBalance();
       await client.invalidateQueries({
         queryKey: ["poos"],
         type: "all",
       });
+      options?.onSuccess?.(_data, _variables, _context);
     },
   });
 };

@@ -73,22 +73,9 @@ const useCreateFund = (options?: UseCreateFundProps) => {
       }
 
       const tx = new Transaction();
-
-      // console.log(process.env.NEXT_PUBLIC_GLOBAL_CONFIG);
-      // console.log(name, "name");
-      // console.log(description, "description");
-      // console.log(traderFee, "traderFee");
-      // console.log(limitAmount, "limitAmount");
-      // console.log(initialAmount, "initialAmount");
-      // console.log(
-      //   new Date(fundingEndTime).getTime() -
-      //     new Date(fundingStartTime).getTime(),
-      //   "fundingStartTime",
-      // );
-      // console.log(fundingEndTime, "fundingEndTime");
-      // console.log(tradingEndTime, "tradingEndTime");
-      // console.log(expectedRoi, "expectedRoi");
-
+      console.log(
+        limitAmount * 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
+      );
       const coinAmount =
         initialAmount * 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL);
 

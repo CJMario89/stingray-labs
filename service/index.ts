@@ -647,6 +647,7 @@ export class SuiService {
       fund: string;
       trader: string;
       is_matched_roi: boolean;
+      final_amount: string;
     };
 
     const upserts = events.map((event) => {
@@ -659,7 +660,7 @@ export class SuiService {
         fund_object_id: string;
         trader_id: string;
         match_roi: boolean;
-        roi: number;
+        final_amount: string;
         event_seq: number;
         tx_digest: string;
         timestamp: number;
@@ -668,7 +669,7 @@ export class SuiService {
         fund_object_id: data.fund,
         trader_id: data.trader,
         match_roi: data.is_matched_roi,
-        roi: 0,
+        final_amount: data.final_amount,
         event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
         timestamp: Number(timestamp),
@@ -1267,7 +1268,8 @@ export class SuiService {
       voucher_id: string;
       amount: string;
       deadline: string;
-      sponsor_addr: string;
+      minter_addr: string;
+      sponsor_pool: string;
     };
 
     const upserts = events.map((event) => {
@@ -1279,6 +1281,7 @@ export class SuiService {
       const object: {
         id: string;
         sponsor_pool_id: string;
+        minter: string;
         amount: number;
         deadline: number;
         event_seq: number;
@@ -1286,7 +1289,8 @@ export class SuiService {
         timestamp: number;
       } = {
         id: data.voucher_id,
-        sponsor_pool_id: data.sponsor_addr,
+        minter: data.minter_addr,
+        sponsor_pool_id: data.sponsor_pool,
         amount: Number(data.amount),
         deadline: Number(data.deadline),
         event_seq: Number(event.id.eventSeq),

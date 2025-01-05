@@ -3,6 +3,8 @@ import useGetBalance from "@/application/query/use-get-balance";
 import { Fund } from "@/type";
 import React, { useRef } from "react";
 import { primaryGradient, secondaryGradient } from "../pool-list-template";
+import toast from "react-hot-toast";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 const AddFundModal = ({
   pool,
@@ -20,6 +22,7 @@ const AddFundModal = ({
       onSuccess();
     },
   });
+  const account = useCurrentAccount();
   const amountRef = useRef<HTMLInputElement>(null);
   return (
     <dialog id="add-fund-modal" className="modal">
@@ -40,6 +43,10 @@ const AddFundModal = ({
               className={`btn btn-primary`}
               onClick={() => {
                 if (!amountRef.current) {
+                  return;
+                }
+                if (!account) {
+                  toast.error("Please connect your wallet");
                   return;
                 }
                 add({

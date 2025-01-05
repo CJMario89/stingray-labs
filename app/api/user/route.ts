@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     },
   });
   if (!user) {
-    return Response.json("User not found", { status: 404 });
+    return Response.json({});
   }
 
   const image = user.image

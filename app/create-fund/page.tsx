@@ -1,8 +1,10 @@
 "use client";
 import useCreateFund from "@/application/mutation/use-create-fund";
 import InputFormItem from "@/components/common/input-form-item";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 const Page = () => {
   const items = [
@@ -23,6 +25,7 @@ const Page = () => {
       dataIndex: "traderFee",
       type: "number",
       placeholder: "Enter trader fee",
+      unit: "%",
     },
     {
       title: "Funding Start Time",
@@ -47,18 +50,21 @@ const Page = () => {
       dataIndex: "initialAmount",
       type: "number",
       placeholder: "Enter initial amount",
+      unit: "USDC",
     },
     {
       title: "Limit Amount",
       dataIndex: "limitAmount",
       type: "number",
       placeholder: "Enter limit amount",
+      unit: "USDC",
     },
     {
       title: "Expected ROI",
       dataIndex: "expectedRoi",
       type: "number",
       placeholder: "Enter expected ROI",
+      unit: "%",
     },
   ];
   const [form, setForm] = useState({
@@ -73,6 +79,7 @@ const Page = () => {
     expectedRoi: 0,
   });
   const { push } = useRouter();
+  const account = useCurrentAccount();
   const { mutate: createFund, isPending } = useCreateFund({
     onError: (error) => {
       console.error(error);
@@ -89,6 +96,10 @@ const Page = () => {
         onSubmit={(e) => {
           e.preventDefault();
           console.log(form);
+          if (!account) {
+            toast.error("Please connect your wallet");
+            return;
+          }
           createFund(form);
         }}
       >
@@ -105,6 +116,7 @@ const Page = () => {
                 [item.dataIndex]: value,
               });
             }}
+            unit={item.unit}
           />
         ))}
         <button type="submit" className="btn btn-primary self-end">

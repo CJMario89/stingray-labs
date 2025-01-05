@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import template from "@/public/images/stingray_element_1.png";
+import template from "@/public/images/stingray_element_2.png";
 import useGetSponsorPools from "@/application/query/use-get-sponsor-pools";
 import type { SponsorPool } from "@/application/query/use-get-sponsor-pools";
 import VoucherSuccessModal from "@/components/modal/voucher-success-modal";
@@ -11,6 +11,7 @@ import { formatBasePrice } from "@/common";
 import { primaryGradient } from "@/components/pool-list-template";
 import { useState } from "react";
 import TraderInfo from "@/common/trader-info";
+import useGetMintedVouchers from "@/application/query/use-get-minted-vouchers";
 
 const SponsorPool = ({
   pool,
@@ -19,7 +20,11 @@ const SponsorPool = ({
   pool: SponsorPool;
   onSelect: (sponsorPool: SponsorPool) => void;
 }) => {
-  const { data: vouchers, isPending: isGettingVoucher } = useGetOwnedVouchers({
+  const {
+    data: vouchers,
+    isPending: isGettingVoucher,
+    refetch,
+  } = useGetOwnedVouchers({
     sponsor: pool.sponsor,
   });
   const { mutate: claim, isPending: isClaiming } = useClaimVoucher({
@@ -28,13 +33,21 @@ const SponsorPool = ({
       (
         document.getElementById("voucher-success-modal") as HTMLDialogElement
       )?.showModal();
+      refetch();
     },
   });
   const hasVoucher = vouchers && vouchers?.length > 0;
 
-  const remainingTimes = pool.totalTimes; // temp // wait for contract update and mint fund manager table
+  const { data: mintedVouchers } = useGetMintedVouchers({
+    sponsorPoolId: pool.sponsorPoolId,
+  });
+
+  const remainingTimes =
+    Number(pool.totalTimes) - (mintedVouchers?.length ?? 0);
   const avaliableTimes =
-    pool.remainTimes > remainingTimes ? remainingTimes : pool.remainTimes;
+    Number(pool.remainTimes) > remainingTimes
+      ? remainingTimes
+      : pool.remainTimes;
 
   return (
     <div
@@ -57,16 +70,30 @@ const SponsorPool = ({
           Remaining: {formatBasePrice(Number(pool.remaining))} USDC
         </div>
         <div className="text-sm text-neutral-400">
-          {formatBasePrice(Number(pool.amountPerVoucher))} USDC
+          {formatBasePrice(Number(pool.amountPerVoucher))} USDC per voucher
         </div>
         <div className="text-sm text-neutral-400">
           {avaliableTimes} / {pool.totalTimes}
         </div>
       </div>
       <button
-        disabled={
-          isClaiming || isGettingVoucher || (!hasVoucher && !avaliableTimes)
-        }
+        disabled={isClaiming || !avaliableTimes}
+        className="btn btn-outline w-full"
+        onClick={() => {
+          onSelect(pool);
+          if (!pool.sponsorPoolId) {
+            return;
+          }
+          claim({
+            sponsorPoolId: pool.sponsorPoolId,
+          });
+        }}
+      >
+        {isClaiming && <span className="loading loading-spinner" />}
+        Claim Voucher
+      </button>
+      <button
+        disabled={!hasVoucher}
         className="btn btn-outline w-full"
         onClick={() => {
           onSelect(pool);
@@ -78,18 +105,10 @@ const SponsorPool = ({
             )?.showModal();
             return;
           }
-          if (!pool.sponsorPoolId) {
-            return;
-          }
-          claim({
-            sponsorPoolId: pool.sponsorPoolId,
-          });
         }}
       >
-        {(isClaiming || isGettingVoucher) && (
-          <span className="loading loading-spinner" />
-        )}
-        {hasVoucher ? "Deposit" : "Claim"}
+        {isGettingVoucher && <span className="loading loading-spinner" />}
+        Deposit
       </button>
     </div>
   );

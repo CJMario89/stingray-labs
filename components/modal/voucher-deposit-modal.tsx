@@ -7,6 +7,9 @@ import { useState } from "react";
 import { primaryGradient, secondaryGradient } from "../pool-list-template";
 import IconPlus from "../icons/plus";
 import IconMinus from "../icons/minus";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 const VoucherDepositModal = ({
   onSuccess,
@@ -27,11 +30,14 @@ const VoucherDepositModal = ({
     owner: sponsor,
   });
 
+  const { push } = useRouter();
+  const account = useCurrentAccount();
   const { mutate: depositVoucher, isPending: isDepositingVoucher } =
     useDepositVoucher({
       fundId: pools?.find((pool) => pool.object_id === selectedPool)?.object_id,
       onSuccess: () => {
         onSuccess();
+        push("/profolio");
       },
     });
   const { data: vouchers, isPending: isGettingVoucher } = useGetOwnedVouchers({
@@ -41,7 +47,13 @@ const VoucherDepositModal = ({
     <dialog id="voucher-deposit-modal" className="modal">
       <div className={`${secondaryGradient} modal-box flex flex-col gap-4`}>
         <h2 className="mb-4 text-2xl font-bold">Deposit Voucher</h2>
+        <div>Select a pool to deposit voucher</div>
         <div className="flex flex-col gap-4">
+          {pools?.length === 0 && (
+            <div className="text-start text-neutral-400">
+              No fund available now
+            </div>
+          )}
           {pools?.map((pool) => {
             return (
               <label
@@ -68,12 +80,12 @@ const VoucherDepositModal = ({
         </div>
         <div className="divider" />
         <div className="flex flex-col justify-between gap-4 md:flex-row">
-          <label className="input flex items-center gap-2">
+          <label className="flex items-center gap-2">
             <input
-              className="input max-w-[120px]"
+              className="input max-w-[120px] text-neutral-50"
               type="text"
               value={formatBasePrice(Number(amountPerVoucher))}
-              disabled
+              readOnly
             />
             <span>USDC</span>
           </label>
@@ -112,6 +124,9 @@ const VoucherDepositModal = ({
             </button>
           </div>
         </div>
+        <div className="text-right text-xs text-neutral-400">
+          Avalaible : {vouchers?.length ?? 0} voucher(s)
+        </div>
         <div className="modal-action">
           <div className="flex gap-4">
             <button
@@ -121,7 +136,10 @@ const VoucherDepositModal = ({
                 if (!selectedPool || !sponsorPoolId) {
                   return;
                 }
-
+                if (!account) {
+                  toast.error("Please connect your wallet");
+                  return;
+                }
                 depositVoucher({
                   sponsorPoolId,
                   vouchers: vouchers?.map((voucher) => voucher.id) ?? [],

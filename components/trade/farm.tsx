@@ -15,7 +15,13 @@ import useGetPoolBalance from "@/application/query/pool/use-get-pool-balance";
 import { coins } from "@/constant/coin";
 import { primaryGradient } from "../pool-list-template";
 
-const Farm = ({ fundId }: { fundId?: string }) => {
+const Farm = ({
+  fundId,
+  onSuccess,
+}: {
+  fundId?: string;
+  onSuccess: () => void;
+}) => {
   const farms = [
     {
       name: "Bucket",
@@ -48,6 +54,7 @@ const Farm = ({ fundId }: { fundId?: string }) => {
       fundId,
       onSuccess: () => {
         setAmount("");
+        onSuccess();
       },
     });
   const { mutate: bucketDeposit, isPending: isBucketDepositing } =
@@ -55,6 +62,7 @@ const Farm = ({ fundId }: { fundId?: string }) => {
       fundId,
       onSuccess: () => {
         setAmount("");
+        onSuccess();
       },
     });
   // const { mutate: suilendDeposit, isPending: isSuilendDepositing } =
@@ -69,6 +77,7 @@ const Farm = ({ fundId }: { fundId?: string }) => {
       fundId,
       onSuccess: () => {
         setAmount("");
+        onSuccess();
       },
     });
   const { mutate: bucketWithdraw, isPending: isBucketWithdrawing } =
@@ -76,6 +85,7 @@ const Farm = ({ fundId }: { fundId?: string }) => {
       fundId,
       onSuccess: () => {
         setAmount("");
+        onSuccess();
       },
     });
   // const { mutate: suilendWithdraw, isPending: isSuilendWithdrawing } =

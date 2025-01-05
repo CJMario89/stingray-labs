@@ -23,17 +23,17 @@ const FundHistory = ({ fund }: { fund?: Fund }) => {
           )}
           {tradingHistory?.map((item, index) => {
             const action = item.action;
-            const isWithdraw = action === "Withdraw";
-            const token = isWithdraw ? item.token_out : item.token_in;
+            const isTokenOut = action === "Withdraw" || action === "Swap";
+            const token = isTokenOut ? item.token_out : item.token_in;
             const coin = coins.find(
               (coin) =>
                 coin.typename.toLowerCase() === `0x${token.toLowerCase()}`,
             );
             const decimal = coin?.decimal ?? 0;
             const name = coin?.name ?? "--";
-            const amount = item.amount_in / Math.pow(10, decimal);
-            console.log(coin);
-            console.log(item.token_in);
+            const amount =
+              (isTokenOut ? item.amount_out : item.amount_in) /
+              Math.pow(10, decimal);
             return (
               <tr key={index}>
                 <td>
@@ -57,7 +57,7 @@ const FundHistory = ({ fund }: { fund?: Fund }) => {
               </tr>
             );
           })}
-          {
+          {Boolean(fund) && (
             <tr>
               <td>
                 <TraderInfo address={fund?.owner_id} iconSize={16} />
@@ -66,7 +66,7 @@ const FundHistory = ({ fund }: { fund?: Fund }) => {
               <td>--</td>
               <td>--</td>
             </tr>
-          }
+          )}
         </tbody>
       </table>
     </div>

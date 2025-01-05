@@ -1,8 +1,10 @@
 "use client";
 import useCreateSponsor from "@/application/mutation/use-create-sponsor";
 import InputFormItem from "@/components/common/input-form-item";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 const Page = () => {
   const items = [
@@ -17,12 +19,14 @@ const Page = () => {
       dataIndex: "amountPerVoucher",
       type: "number",
       placeholder: "Enter amount per voucher",
+      unit: "USDC",
     },
     {
       title: "Total Pool Amount",
       dataIndex: "totalPoolAmount",
       type: "number",
       placeholder: "Enter total pool amount",
+      unit: "USDC",
     },
     {
       title: "Expire Time",
@@ -38,6 +42,7 @@ const Page = () => {
     expireTime: "",
   });
   const { push } = useRouter();
+  const account = useCurrentAccount();
   const { mutate: createSponsor, isPending } = useCreateSponsor({
     onError: (error) => {
       console.error(error);
@@ -53,7 +58,10 @@ const Page = () => {
         className="flex w-[320px] flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault();
-          console.log(form);
+          if (!account) {
+            toast.error("Please connect your wallet");
+            return;
+          }
           createSponsor(form);
         }}
       >
@@ -70,6 +78,7 @@ const Page = () => {
                 [item.dataIndex]: value,
               });
             }}
+            unit={item.unit}
           />
         ))}
         <button type="submit" className="btn btn-primary self-end">

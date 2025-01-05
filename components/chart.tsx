@@ -35,13 +35,15 @@ const Chart = ({
 }) => {
   const dataMax = Math.max(...(data?.map((i) => i.value) ?? []));
   const dataMin = Math.min(...(data?.map((i) => i.value) ?? []));
-  const dataDifPercent = 1 / ((dataMax - dataMin) / dataMin);
+  const dataDifPercent =
+    dataMax === dataMin ? 0 : 1 / ((dataMax - dataMin) / dataMin);
   const gradientOffset = () => {
     const baseline = Number(data?.[0]?.value);
-
+    if (dataMax === dataMin) {
+      return 0;
+    }
     return (dataMax - baseline) / (dataMax - dataMin);
   };
-  console.log(dataDifPercent);
   const off = gradientOffset();
   return (
     <ResponsiveContainer width="100%" height={height ?? 400}>
@@ -129,7 +131,7 @@ const Chart = ({
           type="monotone"
           baseValue={data?.[0]?.value}
           dataKey="value"
-          stroke={`url(#strokeColor-${id})`}
+          stroke={dataMax === dataMin ? "#4CAF50" : `url(#strokeColor-${id})`}
           fill={`url(#splitColor-${id})`}
           yAxisId={0}
           dot={<></>}

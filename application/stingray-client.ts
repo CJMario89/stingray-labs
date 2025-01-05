@@ -130,6 +130,20 @@ export class StingrayClient {
     );
     return response;
   }
+
+  async getMintedVoucher({
+    sponsorPoolId,
+    minter,
+  }: {
+    sponsorPoolId: string;
+    minter: string;
+  }) {
+    const response = await this.getRequest("/sponsor-pools/minted", {
+      sponsorPoolId,
+      minter,
+    });
+    return response;
+  }
 }
 
 export const stingrayClient = new StingrayClient();

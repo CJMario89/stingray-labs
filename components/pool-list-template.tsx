@@ -81,8 +81,15 @@ const FundInfo = ({
   const { push } = useRouter();
 
   const lastPrice = priceHistories?.[priceHistories.length - 1]?.value || 0;
-  const initPrice = priceHistories?.[0]?.value || 0;
+  const initPrice = Number(pool.totalFunded) || 0;
   const currentROI = (((lastPrice - initPrice) / initPrice) * 100).toFixed(2);
+
+  const finalAmount = Number(pool.settle_result?.[0]?.final_amount);
+  const initAmount =
+    initPrice * 10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL);
+  const finalROI = finalAmount
+    ? (((finalAmount - initAmount) / initAmount) * 100).toFixed(2)
+    : "--";
 
   return (
     <div className="flex w-full gap-4">
@@ -140,13 +147,30 @@ const FundInfo = ({
                     )}
                 </div>
               )}
-              {(pool?.types?.includes("trading") ||
-                pool?.types?.includes("ended")) && (
+              {pool?.types?.includes("trading") && (
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
                     <div>Current</div>
                     <div>
                       ROI: {!isNaN(Number(currentROI)) ? currentROI : "--"} %
+                    </div>
+                  </div>
+                  {Array.isArray(priceHistories) &&
+                    priceHistories?.length > 0 && (
+                      <Chart
+                        height={100}
+                        data={priceHistories}
+                        id={pool.object_id}
+                      />
+                    )}
+                </div>
+              )}
+              {pool?.types?.includes("ended") && (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <div>Final</div>
+                    <div>
+                      ROI: {!isNaN(Number(finalROI)) ? finalROI : "--"} %
                     </div>
                   </div>
                   {Array.isArray(priceHistories) &&
@@ -184,7 +208,7 @@ const FundInfo = ({
                 Strategy Description
               </div>
               <div className="tooltip" data-tip={pool?.description}>
-                <div className="text-md line-clamp-3 overflow-hidden text-ellipsis">
+                <div className="text-md line-clamp-3 overflow-hidden text-ellipsis text-start">
                   {pool?.description}
                 </div>
               </div>
@@ -437,10 +461,10 @@ const PoolListTemplate = ({ investor }: { investor?: string }) => {
         {pools?.map((pool) => (
           <div
             key={pool.object_id}
-            className={`collapse collapse-arrow rounded-md ${primaryGradient}`}
+            className={`collapse collapse-arrow rounded-md ${primaryGradient} `}
           >
             <input type="checkbox" name="pool" />
-            <div className="collapse-title px-4 md:px-6">
+            <div className="collapse-title flex items-center px-4 md:px-6">
               <div className="flex w-full items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="tooltip" data-tip={pool.name}>

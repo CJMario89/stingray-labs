@@ -69,13 +69,13 @@ const useBucketWithdraw = (options?: UseBucketWithdrawProps) => {
     },
     ...options,
     onSuccess: async (_data, _variables, _context) => {
-      options?.onSuccess?.(_data, _variables, _context);
       toast.success("Withdraw successful");
       await client.invalidateQueries({
         queryKey: ["pools"],
         type: "all",
       });
       refetchBalance();
+      options?.onSuccess?.(_data, _variables, _context);
     },
   });
 };

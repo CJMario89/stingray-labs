@@ -11,7 +11,13 @@ import useGetPoolCap from "@/application/query/pool/use-get-pool-cap";
 import useGetPoolBalance from "@/application/query/pool/use-get-pool-balance";
 import { primaryGradient } from "../pool-list-template";
 
-const Swap = ({ fundId }: { fundId?: string }) => {
+const Swap = ({
+  fundId,
+  onSuccess,
+}: {
+  fundId?: string;
+  onSuccess: () => void;
+}) => {
   const tokens = [
     "USDC",
     "SUI",
@@ -25,6 +31,7 @@ const Swap = ({ fundId }: { fundId?: string }) => {
     onSuccess: () => {
       setInAmount("");
       setOutAmount("");
+      onSuccess();
     },
     fundId,
   });

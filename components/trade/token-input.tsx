@@ -76,7 +76,7 @@ const TokenInput = ({
               onClick={() => {
                 const tokenBalance = balance?.find((b) => b.name === token);
                 if (token && tokenBalance) {
-                  onChangeValue?.(tokenBalance.farmings[0].value.toString());
+                  onChangeValue?.(tokenBalance.farmings[0]?.value?.toString());
                 } else {
                   onChangeValue?.("");
                 }

@@ -3,6 +3,8 @@ import useGetPoolShares from "@/application/query/pool/use-get-pool-shares";
 import { Fund } from "@/type";
 import React, { useRef } from "react";
 import { primaryGradient, secondaryGradient } from "../pool-list-template";
+import toast from "react-hot-toast";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 const RemoveFundModal = ({
   pool,
@@ -11,7 +13,8 @@ const RemoveFundModal = ({
   pool: Fund;
   onSuccess: () => void;
 }) => {
-  const { total, withdrawableShares } = useGetPoolShares({
+  const account = useCurrentAccount();
+  const { withdrawable, withdrawableShares } = useGetPoolShares({
     history: pool.fund_history,
   });
 
@@ -36,7 +39,7 @@ const RemoveFundModal = ({
           />
         </label>
         <div className="text-sm text-neutral-400">
-          Deposit Balance: {total} USDC
+          Deposit Balance: {withdrawable} USDC
         </div>
         <div className="modal-action">
           <div className="flex gap-4">
@@ -44,6 +47,10 @@ const RemoveFundModal = ({
               className={`btn btn-primary`}
               onClick={() => {
                 if (!amountRef.current || !pool.fund_history) {
+                  return;
+                }
+                if (!account) {
+                  toast.error("Please connect your wallet");
                   return;
                 }
                 remove({

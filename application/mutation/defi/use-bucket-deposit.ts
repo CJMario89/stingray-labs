@@ -74,13 +74,13 @@ const useBucketDeposit = (options?: UseBucketDespositProps) => {
     },
     ...options,
     onSuccess: async (_data, _variables, _context) => {
-      options?.onSuccess?.(_data, _variables, _context);
       toast.success("Deposit success");
       await client.invalidateQueries({
         queryKey: ["pools"],
         type: "all",
       });
       refetchBalance();
+      options?.onSuccess?.(_data, _variables, _context);
     },
   });
 };

@@ -131,6 +131,9 @@ export type SettleResult = {
   trader_id: string;
   match_roi: boolean;
   final_amount: string;
+  event_seq: number;
+  tx_digest: string;
+  timestamp: bigint;
 };
 
 export type SponsorPool = {

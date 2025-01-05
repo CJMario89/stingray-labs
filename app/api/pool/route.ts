@@ -144,9 +144,14 @@ export async function GET(req: Request) {
         },
       },
       trader_operation: {
-        orderBy: {
-          timestamp: "desc",
-        },
+        orderBy: [
+          {
+            timestamp: "desc",
+          },
+          {
+            event_seq: "desc",
+          },
+        ],
       },
       settle_result: true,
     },

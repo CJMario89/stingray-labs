@@ -3,6 +3,23 @@ import { coins } from "@/constant/coin";
 import { Fund } from "@/type";
 import { secondaryGradient } from "../pool-list-template";
 
+const getTimeTooltip = (timestamp?: string | bigint | number) => {
+  if (!timestamp) {
+    return {};
+  }
+  return {
+    className: "tooltip",
+    "data-tip": Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+    }).format(new Date(Number(timestamp))),
+  };
+};
+
 const FundHistory = ({ fund }: { fund?: Fund }) => {
   const history = fund?.fund_history;
   const tradingHistory = fund?.trader_operation;
@@ -16,7 +33,9 @@ const FundHistory = ({ fund }: { fund?: Fund }) => {
               <td>
                 <TraderInfo address={fund?.owner_id} iconSize={16} />
               </td>
-              <td>Settled</td>
+              <td {...getTimeTooltip(fund?.settle_result?.[0].timestamp)}>
+                Settled
+              </td>
               <td>--</td>
               <td>--</td>
             </tr>
@@ -39,7 +58,7 @@ const FundHistory = ({ fund }: { fund?: Fund }) => {
                 <td>
                   <TraderInfo address={fund?.owner_id} iconSize={16} />
                 </td>
-                <td>{action}</td>
+                <td {...getTimeTooltip(item.timestamp)}>{action}</td>
                 <td>{amount}</td>
                 <td>{name}</td>
               </tr>
@@ -51,7 +70,7 @@ const FundHistory = ({ fund }: { fund?: Fund }) => {
                 <td>
                   <TraderInfo address={item.investor} iconSize={16} />
                 </td>
-                <td>{item.action}</td>
+                <td {...getTimeTooltip(item.timestamp)}>{item.action}</td>
                 <td>{item.amount}</td>
                 <td>USDC</td>
               </tr>
@@ -62,7 +81,7 @@ const FundHistory = ({ fund }: { fund?: Fund }) => {
               <td>
                 <TraderInfo address={fund?.owner_id} iconSize={16} />
               </td>
-              <td>Created</td>
+              <td {...getTimeTooltip(fund?.timestamp)}>Created</td>
               <td>--</td>
               <td>--</td>
             </tr>

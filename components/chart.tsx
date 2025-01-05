@@ -35,13 +35,10 @@ const Chart = ({
 }) => {
   const dataMax = Math.max(...(data?.map((i) => i.value) ?? []));
   const dataMin = Math.min(...(data?.map((i) => i.value) ?? []));
-  const dataDifPercent =
-    dataMax === dataMin ? 0 : 1 / ((dataMax - dataMin) / dataMin);
+  const dataDifPercent = 1 / ((dataMax - dataMin) / dataMin);
   const gradientOffset = () => {
     const baseline = Number(data?.[0]?.value);
-    if (dataMax === dataMin) {
-      return 0;
-    }
+
     return (dataMax - baseline) / (dataMax - dataMin);
   };
   const off = gradientOffset();
@@ -129,7 +126,7 @@ const Chart = ({
 
         <Area
           type="monotone"
-          baseValue={data?.[0]?.value}
+          baseValue={Number(data?.[0]?.value)}
           dataKey="value"
           stroke={dataMax === dataMin ? "#4CAF50" : `url(#strokeColor-${id})`}
           fill={`url(#splitColor-${id})`}

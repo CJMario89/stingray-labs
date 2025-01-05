@@ -16,10 +16,13 @@ const Page = () => {
     },
   });
 
+  const { data: user, isSuccess, refetch } = useGetUser();
+
   const { mutate: postUserInfo, isPending: isPostingUserInfo } =
     usePostUserInfo({
       onSuccess: () => {
         toast.success("Update user info successfully");
+        refetch();
       },
     });
   const account = useCurrentAccount();
@@ -32,8 +35,6 @@ const Page = () => {
   });
   const cookie = getCookie(`signature-${account?.address}`);
   const hasSignIn = !!cookie;
-
-  const { data: user, isSuccess } = useGetUser();
 
   useEffect(() => {
     if (isSuccess && user) {

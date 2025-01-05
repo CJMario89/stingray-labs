@@ -408,6 +408,7 @@ const PoolListTemplate = ({ investor }: { investor?: string }) => {
             onSelect={(value: { key: string; value: string }) => {
               setOrderBy(value.value);
             }}
+            dropdownEnd={false}
           />
           <button
             className="btn btn-ghost"

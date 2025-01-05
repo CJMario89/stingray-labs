@@ -12,14 +12,18 @@ const SelectMenu = ({
   options,
   onSelect,
   value = options[0],
+  dropdownEnd = true,
 }: {
   value?: Option;
   options: Option[];
   onSelect: (option: Option) => void;
+  dropdownEnd?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="dropdown dropdown-end w-[fit-content] shrink-0">
+    <div
+      className={`dropdown ${dropdownEnd ? "dropdown-end" : "dropdown-start"} w-[fit-content] shrink-0`}
+    >
       <div
         tabIndex={0}
         role="button"

@@ -3,6 +3,8 @@ import { usePathname } from "next/navigation";
 import { headerGradient } from "./header";
 import TraderInfo from "@/common/trader-info";
 import { useCurrentAccount } from "@mysten/dapp-kit";
+import ConnectButton from "@/components/connect-button";
+import { primaryGradient } from "@/components/pool-list-template";
 
 const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
   const path = usePathname();
@@ -78,28 +80,43 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
           );
         })}
       </div>
-      <div className="flex w-full flex-col items-start gap-2">
-        <div
-          className={`flex w-full px-4 ${path === "/account-settings" ? "border-l-2 border-solid border-primary-500" : ""}`}
-        >
-          <Link
-            className={`w-full whitespace-nowrap rounded-md px-4 py-2 text-left font-bold ${
-              path === "/account-settings"
-                ? "bg-neutral-50 bg-opacity-10 text-neutral-50 text-opacity-100"
-                : "text-neutral-400 text-opacity-50 hover:text-neutral-50 hover:text-opacity-100"
-            } `}
-            href="/account-settings"
-            onClick={() => {
-              onSelect?.();
-            }}
+      {Boolean(account) && (
+        <div className="flex w-full flex-col items-start gap-2">
+          <div
+            className={`flex w-full px-4 ${path === "/account-settings" ? "border-l-2 border-solid border-primary-500" : ""}`}
           >
-            Settings
-          </Link>
+            <Link
+              className={`w-full whitespace-nowrap rounded-md px-4 py-2 text-left font-bold ${
+                path === "/account-settings"
+                  ? "bg-neutral-50 bg-opacity-10 text-neutral-50 text-opacity-100"
+                  : "text-neutral-400 text-opacity-50 hover:text-neutral-50 hover:text-opacity-100"
+              } `}
+              href="/account-settings"
+              onClick={() => {
+                onSelect?.();
+              }}
+            >
+              Settings
+            </Link>
+          </div>
+          <div className="px-4">
+            <TraderInfo address={account?.address} />
+          </div>
         </div>
-        <div className="px-4">
-          <TraderInfo address={account?.address} />
+      )}
+      {!Boolean(account) && (
+        <div className="w-full p-4 md:w-[220px]">
+          <div
+            className={`flex w-full flex-col items-center justify-center gap-4 rounded-xl p-4 md:w-[220px] lg:self-center ${primaryGradient}`}
+          >
+            <div className="text-center">Join Stingray Protocol</div>
+            <div className="text-center">
+              and explore the next-generation fully on-chain financial solutions
+            </div>
+            <ConnectButton />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

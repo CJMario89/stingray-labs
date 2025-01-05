@@ -28,10 +28,12 @@ export async function GET(req: Request) {
 
   return Response.json(
     SuperJSON.serialize(
-      records.map((record) => ({
-        time: record.timestamp,
-        value: record.total,
-      })),
+      records
+        .filter((record) => !(Number(record.total) > 0))
+        .map((record) => ({
+          time: record.timestamp,
+          value: record.total,
+        })),
     ).json,
   );
 }

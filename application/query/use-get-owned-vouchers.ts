@@ -24,8 +24,11 @@ const useGetOwnedVouchers = (options?: UseGetOwnedVouchersProps) => {
   const account = useCurrentAccount();
   const suiService = getSuiService();
   return useQuery({
-    queryKey: ["voucher", account?.address, sponsor],
+    queryKey: ["voucher", account?.address, sponsor, sponsorPoolId],
     queryFn: async () => {
+      console.log(account, "account");
+      console.log(sponsor, "sponsor");
+      console.log(sponsorPoolId, "sponsorPoolId");
       if (!account) {
         throw new Error("Account not found");
       }
@@ -39,7 +42,6 @@ const useGetOwnedVouchers = (options?: UseGetOwnedVouchersProps) => {
         packageId,
         type: "Voucher",
       });
-      console.log(objects);
       return objects
         .filter((object) => {
           let flag = true;

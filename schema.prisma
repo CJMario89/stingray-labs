@@ -112,12 +112,13 @@ model user {
 }
 
 model sponsor_pool {
-  id          String @id
-  sponsor     String
-  init_amount Float
-  event_seq   Int
-  tx_digest   String
-  timestamp   BigInt
+  id                        String                      @id
+  sponsor                   String
+  init_amount               Float
+  event_seq                 Int
+  tx_digest                 String
+  timestamp                 BigInt
+  mint_fund_manager_voucher mint_fund_manager_voucher[]
 }
 
 model fund_balance_record {
@@ -128,4 +129,15 @@ model fund_balance_record {
   trading        Float
   farming        Float
   timestamp      BigInt
+}
+
+model mint_fund_manager_voucher {
+  id              String       @id
+  sponsor_pool_id String
+  sponsor_pool    sponsor_pool @relation(fields: [sponsor_pool_id], references: [id])
+  amount          Float
+  deadline        BigInt
+  event_seq       Int
+  tx_digest       String
+  timestamp       BigInt
 }

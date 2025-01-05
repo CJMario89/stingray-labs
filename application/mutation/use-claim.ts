@@ -39,12 +39,11 @@ const useClaim = (options?: UseAddFundProps) => {
       const history = [...(fund.fund_history ?? [])].sort((a, b) => {
         return Number(a.timestamp) - Number(b.timestamp);
       });
-      console.log(fund);
       const shares =
         history
           ?.filter((history) => !history?.redeemed)
           ?.filter((history) => history.investor === account?.address)
-          ?.map((history) => history.share_id) || [];
+          ?.map((history) => history) || [];
 
       console.log(shares);
       if (!shares.length) {
@@ -58,13 +57,33 @@ const useClaim = (options?: UseAddFundProps) => {
         throw new Error("Global config or package not found");
       }
 
+      const investorClaims = shares
+        .filter((share) => share.sponsor === share.investor)
+        .map((share) => share);
+      const sponsorClaims = shares
+        .filter((share) => share.sponsor !== share.investor)
+        .map((share) => share);
+
       const tx = new Transaction();
-      claim({
-        tx,
-        fundId: fund.object_id,
-        shares,
-        address: account.address,
-      });
+
+      if (investorClaims.length > 0) {
+        claim({
+          tx,
+          fundId: fund.object_id,
+          shares: investorClaims.map((share) => share.share_id),
+          address: account.address,
+        });
+      }
+
+      if (sponsorClaims.length > 0) {
+        claim({
+          tx,
+          fundId: fund.object_id,
+          shares: sponsorClaims.map((share) => share.share_id),
+          address: account.address,
+          sponsorPoolId: sponsorClaims[0].sponsor,
+        });
+      }
 
       const result = await signAndExecuteTransaction({
         transaction: tx,

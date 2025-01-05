@@ -64,7 +64,6 @@ export const settleBackToUsdc = ({
         });
         swapBalance[balance.name] += Number(farming.value);
       }
-      console.log(swapBalance);
     });
   });
   Object.entries(swapBalance).forEach(([name, value]) => {
@@ -76,17 +75,12 @@ export const settleBackToUsdc = ({
 
     const coin = coins.find((coin) => coin.name === name);
     if (!coin) return;
-    console.log(value);
-    console.log(Math.floor(value * Math.pow(10, coin?.decimal)) - 1);
-    console.log(
-      ((Math.floor(value * Math.pow(10, coin?.decimal)) - 1) /
-        Math.pow(10, coin?.decimal)) *
-        Math.pow(10, coin?.decimal),
-    );
+
     swap({
       tx,
       inToken: name,
       outToken: "USDC",
+      // (Math.floor(value * Math.pow(10, coin?.decimal)) - 1) /
       inAmount: (
         (Math.floor(value * Math.pow(10, coin?.decimal)) - 1) /
         Math.pow(10, coin?.decimal)

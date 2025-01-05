@@ -533,6 +533,7 @@ export class SuiService {
           redeemed: boolean;
           amount: number;
           investor: string;
+          sponsor: string;
           event_seq: number;
           tx_digest: string;
           timestamp: number;
@@ -543,6 +544,7 @@ export class SuiService {
           redeemed: data.remain_share ? false : true,
           amount: Number(data.withdraw_invest_amount),
           investor: data.investor,
+          sponsor: "",
           event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
           timestamp: Number(timestamp),
@@ -653,6 +655,7 @@ export class SuiService {
       const timestamp = event.timestampMs ?? "0";
 
       const object: {
+        id: string;
         fund_object_id: string;
         trader_id: string;
         match_roi: boolean;
@@ -661,6 +664,7 @@ export class SuiService {
         tx_digest: string;
         timestamp: number;
       } = {
+        id: event.id.txDigest + Number(event.id.eventSeq),
         fund_object_id: data.fund,
         trader_id: data.trader,
         match_roi: data.is_matched_roi,
@@ -671,6 +675,7 @@ export class SuiService {
       };
       return this.prisma.settle_result.upsert({
         where: {
+          id: object.id,
           fund_object_id: data.fund,
           event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
@@ -1211,6 +1216,87 @@ export class SuiService {
       return this.prisma.sponsor_pool.upsert({
         where: {
           id: data.id,
+          event_seq: Number(event.id.eventSeq),
+          tx_digest: event.id.txDigest,
+        },
+        update: object,
+        create: object,
+      });
+    });
+
+    const result = await this.prisma.$transaction(upserts);
+    return result;
+  }
+
+  async upsertMintFundManagerVoucherEvents() {
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
+    if (!packageId) {
+      throw new Error("Package not found");
+    }
+    const mintFundManagerVoucher =
+      await this.prisma.mint_fund_manager_voucher.findFirst({
+        orderBy: [
+          {
+            timestamp: "desc",
+          },
+          {
+            event_seq: "desc",
+          },
+        ],
+
+        select: {
+          tx_digest: true,
+          event_seq: true,
+        },
+      });
+    const nextCursor: PaginatedEvents["nextCursor"] = mintFundManagerVoucher
+      ? {
+          txDigest: mintFundManagerVoucher.tx_digest,
+          eventSeq: mintFundManagerVoucher.event_seq.toString(),
+        }
+      : undefined;
+    const events = await this.queryEvents({
+      module: "voucher",
+      packageId,
+      eventType: `MintedFundManagerVoucher`,
+      nextCursor,
+    });
+    console.log(events);
+
+    type MintedFundManagerVoucher = {
+      voucher_id: string;
+      amount: string;
+      deadline: string;
+      sponsor_addr: string;
+    };
+
+    const upserts = events.map((event) => {
+      console.log(event);
+      const data: MintedFundManagerVoucher =
+        event.parsedJson as MintedFundManagerVoucher;
+      const timestamp = event.timestampMs ?? "0";
+
+      const object: {
+        id: string;
+        sponsor_pool_id: string;
+        amount: number;
+        deadline: number;
+        event_seq: number;
+        tx_digest: string;
+        timestamp: number;
+      } = {
+        id: data.voucher_id,
+        sponsor_pool_id: data.sponsor_addr,
+        amount: Number(data.amount),
+        deadline: Number(data.deadline),
+        event_seq: Number(event.id.eventSeq),
+        tx_digest: event.id.txDigest,
+        timestamp: Number(timestamp),
+      };
+
+      return this.prisma.mint_fund_manager_voucher.upsert({
+        where: {
+          id: data.voucher_id,
           event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
         },

@@ -9,21 +9,15 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import useGetPoolCap from "../query/pool/use-get-pool-cap";
 
-type UseClaimVoucherProps = UseMutationOptions<
-  void,
-  Error,
-  {
-    sponsorPoolId: string;
-  }
-> & {
-  sponsor: string;
+type UseTraderClaimProps = UseMutationOptions<void, Error, void> & {
+  fundId?: string;
 };
 
-const useClaimVoucher = (options?: UseClaimVoucherProps) => {
-  const sponsor = options?.sponsor;
-  const account = useCurrentAccount();
+const useTraderClaim = (options?: UseTraderClaimProps) => {
   const client = useQueryClient();
+  const account = useCurrentAccount();
   const { mutateAsync: signAndExecuteTransaction } =
     useSignAndExecuteTransaction({
       onError: (error) => {
@@ -31,10 +25,17 @@ const useClaimVoucher = (options?: UseClaimVoucherProps) => {
       },
     });
 
+  const fundId = options?.fundId;
+  const { data: cap } = useGetPoolCap({
+    fundId: options?.fundId,
+  });
   return useMutation({
-    mutationFn: async ({ sponsorPoolId }: { sponsorPoolId: string }) => {
-      if (!account) {
-        throw new Error("Account not found");
+    mutationFn: async () => {
+      if (!cap) {
+        throw new Error("Cap not found");
+      }
+      if (!fundId) {
+        throw new Error("Fund id not found");
       }
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
@@ -44,19 +45,24 @@ const useClaimVoucher = (options?: UseClaimVoucherProps) => {
         throw new Error("Global config or package not found");
       }
 
-      const tx = new Transaction();
+      if (!account) {
+        throw new Error("Account not found");
+      }
 
-      tx.moveCall({
+      const tx = new Transaction();
+      const coin = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
-        module: "voucher",
-        function: "mint_fund_manager_voucher",
+        module: "fund",
+        function: "trader_claim",
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG),
-          tx.object(sponsorPoolId),
+          tx.object(cap),
+          tx.object(fundId),
         ],
         typeArguments: [process.env.NEXT_PUBLIC_FUND_BASE],
       });
 
+      tx.transferObjects([coin], account.address);
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
@@ -66,19 +72,16 @@ const useClaimVoucher = (options?: UseClaimVoucherProps) => {
       console.error(error);
     },
     ...options,
-    onSuccess: async (data, variable, context) => {
-      toast.success("Congratulations! You have successfully created a fund!");
+    onSuccess: async (_data, _variables, _context) => {
+      options?.onSuccess?.(_data, _variables, _context);
+      toast.success("Claim successfully");
+
       await client.invalidateQueries({
-        queryKey: ["voucher", account?.address, sponsor],
+        queryKey: ["pools"],
         type: "all",
       });
-      await client.invalidateQueries({
-        queryKey: ["sponsor-pools"],
-        type: "all",
-      });
-      options?.onSuccess?.(data, variable, context);
     },
   });
 };
 
-export default useClaimVoucher;
+export default useTraderClaim;

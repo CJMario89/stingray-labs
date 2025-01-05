@@ -65,8 +65,6 @@ export async function GET(req: Request) {
       .toFixed(decimal)
       .replace(/\.?0+$/, "");
   };
-  console.log(suilendOperations);
-  console.log(scallopOperations);
   const tokens = coins.map((coin) => {
     let balance = 0;
     const farmings: Farming[] = [];
@@ -300,7 +298,7 @@ export async function GET(req: Request) {
         console.log(rate, "rate1");
 
         if (!rate) {
-          rate = await quoter.quote(inToken, 10, 1, "in");
+          rate = await quoter.quote(inToken, 2, 1, "in");
           console.log(rate, "rate2");
           await client.set(
             `${inToken}-${10}-${1}-${"in"}`,

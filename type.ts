@@ -1,4 +1,8 @@
-import { claim_result, fund_balance_record } from "@prisma/client";
+import {
+  claim_result,
+  fund_balance_record,
+  trader_operation,
+} from "@prisma/client";
 
 export type TraderOperation = {
   id: string;
@@ -27,6 +31,7 @@ export type FundHistory = {
   amount: number;
   redeemed: boolean;
   investor: string;
+  sponsor: string;
   event_seq: number;
   tx_digest: string;
   timestamp: bigint;
@@ -44,7 +49,7 @@ export type Fund = {
   arena?: Arena;
   owner_id: string;
   fund_history?: FundHistory[];
-  trader_operation?: TraderOperation[];
+  trader_operation?: trader_operation[];
   trader_fee: number;
   limit_amount: number;
   expected_roi: number;

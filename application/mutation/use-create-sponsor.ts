@@ -19,6 +19,7 @@ type UseCreateSponsorProps = UseMutationOptions<
     numberOfVouchers: string;
     amountPerVoucher: string;
     expireTime: string;
+    totalPoolAmount: string;
   }
 >;
 
@@ -38,10 +39,12 @@ const useCreateSponsor = (options?: UseCreateSponsorProps) => {
       numberOfVouchers,
       amountPerVoucher,
       expireTime,
+      totalPoolAmount,
     }: {
       numberOfVouchers: string;
       amountPerVoucher: string;
       expireTime: string;
+      totalPoolAmount: string;
     }) => {
       if (!account) {
         throw new Error("Account not found");
@@ -72,9 +75,8 @@ const useCreateSponsor = (options?: UseCreateSponsorProps) => {
             tx,
             owner: account.address,
             amount:
-              Number(amountPerVoucher) *
-              10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL) *
-              Number(numberOfVouchers),
+              Number(totalPoolAmount) *
+              10 ** Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL),
             coinType: process.env.NEXT_PUBLIC_FUND_BASE,
           }),
         ],

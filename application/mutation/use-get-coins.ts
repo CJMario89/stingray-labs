@@ -21,7 +21,6 @@ const useGetCoins = () => {
         coinType,
         limit: 10,
       });
-      console.log(coins);
       if (coins.data.length === 0) {
         alert("No coins found");
         throw new Error("No coins found");

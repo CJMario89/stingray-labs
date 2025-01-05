@@ -1,19 +1,19 @@
 import { getFundStatistics } from "@/app/common";
 import { formatBasePrice } from "@/common";
 import { prisma } from "@/prisma";
-import { Fund } from "@/type";
+import { Fund, SponsorPool } from "@/type";
 import SuperJSON from "superjson";
 
 export const revalidate = 0;
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  console.log(url, "url");
   const types = url.searchParams.getAll("types");
   const order = url.searchParams.get("order") as "asc" | "desc";
   const orderBy = url.searchParams.get("orderBy");
   const searchText = url.searchParams.get("searchText");
   const owner = url.searchParams.get("owner");
+  const investor = url.searchParams.get("investor");
 
   const whereClause = [];
 
@@ -70,6 +70,22 @@ export async function GET(req: Request) {
     });
   }
 
+  if (types.includes("settled")) {
+    whereClause.push({
+      settle_result: {
+        some: {},
+      },
+    });
+  }
+
+  if (types.includes("voucher")) {
+    whereClause.push({
+      settle_result: {
+        none: {},
+      },
+    });
+  }
+
   const orderClause: Record<string, "asc" | "desc"> = {};
 
   if (!!orderBy) {
@@ -86,8 +102,6 @@ export async function GET(req: Request) {
     }
   }
 
-  console.log(orderClause, "orderClause");
-
   const isEmptyOrderClause =
     Object.keys(orderClause).length === 0 && orderClause.constructor === Object;
 
@@ -96,29 +110,55 @@ export async function GET(req: Request) {
       ...(whereClause.length > 0
         ? {
             OR: [...whereClause],
-            ...(!!searchText
-              ? {
-                  AND: {
-                    OR: [
-                      { name: { contains: searchText } },
-                      { description: { contains: searchText } },
-                    ],
-                  },
-                }
-              : {}),
-            ...(!!owner
-              ? {
-                  owner_id: owner,
-                }
-              : {}),
+          }
+        : {}),
+      ...(!!searchText
+        ? {
+            AND: {
+              OR: [
+                { name: { contains: searchText } },
+                { description: { contains: searchText } },
+              ],
+            },
+          }
+        : {}),
+      ...(!!owner
+        ? {
+            owner_id: owner,
+          }
+        : {}),
+      ...(!!investor
+        ? {
+            fund_history: {
+              some: {
+                investor,
+              },
+            },
           }
         : {}),
     },
     include: {
-      fund_history: true,
+      fund_history: {
+        orderBy: {
+          timestamp: "desc",
+        },
+      },
+      trader_operation: {
+        orderBy: {
+          timestamp: "desc",
+        },
+      },
       settle_result: true,
     },
     ...(isEmptyOrderClause ? {} : { orderBy: orderClause }),
+  });
+
+  const sponsorPools = await prisma.sponsor_pool.findMany({
+    where: {
+      sponsor: {
+        in: funds.map((fund) => fund.owner_id),
+      },
+    },
   });
 
   return Response.json(
@@ -131,31 +171,46 @@ export async function GET(req: Request) {
           ...history,
           amount: formatBasePrice(history.amount),
         })),
-        type: getPoolType(fund),
+        types: getPoolTypes(fund, sponsorPools),
+        sponsorPools: sponsorPools.filter(
+          (pool) => pool.sponsor === fund.owner_id,
+        ),
       })),
     ).json,
   );
 }
 
-function getPoolType(pool: Fund) {
-  console.log(pool);
+function getPoolTypes(pool: Fund, sponsorPools: SponsorPool[]) {
+  const types = [];
   if (pool.start_time > Date.now()) {
-    return "pending";
+    types.push("pending");
   } else if (
     pool.start_time <= Date.now() &&
     pool.invest_end_time >= Date.now()
   ) {
-    return "funding";
+    types.push("funding");
   } else if (
     pool.invest_end_time < Date.now() &&
     pool.end_time >= Date.now() &&
     pool?.settle_result?.length === 0
   ) {
-    return "trading";
+    types.push("trading");
   } else if (
     pool.end_time < Date.now() ||
     (pool?.settle_result?.length ?? 0) > 0
   ) {
-    return "ended";
+    types.push("ended");
   }
+
+  if (pool?.settle_result && pool?.settle_result?.length > 0) {
+    types.push("settled");
+  }
+
+  if (
+    sponsorPools.some((sponsorPool) => sponsorPool.sponsor === pool.owner_id)
+  ) {
+    types.push("voucher");
+  }
+
+  return types;
 }

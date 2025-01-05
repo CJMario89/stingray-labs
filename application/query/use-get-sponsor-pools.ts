@@ -26,7 +26,6 @@ const useGetSponsorPools = (options?: UseGetSponsorPoolsProps) => {
       const objects = await suiService.queryObjects({
         ids: pools.map((pool: { id: string }) => pool.id),
       });
-      console.log(objects);
       return objects
         .filter((object) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

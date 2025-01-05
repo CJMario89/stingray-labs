@@ -57,7 +57,6 @@ const useDepositVoucher = (options?: UseDepositVoucherProps) => {
       }
 
       const tx = new Transaction();
-      console.log(sponsorPoolId);
       const consumeResponse = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "voucher",

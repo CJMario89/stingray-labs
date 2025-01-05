@@ -8,6 +8,7 @@ type UseGetPoolsProps = Omit<UseQueryOptions<Fund[]>, "queryKey"> & {
   orderBy?: string;
   searchText?: string;
   owner?: string;
+  investor?: string;
 };
 
 const useGetPools = (options?: UseGetPoolsProps) => {
@@ -16,8 +17,9 @@ const useGetPools = (options?: UseGetPoolsProps) => {
   const orderBy = options?.orderBy;
   const searchText = options?.searchText;
   const owner = options?.owner;
+  const investor = options?.investor;
   return useQuery({
-    queryKey: ["pools", types, order, orderBy, searchText, owner],
+    queryKey: ["pools", types, order, orderBy, searchText, owner, investor],
     queryFn: async () => {
       const response = await stingrayClient.getPools({
         types,
@@ -25,10 +27,12 @@ const useGetPools = (options?: UseGetPoolsProps) => {
         order,
         searchText,
         owner,
+        investor,
       });
       return response.json();
     },
     ...options,
+    refetchInterval: 10000,
   });
 };
 

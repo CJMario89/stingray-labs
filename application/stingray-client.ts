@@ -85,16 +85,19 @@ export class StingrayClient {
     return response;
   }
 
-  async postUserInfo({ name }: { name?: string }) {
+  async postUserInfo({
+    name,
+    image,
+    address,
+  }: {
+    name?: string;
+    image?: string;
+    address: string;
+  }) {
     const response = await this.postRequest("/user/info", {
       name,
-    });
-    return response;
-  }
-
-  async postUserAvatar({ image }: { image: Buffer }) {
-    const response = await this.postRequest("/user/avatar", {
       image,
+      address,
     });
     return response;
   }
@@ -115,6 +118,16 @@ export class StingrayClient {
     const response = await this.getRequest("/pool-price-history", {
       fundId,
     });
+    return response;
+  }
+
+  async getPreviousPoolPrice({ owner }: { owner: string }) {
+    const response = await this.getRequest(
+      "/pool-price-history/owned-previous",
+      {
+        owner,
+      },
+    );
     return response;
   }
 }

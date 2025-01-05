@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       },
     });
     const cookieStore = cookies();
-    cookieStore.set("signature", signature);
+    cookieStore.set(`signature-${result.toSuiAddress()}`, signature);
     console.log(result.toSuiAddress(), "result");
   } catch (e) {
     console.log(e);

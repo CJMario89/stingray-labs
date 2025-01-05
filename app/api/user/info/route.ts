@@ -2,11 +2,16 @@ import { prisma } from "@/prisma";
 import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
+  const body = await req.json();
+  const name = body.name;
+  const image = body.image;
   const cookieStore = cookies();
-  if (!cookieStore.has("signature")) {
+  const cookieName = `signature-${body.address}`;
+  if (!cookieStore.has(cookieName)) {
     return Response.json("Unauthorized", { status: 401 });
   }
-  const signature = cookieStore.get("signature");
+  const signature = cookieStore.get(cookieName);
+
   if (!signature?.value) {
     return Response.json("Unauthorized", { status: 401 });
   }
@@ -19,20 +24,25 @@ export async function POST(req: Request) {
   if (!user) {
     return Response.json("Unauthorized", { status: 401 });
   }
-
-  const info = await req.json();
-  if (info?.name?.length > 10) {
+  console.log(user, "user");
+  if (name?.length > 12) {
     return Response.json("Name too long", { status: 401 });
   }
-  console.log(info, "info");
-  console.log(user, "user");
   await prisma.user.update({
     where: {
       address: user.address,
     },
     data: {
-      name: info.name,
+      name,
+      ...(image
+        ? {
+            image: Buffer.from(
+              image.replace(/data:image\/.*;base64,/, ""),
+              "base64",
+            ),
+          }
+        : {}),
     },
   });
-  return Response.json({});
+  return Response.json("Success");
 }

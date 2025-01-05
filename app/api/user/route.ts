@@ -16,5 +16,17 @@ export async function GET(req: Request) {
   if (!user) {
     return Response.json("User not found", { status: 404 });
   }
-  return Response.json(user);
+
+  const image = user.image
+    ? Buffer.from(user.image).toString("base64")
+    : undefined;
+
+  console.log(image);
+  console.log(user.image);
+
+  return Response.json({
+    address: user.address,
+    name: user.name,
+    image: `data:image/png;base64,${image}`,
+  });
 }

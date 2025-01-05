@@ -1,0 +1,34 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: relauch website
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: root
+          key: ${{ secrets.SSH_KEY_MAIN }}
+          script: |
+            cd ~/stingray-labs/
+            git pull origin main
+            pnpm install
+            cd ./event-poller
+            pnpm install
+            pm2 delete all || true
+            pnpm run sync
+            cd ..
+            npx prisma generate
+            npx prisma db push
+            pnpm run build
+            pm2 start "pnpm run start"

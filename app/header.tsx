@@ -5,6 +5,7 @@ import Logo from "@/public/images/Stingray-White.png";
 import IconMenu from "@/components/icons/menu";
 import ConnectButton from "@/components/connect-button";
 import IconClose from "@/components/icons/close";
+import { useRouter } from "next/navigation";
 
 export const headerGradient = "bg-gradient-to-br from-black-200 to-base-200";
 
@@ -15,9 +16,15 @@ const Header = ({
   menuOpen: boolean;
   onMenuToggle: () => void;
 }) => {
+  const { push } = useRouter();
   return (
     <div className={`navbar fixed z-[10000] ${headerGradient} px-4`}>
-      <div className="flex flex-1">
+      <div
+        className="flex flex-1 cursor-pointer"
+        onClick={() => {
+          push("/stingray-pools");
+        }}
+      >
         <Image
           src={Logo}
           alt="logo"

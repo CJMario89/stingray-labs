@@ -43,6 +43,7 @@ model fund {
   settle_result       settle_result[]
   claim_result        claim_result[]
   fund_balance_record fund_balance_record[]
+  trader_claim        trader_claim[]
 }
 
 // don't need to know How much a share is worth
@@ -141,4 +142,16 @@ model mint_fund_manager_voucher {
   event_seq       Int
   tx_digest       String
   timestamp       BigInt
+}
+
+model trader_claim {
+  id             String @id
+  fund_object_id String
+  fund           fund   @relation(fields: [fund_object_id], references: [object_id])
+  trader         String
+  receiver       String
+  amount         Float
+  event_seq      Int
+  tx_digest      String
+  timestamp      BigInt
 }

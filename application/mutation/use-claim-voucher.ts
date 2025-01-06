@@ -1,3 +1,4 @@
+import { syncDb } from "@/common/sync-db";
 import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
@@ -60,6 +61,7 @@ const useClaimVoucher = (options?: UseClaimVoucherProps) => {
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
+      await syncDb.mintFundManagerVoucher();
       console.log(result);
     },
     onError: (error) => {

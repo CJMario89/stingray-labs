@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prisma:generate": "npx prisma generate --schema=../schema.prisma",
-    "sync": "pm2 start 'tsx arena.ts' & pm2 start 'tsx fund.ts' & pm2 start 'tsx attend.ts' & pm2 start 'tsx fund-history.ts' & pm2 start 'tsx swap.ts' & pm2 start 'tsx deposit.ts' & pm2 start 'tsx withdraw.ts' & pm2 start 'tsx settle.ts' & pm2 start 'tsx claim.ts' & pm2 start 'tsx sponsor-pool.ts' & pm2 start 'tsx fund-balance-record.ts' & pm2 start 'tsx mint-fund-manager-voucher.ts'"
+    "sync": "pm2 start 'tsx arena.ts' & pm2 start 'tsx fund.ts' & pm2 start 'tsx attend.ts' & pm2 start 'tsx fund-history.ts' & pm2 start 'tsx swap.ts' & pm2 start 'tsx deposit.ts' & pm2 start 'tsx withdraw.ts' & pm2 start 'tsx settle.ts' & pm2 start 'tsx claim.ts' & pm2 start 'tsx sponsor-pool.ts' & pm2 start 'tsx fund-balance-record.ts' & pm2 start 'tsx mint-fund-manager-voucher.ts' & pm2 start 'tsx trader-claim.ts'"
   },
   "keywords": [],
   "author": "",

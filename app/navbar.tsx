@@ -92,7 +92,6 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
   const { push } = useRouter();
 
   useEffect(() => {
-    console.log(path);
     const mode = linksMap.find((link) => link.href === path)?.mode;
     if (mode) {
       setMode(mode as "investor" | "trader");
@@ -106,6 +105,7 @@ const Navbar = ({ onSelect }: { onSelect?: () => void }) => {
         <div className="w-fit-content px-4">
           <ModeSelector
             onModeChange={(mode) => {
+              onSelect?.();
               setMode(mode);
               push(linksMap.find((link) => link.mode === mode)?.href ?? "/");
             }}

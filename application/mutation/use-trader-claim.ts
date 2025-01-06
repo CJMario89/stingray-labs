@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import useGetPoolCap from "../query/pool/use-get-pool-cap";
+import { syncDb } from "@/common/sync-db";
 
 type UseTraderClaimProps = UseMutationOptions<void, Error, void> & {
   fundId?: string;
@@ -66,6 +67,8 @@ const useTraderClaim = (options?: UseTraderClaimProps) => {
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
+
+      await syncDb.traderClaim();
       console.log(result);
     },
     onError: (error) => {

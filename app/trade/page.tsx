@@ -3,6 +3,7 @@ import useSettle from "@/application/mutation/use-settle";
 import useTradeBackToUsdc from "@/application/mutation/use-trade-back-to-usdc";
 import useTraderClaim from "@/application/mutation/use-trader-claim";
 import useGetPoolPriceHistory from "@/application/query/pool/use-get-pool-price-history";
+import useGetTraderClaim from "@/application/query/pool/use-get-trader-claim";
 import useGetPools from "@/application/query/use-get-pools";
 import Chart from "@/components/chart";
 import Tag from "@/components/common/tag";
@@ -42,8 +43,16 @@ const Page = () => {
     fundId: selected?.object_id,
   });
 
+  const { data: traderClaimed, refetch: refetchTraderClaim } =
+    useGetTraderClaim({
+      fundId: selected?.object_id,
+    });
+
   const { mutate: traderClaim, isPending: isTraderClaiming } = useTraderClaim({
     fundId: selected?.object_id,
+    onSuccess: () => {
+      refetchTraderClaim();
+    },
   });
 
   const hasSettled = selected?.types?.includes("settled");
@@ -183,6 +192,9 @@ const Page = () => {
                 traderClaim();
               }}
               className={`btn btn-primary ${hasSettled ? "" : "btn-disabled"}`}
+              disabled={
+                isTraderClaiming || !hasSettled || Boolean(traderClaimed)
+              }
             >
               {isTraderClaiming && <div className="loading loading-spinner" />}
               Claim Trader Fee

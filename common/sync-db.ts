@@ -19,4 +19,7 @@ export const syncDb = {
     }),
   claim: () => fetch(`${url}/sync/claim`, { method: "POST" }),
   sponsorPool: () => fetch(`${url}/sync/sponsor-pool`, { method: "POST" }),
+  mintFundManagerVoucher: () =>
+    fetch(`${url}/sync/mint-fund-manager-voucher`, { method: "POST" }),
+  traderClaim: () => fetch(`${url}/sync/trader-claim`, { method: "POST" }),
 };

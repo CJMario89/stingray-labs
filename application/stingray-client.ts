@@ -144,6 +144,14 @@ export class StingrayClient {
     });
     return response;
   }
+
+  async getTraderClaim({ fundId }: { fundId: string }) {
+    const response = await this.getRequest("/pool/trader-claim", {
+      fundId,
+    });
+
+    return response;
+  }
 }
 
 export const stingrayClient = new StingrayClient();

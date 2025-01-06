@@ -1312,4 +1312,84 @@ export class SuiService {
     const result = await this.prisma.$transaction(upserts);
     return result;
   }
+
+  async upsertTraderClaimEvents() {
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
+    if (!packageId) {
+      throw new Error("Package not found");
+    }
+    const traderClaim = await this.prisma.trader_claim.findFirst({
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
+
+      select: {
+        tx_digest: true,
+        event_seq: true,
+      },
+    });
+    const nextCursor: PaginatedEvents["nextCursor"] = traderClaim
+      ? {
+          txDigest: traderClaim.tx_digest,
+          eventSeq: traderClaim.event_seq.toString(),
+        }
+      : undefined;
+    const events = await this.queryEvents({
+      module: "voucher",
+      packageId,
+      eventType: `TraderClaimed<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
+      nextCursor,
+    });
+
+    type TraderClaimed = {
+      fund: string;
+      trader: string;
+      receiver: string;
+      amount: number;
+    };
+
+    const upserts = events.map((event) => {
+      console.log(event);
+      const data: TraderClaimed = event.parsedJson as TraderClaimed;
+      const timestamp = event.timestampMs ?? "0";
+
+      const object: {
+        id: string;
+        fund_object_id: string;
+        trader: string;
+        receiver: string;
+        amount: number;
+        event_seq: number;
+        tx_digest: string;
+        timestamp: number;
+      } = {
+        id: event.id.txDigest + Number(event.id.eventSeq),
+        fund_object_id: data.fund,
+        trader: data.trader,
+        receiver: data.receiver,
+        amount: data.amount,
+        event_seq: Number(event.id.eventSeq),
+        tx_digest: event.id.txDigest,
+        timestamp: Number(timestamp),
+      };
+
+      return this.prisma.trader_claim.upsert({
+        where: {
+          id: event.id.txDigest + Number(event.id.eventSeq),
+          event_seq: Number(event.id.eventSeq),
+          tx_digest: event.id.txDigest,
+        },
+        update: object,
+        create: object,
+      });
+    });
+
+    const result = await this.prisma.$transaction(upserts);
+    return result;
+  }
 }

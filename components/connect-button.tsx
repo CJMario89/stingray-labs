@@ -40,7 +40,7 @@ const ConnectButton = () => {
           </div>
           <ul
             tabIndex={0}
-            className={`menu dropdown-content z-[1] w-48 rounded-md bg-[#111111] p-2 shadow`}
+            className={`menu dropdown-content z-[1] w-40 rounded-md bg-[#111111] p-2 shadow`}
           >
             {accounts.map((account) => (
               <li key={account.address}>

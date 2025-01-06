@@ -29,6 +29,12 @@ const SponsorPool = ({
   } = useGetOwnedVouchers({
     sponsor: pool.sponsor,
   });
+
+  const { data: mintedVouchers, refetch: refetchMintedVoucher } =
+    useGetMintedVouchers({
+      sponsorPoolId: pool.sponsorPoolId,
+    });
+
   const { mutate: claim, isPending: isClaiming } = useClaimVoucher({
     sponsor: pool.sponsor,
     onSuccess: () => {
@@ -36,13 +42,10 @@ const SponsorPool = ({
         document.getElementById("voucher-success-modal") as HTMLDialogElement
       )?.showModal();
       refetch();
+      refetchMintedVoucher();
     },
   });
   const hasVoucher = vouchers && vouchers?.length > 0;
-
-  const { data: mintedVouchers } = useGetMintedVouchers({
-    sponsorPoolId: pool.sponsorPoolId,
-  });
 
   const remainingTimes =
     Number(pool.totalTimes) - (mintedVouchers?.length ?? 0);

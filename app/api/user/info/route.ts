@@ -22,6 +22,9 @@ export async function POST(req: Request) {
   });
 
   if (!user) {
+    //cookie expired
+    //remove cookie
+    cookieStore.delete(cookieName);
     return Response.json("Unauthorized", { status: 401 });
   }
   console.log(user, "user");

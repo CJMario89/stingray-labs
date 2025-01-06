@@ -25,6 +25,9 @@ const useGetOwnedVouchers = (options?: UseGetOwnedVouchersProps) => {
   return useQuery({
     queryKey: ["voucher", account?.address, sponsor],
     queryFn: async () => {
+      if (!account) {
+        return [];
+      }
       console.log(account, "account");
       console.log(sponsor, "sponsor");
       if (!account) {
@@ -63,7 +66,7 @@ const useGetOwnedVouchers = (options?: UseGetOwnedVouchersProps) => {
           };
         });
     },
-    enabled: !!account,
+    ...options,
   });
 };
 

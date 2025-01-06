@@ -22,7 +22,7 @@ export const claim = ({
   if (!process.env.NEXT_PUBLIC_FUND_BASE) {
     throw new Error("Fund base not found");
   }
-
+  console.log(shares);
   const coin = tx.moveCall({
     package: packageId,
     module: "fund",
@@ -31,9 +31,7 @@ export const claim = ({
       tx.object(configId),
       tx.object.option({
         type: `${process.env.NEXT_PUBLIC_PACKAGE_ASSET}::voucher::SponsorPool<${process.env.NEXT_PUBLIC_FUND_BASE}>`,
-        // value: sponsorPoolId ?? null,
-        value:
-          "0xfa846d9bb83dc01000637dddf86a1bac86f8b5c38ded96874118586cadefd125",
+        value: sponsorPoolId ?? null,
       }),
       tx.object(fundId),
       tx.makeMoveVec({

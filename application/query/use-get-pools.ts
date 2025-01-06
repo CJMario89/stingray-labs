@@ -21,6 +21,9 @@ const useGetPools = (options?: UseGetPoolsProps) => {
   return useQuery({
     queryKey: ["pools", types, order, orderBy, searchText, owner, investor],
     queryFn: async () => {
+      if (investor === "") {
+        return [];
+      }
       const response = await stingrayClient.getPools({
         types,
         orderBy,

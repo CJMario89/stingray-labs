@@ -351,21 +351,24 @@ const typeOptions = ["pending", "funding", "trading", "ended", "settled"];
 const orderOptions = ["time", "roi", "funding amount"];
 
 const PoolListTemplate = ({ investor }: { investor?: string }) => {
+  const account = useCurrentAccount();
   const [types, setTypes] = useState<string[]>([]);
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] = useState<string>("time");
   const [searchText, setSearchText] = useState<string>("");
 
   const onSearch = throttle((e: ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
     setSearchText(e.target.value);
   }, 500);
+
+  const { push } = useRouter();
 
   const {
     data: pools,
     isPending,
     isLoading,
     refetch,
+    isSuccess,
   } = useGetPools({
     types,
     order,
@@ -458,52 +461,89 @@ const PoolListTemplate = ({ investor }: { investor?: string }) => {
           Array.from(Array(3)).map((_, i) => (
             <div key={i} className="skeleton h-[60px] w-full rounded-md" />
           ))}
-        {pools?.map((pool) => (
-          <div
-            key={pool.object_id}
-            className={`collapse collapse-arrow rounded-md ${primaryGradient} `}
-          >
-            <input type="checkbox" name="pool" />
-            <div className="collapse-title flex items-center px-4 md:px-6">
-              <div className="flex w-full items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="tooltip" data-tip={pool.name}>
-                    <div className="text-md max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap sm:max-w-[200px] md:text-xl">
-                      {pool.name}
+        {pools?.map((pool) => {
+          const funded = Number(
+            (
+              (Number(pool?.totalFunded) / Number(pool?.limit_amount)) *
+              100
+            ).toFixed(2),
+          );
+
+          const holded = pool?.fund_history
+            ?.filter((history) => history.investor === account?.address)
+            ?.reduce((acc, cur) => {
+              if (cur.action === "Invested") {
+                return acc + cur.amount;
+              } else {
+                return acc - cur.amount;
+              }
+            }, 0);
+          return (
+            <div
+              key={pool.object_id}
+              className={`collapse collapse-arrow rounded-md ${primaryGradient} `}
+            >
+              <input type="checkbox" name="pool" />
+              <div className="collapse-title flex items-center px-4 md:px-6">
+                <div className="flex w-full items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="tooltip" data-tip={pool.name}>
+                      <div className="text-md max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap sm:max-w-[200px] md:text-xl">
+                        {pool.name}
+                      </div>
+                    </div>
+                    <div className="flex gap-1 md:gap-2">
+                      {pool?.types?.map((type) => (
+                        <Tag key={type} text={type} />
+                      ))}
                     </div>
                   </div>
-                  <div className="flex gap-1 md:gap-2">
-                    {pool?.types?.map((type) => <Tag key={type} text={type} />)}
-                  </div>
-                </div>
-                <div className="flex gap-2 pr-8 md:gap-4">
-                  <div className="hidden md:block">
-                    <TraderInfo address={pool.owner_id} />
-                  </div>
-                  <div className="hidden items-center text-lg md:block">
-                    {Number(
-                      (
-                        (Number(pool?.totalFunded) /
-                          Number(pool?.limit_amount)) *
-                        100
-                      ).toFixed(2),
+                  <div className="flex gap-2 pr-8 md:gap-4">
+                    <div className="hidden md:block">
+                      <TraderInfo address={pool.owner_id} />
+                    </div>
+                    {investor ? (
+                      <div className="hidden items-center text-lg md:block">
+                        {Number(
+                          (
+                            (Number(holded) / Number(pool?.totalFunded)) *
+                            100
+                          ).toFixed(2),
+                        )}
+                        % Holded
+                      </div>
+                    ) : (
+                      <div className="hidden items-center text-lg md:block">
+                        {funded}% Funded
+                      </div>
                     )}
-                    % Funded
                   </div>
                 </div>
               </div>
+              <div className="collapse-content px-0">
+                <FundInfo
+                  investor={investor}
+                  pool={pool}
+                  onSuccess={() => {
+                    refetch();
+                  }}
+                />
+              </div>
             </div>
-            <div className="collapse-content px-0">
-              <FundInfo
-                investor={investor}
-                pool={pool}
-                onSuccess={() => {
-                  refetch();
-                }}
-              />
-            </div>
+          );
+        })}
+        {pools?.length === 0 && isSuccess && (
+          <div className="mt-24 flex flex-col items-center gap-4">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                push("/stingray-pools");
+              }}
+            >
+              Go to invest
+            </button>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

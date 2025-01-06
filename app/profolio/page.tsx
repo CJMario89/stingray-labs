@@ -13,7 +13,14 @@ const Page = () => {
           </div>
           <div className="divider w-full" />
         </div>
-        <PoolListTemplate investor={account?.address} />
+        <PoolListTemplate investor={account?.address ?? ""} />
+        {!account && (
+          <div className="mt-24 flex flex-col items-center gap-4">
+            <div className="text-lg text-neutral-400">
+              Connect your wallet to view your funded history
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

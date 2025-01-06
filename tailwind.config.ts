@@ -13,6 +13,7 @@ export default {
     { pattern: /border-./ },
     { pattern: /overflow-./ },
     { pattern: /rounded-./ },
+    { pattern: /break-./ },
   ],
   theme: {
     extend: {

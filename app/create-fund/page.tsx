@@ -119,7 +119,11 @@ const Page = () => {
             unit={item.unit}
           />
         ))}
-        <button type="submit" className="btn btn-primary self-end">
+        <button
+          disabled={isPending || !account}
+          type="submit"
+          className="btn btn-primary self-end"
+        >
           {isPending ? <span className="loading loading-spinner"></span> : ""}
           Create Fund
         </button>

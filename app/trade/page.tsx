@@ -12,11 +12,13 @@ import SelectMenu from "@/components/select-menu";
 import Farm from "@/components/trade/farm";
 import Swap from "@/components/trade/swap";
 import { useConnectWallet, useCurrentAccount } from "@mysten/dapp-kit";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const Page = () => {
   const account = useCurrentAccount();
   const { status } = useConnectWallet();
+  const { push } = useRouter();
   const {
     data: pools,
     isSuccess,
@@ -79,7 +81,17 @@ const Page = () => {
         <div className="text-2xl font-semibold">Trade</div>
         <div className="w-[fit-content]">
           {noPools ? (
-            <div className="text-neutral-400">No running pools found</div>
+            <div className="flex flex-col gap-2">
+              <div className="text-neutral-400">No running pools found</div>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  push("/create-fund");
+                }}
+              >
+                Create Fund
+              </button>
+            </div>
           ) : !isPending ? (
             <div className="flex items-center gap-2">
               <SelectMenu

@@ -63,9 +63,11 @@ const useClaim = (options?: UseAddFundProps) => {
       const sponsorClaims = shares
         .filter((share) => share.sponsor !== share.investor)
         .map((share) => share);
+      console.log(shares);
 
       const tx = new Transaction();
-
+      console.log(investorClaims, "investorClaims");
+      console.log(sponsorClaims, "sponsorClaims");
       if (investorClaims.length > 0) {
         claim({
           tx,

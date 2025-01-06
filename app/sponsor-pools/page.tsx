@@ -12,6 +12,7 @@ import { primaryGradient } from "@/components/pool-list-template";
 import { useState } from "react";
 import TraderInfo from "@/common/trader-info";
 import useGetMintedVouchers from "@/application/query/use-get-minted-vouchers";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 const SponsorPool = ({
   pool,
@@ -20,6 +21,7 @@ const SponsorPool = ({
   pool: SponsorPool;
   onSelect: (sponsorPool: SponsorPool) => void;
 }) => {
+  const account = useCurrentAccount();
   const {
     data: vouchers,
     isPending: isGettingVoucher,
@@ -77,7 +79,7 @@ const SponsorPool = ({
         </div>
       </div>
       <button
-        disabled={isClaiming || !avaliableTimes}
+        disabled={isClaiming || !avaliableTimes || !account}
         className="btn btn-outline w-full"
         onClick={() => {
           onSelect(pool);

@@ -22,7 +22,7 @@ export async function GET(req: Request) {
     return Response.error();
   }
 
-  const [fund, suilendOperations, scallopOperations] = await Promise.all([
+  const [fund, scallopOperations] = await Promise.all([
     prisma.fund.findUnique({
       where: {
         object_id: fundId,
@@ -33,31 +33,8 @@ export async function GET(req: Request) {
       },
     }),
     prisma.$queryRaw`
-      SELECT *
-      FROM (
-          SELECT *, 
-          LAG(action) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_action,
-          LAG(protocol) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_protocol,
-          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Suilend' AND fund_object_id = ${fundId} THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
-          FROM trader_operation
-          ORDER BY timestamp DESC, event_seq DESC
-      ) AS subquery
-      WHERE action = 'Deposit' AND protocol = 'Suilend' AND fund_object_id = ${fundId}
-        AND withdraw_encountered = 0
-      ORDER BY timestamp, event_seq DESC;`,
-    prisma.$queryRaw`
-      SELECT *
-      FROM (
-          SELECT *, 
-          LAG(action) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_action,
-          LAG(protocol) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_protocol,
-          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Scallop' AND fund_object_id = ${fundId} THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
-          FROM trader_operation
-          ORDER BY timestamp DESC, event_seq DESC
-      ) AS subquery
-      WHERE action = 'Deposit' AND protocol = 'Scallop' AND fund_object_id = ${fundId}
-        AND withdraw_encountered = 0
-      ORDER BY timestamp, event_seq DESC;`,
+      SELECT * FROM "trader_operation" WHERE protocol = 'Scallop' AND fund_object_id = ${fundId}
+      ORDER BY timestamp DESC, event_seq DESC;`,
   ]);
 
   const getDisplayValue = (value: string, decimal: number) => {
@@ -65,8 +42,7 @@ export async function GET(req: Request) {
       .toFixed(decimal)
       .replace(/\.?0+$/, "");
   };
-  console.log(suilendOperations);
-  console.log(scallopOperations);
+
   const tokens = coins.map((coin) => {
     let balance = 0;
     const farmings: Farming[] = [];
@@ -122,59 +98,23 @@ export async function GET(req: Request) {
         return acc;
       }, 0) ?? 0;
 
-    // deposit received (liquidity token and farming total)
-    // withdraw received (liquidity token and farming total)
-    const farmingPositionSuilend = (
-      suilendOperations as any[]
-    )?.reduce<Farming>(
-      (acc, curr) => {
-        console.log(curr, "curr");
-        if (
-          curr.token_in === coinTypeName &&
-          curr.action === "Deposit" &&
-          curr.protocol === "Suilend"
-        ) {
-          acc.name = coin.name;
-          acc.value = (Number(acc.value) + Number(curr.amount_in)).toString();
-          acc.liquidityTypename = curr.token_out;
-          acc.liquidityValue = Number(curr.amount_out) + acc.liquidityValue;
-          acc.protocol = "Suilend";
-        }
-        if (
-          curr.token_out === coinTypeName &&
-          curr.action === "Withdraw" &&
-          curr.protocol === "Suilend"
-        ) {
-          acc.name = coin.name;
-          acc.value = (Number(acc.value) - Number(curr.amount_out)).toString();
-          acc.liquidityTypename = curr.token_in;
-          acc.liquidityValue = acc.liquidityValue - Number(curr.amount_in);
-          acc.protocol = "Suilend";
-        }
-        return acc;
-      },
-      {
-        name: "",
-        value: "0",
-        liquidityTypename: "",
-        liquidityValue: 0,
-        protocol: "",
-      },
-    );
-    if (farmingPositionSuilend && farmingPositionSuilend?.name !== "") {
-      farmings.push({
-        ...farmingPositionSuilend,
-        value: getDisplayValue(farmingPositionSuilend.value, coin.decimal),
-      });
-    }
+    const withdrawPositionScallop: string[] = [];
     const farmingPositionScallop = (
       scallopOperations as any[]
     )?.reduce<Farming>(
       (acc, curr) => {
         if (
+          curr.token_out === coinTypeName &&
+          curr.action === "Withdraw" &&
+          curr.protocol === "Scallop"
+        ) {
+          withdrawPositionScallop.push(curr.token_out);
+        }
+        if (
           curr.token_in === coinTypeName &&
           curr.action === "Deposit" &&
-          curr.protocol === "Scallop"
+          curr.protocol === "Scallop" &&
+          !withdrawPositionScallop.includes(curr.token_in)
         ) {
           acc.name = coin.name;
           acc.value = (Number(acc.value) + Number(curr.amount_in)).toString();
@@ -182,17 +122,7 @@ export async function GET(req: Request) {
           acc.liquidityValue = Number(curr.amount_out) + acc.liquidityValue;
           acc.protocol = "Scallop";
         }
-        if (
-          curr.token_out === coinTypeName &&
-          curr.action === "Withdraw" &&
-          curr.protocol === "Scallop"
-        ) {
-          acc.name = coin.name;
-          acc.value = (Number(acc.value) - Number(curr.amount_out)).toString();
-          acc.liquidityTypename = curr.token_in;
-          acc.liquidityValue = acc.liquidityValue - Number(curr.amount_in);
-          acc.protocol = "Scallop";
-        }
+
         return acc;
       },
       {
@@ -241,11 +171,11 @@ export async function GET(req: Request) {
 
     balance =
       balance + swapReceived - swapPaid - depositPaid + withdrawReceived;
-    console.log("farmings", farmings);
 
     if (coin.name === "BUCK") {
       balance = balance < 10 ? 0 : balance;
     }
+    balance = balance < 0 ? 0 : balance;
 
     return {
       name: coin.name,
@@ -296,12 +226,9 @@ export async function GET(req: Request) {
             rate = r;
           }
         }
-        console.log(inToken, "inToken");
-        console.log(rate, "rate1");
 
         if (!rate) {
           rate = await quoter.quote(inToken, 2, 1, "in");
-          console.log(rate, "rate2");
           await client.set(
             `${inToken}-${10}-${1}-${"in"}`,
             JSON.stringify({ r: rate }),
@@ -310,8 +237,6 @@ export async function GET(req: Request) {
             },
           );
         }
-
-        console.log(rate, "rate3");
 
         inUSD = rate * Number(token.value) * (SUIUSD ?? 0);
       }

@@ -118,9 +118,14 @@ export class SuiService {
       throw new Error("Package not found");
     }
     const lastArena = await this.prisma.arena.findFirst({
-      orderBy: {
-        timestamp: "desc",
-      },
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
       select: {
         tx_digest: true,
         event_seq: true,
@@ -207,9 +212,14 @@ export class SuiService {
           equals: null,
         },
       },
-      orderBy: {
-        timestamp: "desc",
-      },
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
       select: {
         tx_digest: true,
         event_seq: true,
@@ -311,9 +321,14 @@ export class SuiService {
           not: null,
         },
       },
-      orderBy: {
-        timestamp: "desc",
-      },
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
       select: {
         tx_digest: true,
         event_seq: true,
@@ -415,9 +430,14 @@ export class SuiService {
       where: {
         action: "Invested",
       },
-      orderBy: {
-        timestamp: "desc",
-      },
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
       select: {
         tx_digest: true,
         event_seq: true,
@@ -491,9 +511,14 @@ export class SuiService {
       where: {
         action: "Deinvested",
       },
-      orderBy: {
-        timestamp: "desc",
-      },
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
       select: {
         tx_digest: true,
         event_seq: true,
@@ -803,9 +828,14 @@ export class SuiService {
         action: "Deposit",
         protocol,
       },
-      orderBy: {
-        timestamp: "desc",
-      },
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
       select: {
         tx_digest: true,
         event_seq: true,
@@ -902,9 +932,14 @@ export class SuiService {
         action: "Withdraw",
         protocol,
       },
-      orderBy: {
-        timestamp: "desc",
-      },
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
       select: {
         tx_digest: true,
         event_seq: true,

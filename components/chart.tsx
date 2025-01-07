@@ -35,7 +35,11 @@ const Chart = ({
 }) => {
   const dataMax = Math.max(...(data?.map((i) => i.value) ?? []));
   const dataMin = Math.min(...(data?.map((i) => i.value) ?? []));
-  const dataDifPercent = 1 / ((dataMax - dataMin) / dataMin);
+  const dataDifPercent =
+    1 / ((dataMax - dataMin) / dataMin) < 5
+      ? 5
+      : 1 / ((dataMax - dataMin) / dataMin);
+  console.log(dataDifPercent, "dataDifPercent");
   const gradientOffset = () => {
     const baseline = Number(data?.[0]?.value);
 

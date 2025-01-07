@@ -85,8 +85,8 @@ const Page = () => {
   });
 
   return (
-    <div className="flex h-full w-full flex-col gap-4">
-      <div className="flex flex-col gap-4">
+    <div className="flex h-full w-full flex-col items-center gap-4">
+      <div className="flex max-w-[670px] flex-col gap-4">
         <div className="text-2xl font-semibold">Trade</div>
         <div className="w-[fit-content]">
           {noPools ? (

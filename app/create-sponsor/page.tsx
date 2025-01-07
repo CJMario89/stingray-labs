@@ -52,7 +52,10 @@ const Page = () => {
     },
   });
   return (
-    <div className="flex h-full w-full flex-col gap-4">
+    <div className="flex h-full w-full flex-col items-center gap-4">
+      <div className="w-[320px] text-2xl font-semibold">
+        Create Sponsor Pool
+      </div>
       <form
         noValidate
         className="flex w-[320px] flex-col gap-4"

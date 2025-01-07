@@ -25,7 +25,7 @@ const AddFundModal = ({
   const account = useCurrentAccount();
   const amountRef = useRef<HTMLInputElement>(null);
   return (
-    <dialog id="add-fund-modal" className="modal">
+    <dialog id={`add-fund-modal-${pool.object_id}`} className="modal">
       <div className={`${secondaryGradient} modal-box flex flex-col gap-4`}>
         <h3 className="text-lg font-bold">Deposit</h3>
         <label className="input flex items-center gap-2 rounded-md">
@@ -34,6 +34,7 @@ const AddFundModal = ({
             type="number"
             className="grow"
             placeholder="Amount"
+            step="any"
           />
         </label>
         <div className="text-sm text-neutral-400">Balance: {balance} USDC</div>

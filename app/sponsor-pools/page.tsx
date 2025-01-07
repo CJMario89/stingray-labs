@@ -105,7 +105,7 @@ const SponsorPool = ({
           if (hasVoucher) {
             (
               document.getElementById(
-                "voucher-deposit-modal",
+                `voucher-deposit-modal`,
               ) as HTMLDialogElement
             )?.showModal();
             return;

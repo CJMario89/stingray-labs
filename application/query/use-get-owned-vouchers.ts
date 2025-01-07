@@ -4,6 +4,7 @@ import { UseMutationOptions, useQuery } from "@tanstack/react-query";
 
 type UseGetOwnedVouchersProps = UseMutationOptions<
   {
+    sponsorPoolId: string;
     sponsor: string;
     deadline: string;
     amount: string;
@@ -11,6 +12,7 @@ type UseGetOwnedVouchersProps = UseMutationOptions<
   },
   Error,
   {
+    sponsorPoolId: string;
     sponsor: string;
     deadline: string;
     amount: string;
@@ -59,6 +61,7 @@ const useGetOwnedVouchers = (options?: UseGetOwnedVouchersProps) => {
           const content = object.data?.content as any;
           const fields = content.fields?.info?.fields;
           return {
+            sponsorPoolId: content.fields?.sponsor_pool,
             sponsor: fields?.sponsor_addr,
             deadline: fields?.deadline,
             amount: fields?.amount,

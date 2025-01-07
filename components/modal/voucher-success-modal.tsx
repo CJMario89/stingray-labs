@@ -4,7 +4,7 @@ import { secondaryGradient } from "../pool-list-template";
 
 const VoucherSuccessModal = ({ onSuccess }: { onSuccess: () => void }) => {
   return (
-    <dialog id="voucher-success-modal" className="modal">
+    <dialog id={`voucher-success-modal`} className="modal">
       <div className={`${secondaryGradient} modal-box flex flex-col gap-4`}>
         <h2 className="mb-4 text-2xl font-bold">Claim Successful</h2>
         <Image

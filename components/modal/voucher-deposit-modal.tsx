@@ -43,8 +43,11 @@ const VoucherDepositModal = ({
   const { data: vouchers, isPending: isGettingVoucher } = useGetOwnedVouchers({
     sponsor,
   });
+  const decimal = Number(process.env.NEXT_PUBLIC_FUND_BASE_DECIMAL || 6);
+
+  const _vouchers = [...(vouchers ?? [])];
   return (
-    <dialog id="voucher-deposit-modal" className="modal">
+    <dialog id={`voucher-deposit-modal`} className="modal">
       <div className={`${secondaryGradient} modal-box flex flex-col gap-4`}>
         <h2 className="mb-4 text-2xl font-bold">Deposit Voucher</h2>
         <div>Select a pool to deposit voucher</div>
@@ -84,8 +87,12 @@ const VoucherDepositModal = ({
             <input
               className="input max-w-[120px] text-neutral-50"
               type="text"
-              value={formatBasePrice(Number(amountPerVoucher))}
+              value={formatBasePrice(
+                (Number(amountPerVoucher) * 10 ** decimal * Number(amount)) /
+                  10 ** decimal,
+              )}
               readOnly
+              step="any"
             />
             <span>USDC</span>
           </label>
@@ -109,6 +116,7 @@ const VoucherDepositModal = ({
                 onChange={(e) => {
                   setAmount(Number(e.target.value));
                 }}
+                step="any"
               />
             </label>
             <button
@@ -140,9 +148,10 @@ const VoucherDepositModal = ({
                   toast.error("Please connect your wallet");
                   return;
                 }
+
+                _vouchers?.splice(Number(amount));
                 depositVoucher({
-                  sponsorPoolId,
-                  vouchers: vouchers?.map((voucher) => voucher.id) ?? [],
+                  vouchers: _vouchers ?? [],
                 });
               }}
             >

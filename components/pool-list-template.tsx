@@ -238,7 +238,7 @@ const FundInfo = ({
                   onClick={() => {
                     (
                       document.getElementById(
-                        "add-fund-modal",
+                        `add-fund-modal-${pool.object_id}`,
                       ) as HTMLDialogElement
                     )?.showModal();
                   }}
@@ -250,7 +250,7 @@ const FundInfo = ({
                   onClick={() => {
                     (
                       document.getElementById(
-                        "remove-fund-modal",
+                        `remove-fund-modal-${pool.object_id}`,
                       ) as HTMLDialogElement
                     )?.showModal();
                   }}
@@ -263,7 +263,7 @@ const FundInfo = ({
                     onSuccess();
                     (
                       document.getElementById(
-                        "add-fund-modal",
+                        `add-fund-modal-${pool.object_id}`,
                       ) as HTMLDialogElement
                     )?.close();
                   }}
@@ -274,7 +274,7 @@ const FundInfo = ({
                     onSuccess();
                     (
                       document.getElementById(
-                        "remove-fund-modal",
+                        `remove-fund-modal-${pool.object_id}`,
                       ) as HTMLDialogElement
                     )?.close();
                   }}

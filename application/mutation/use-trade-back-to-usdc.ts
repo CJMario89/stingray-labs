@@ -55,7 +55,6 @@ const useTradeBackToUsdc = (options?: UseTradeBackToUsdcProps) => {
       });
       console.log(result);
       await syncDb.withdraw("Scallop");
-      await syncDb.withdraw("Suilend");
       await syncDb.withdraw("Bucket");
       await syncDb.swap();
     },

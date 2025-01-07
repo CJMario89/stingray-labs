@@ -13,6 +13,8 @@ import { syncDb } from "@/common/sync-db";
 import useGetPoolBalance from "../query/pool/use-get-pool-balance";
 import toast from "react-hot-toast";
 import useGetPoolTokens from "../query/pool/use-get-pool-tokens";
+import { settleBackToUsdc } from "../ptb-operation/settle-back-sui";
+import useGetPoolCap from "../query/pool/use-get-pool-cap";
 
 type UseSettleProps = UseMutationOptions<
   void,
@@ -40,6 +42,11 @@ const useSettle = (options?: UseSettleProps) => {
         console.error(error);
       },
     });
+
+  const { data: cap } = useGetPoolCap({
+    fundId: options?.fundId,
+  });
+
   return useMutation({
     mutationFn: async ({
       fundId,
@@ -65,6 +72,13 @@ const useSettle = (options?: UseSettleProps) => {
       }
       const tx = new Transaction();
 
+      settleBackToUsdc({
+        tx,
+        fundBalance: fundBalance.balances,
+        fundId,
+        cap,
+      });
+
       settle({
         tx,
         poolTokens,
@@ -76,7 +90,11 @@ const useSettle = (options?: UseSettleProps) => {
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
+      await syncDb.withdraw("Scallop");
+      await syncDb.withdraw("Bucket");
+      await syncDb.swap();
       await syncDb.settle();
+
       console.log(result);
     },
     onError: (error) => {

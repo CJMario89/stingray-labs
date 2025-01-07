@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import template from "@/public/images/stingray_element_2.png";
+import template from "@/public/images/sponsor-pool.png";
 import useGetSponsorPools from "@/application/query/use-get-sponsor-pools";
 import type { SponsorPool } from "@/application/query/use-get-sponsor-pools";
 import VoucherSuccessModal from "@/components/modal/voucher-success-modal";
@@ -150,9 +150,9 @@ const Page = () => {
         )}
         {isPending && (
           <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="skeleton h-80 w-full"></div>
-            <div className="skeleton h-80 w-full"></div>
-            <div className="skeleton h-80 w-full"></div>
+            <div className="h-120 skeleton w-full"></div>
+            <div className="h-1200 skeleton w-full"></div>
+            <div className="h-1200 skeleton w-full"></div>
           </div>
         )}
       </div>

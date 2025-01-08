@@ -30,10 +30,10 @@ const TokenInput = ({
   const tokenBalance = balance?.find((b) => b.name === token);
   return (
     <div className={`flex flex-col gap-4 rounded-xl ${secondaryGradient} p-4`}>
-      <div className={`flex h-[100px] w-full items-center justify-between`}>
-        <div className="relative flex flex-col self-center">
+      <div className="flex flex-col gap-3 self-center">
+        <div className="flex justify-between">
           <div
-            className="btn btn-ghost btn-xs absolute left-[0px] top-[-39px] w-[fit-content] text-sm text-neutral-400"
+            className="btn btn-ghost btn-xs w-[fit-content] text-sm text-neutral-400"
             onClick={() => {
               const tokenBalance = balance?.find((b) => b.name === token);
               if (token && tokenBalance) {
@@ -45,7 +45,24 @@ const TokenInput = ({
           >
             MAX
           </div>
-          <div className="relative w-full">
+          {!isSwap && (
+            <div
+              className="btn btn-ghost btn-xs w-[fit-content] text-sm text-neutral-400"
+              onClick={() => {
+                const tokenBalance = balance?.find((b) => b.name === token);
+                if (token && tokenBalance) {
+                  onChangeValue?.(tokenBalance.farmings[0]?.value?.toString());
+                } else {
+                  onChangeValue?.("");
+                }
+              }}
+            >
+              MAX FARM
+            </div>
+          )}
+        </div>
+        <div className="flex justify-between px-2">
+          <div className="relative flex w-full items-center">
             <div
               className={`absolute left-[10px] top-[3px] w-full ${
                 isInputLoading ? "block" : "hidden"
@@ -60,31 +77,6 @@ const TokenInput = ({
               placeholder="0"
             />
           </div>
-          <div className="absolute bottom-[-39px] left-1 flex items-center gap-2 text-sm text-neutral-400">
-            Balance:
-            <div className="text-sm text-neutral-400">
-              {tokenBalance?.value}
-              {isGettingBalance && <div className="skeleton mt-1 h-4 w-12" />}
-              {!balance && !isGettingBalance && "--"}
-            </div>
-          </div>
-        </div>
-        <div className="relative flex shrink-0 flex-col self-center">
-          {!isSwap && (
-            <div
-              className="btn btn-ghost btn-xs absolute right-[0px] top-[-30px] w-[fit-content] text-sm text-neutral-400"
-              onClick={() => {
-                const tokenBalance = balance?.find((b) => b.name === token);
-                if (token && tokenBalance) {
-                  onChangeValue?.(tokenBalance.farmings[0]?.value?.toString());
-                } else {
-                  onChangeValue?.("");
-                }
-              }}
-            >
-              MAX FARM
-            </div>
-          )}
           <SelectMenu
             options={tokens.map((token) => {
               return {
@@ -103,21 +95,33 @@ const TokenInput = ({
               // onChangeValue?.("");
             }}
           />
-          {!isSwap && (
-            <div className="absolute bottom-[-30px] right-1 whitespace-nowrap text-right text-sm text-neutral-400">
-              Farming:{" "}
-              {
-                tokenBalance?.farmings.find(
-                  (farming) => farming.protocol === protocol,
-                )?.value
-              }{" "}
+        </div>
+        <div className="flex justify-between px-2">
+          <div className="flex max-w-[150px] flex-wrap items-center text-sm text-neutral-400">
+            <div className="">Balance:</div>
+            <div className="text-sm text-neutral-400">
+              {tokenBalance?.value}
               {isGettingBalance && <div className="skeleton mt-1 h-4 w-12" />}
-              {(!balance ||
-                !tokenBalance?.farmings.find(
-                  (farming) => farming.protocol === protocol,
-                )?.value) &&
-                !isGettingBalance &&
-                "--"}
+              {!balance && !isGettingBalance && "--"}
+            </div>
+          </div>
+          {!isSwap && (
+            <div className="flex max-w-[150px] flex-wrap justify-end overflow-hidden text-ellipsis whitespace-nowrap text-right text-sm text-neutral-400">
+              <div className="">Farming:</div>
+              <div>
+                {
+                  tokenBalance?.farmings.find(
+                    (farming) => farming.protocol === protocol,
+                  )?.value
+                }{" "}
+                {isGettingBalance && <div className="skeleton mt-1 h-4 w-12" />}
+                {(!balance ||
+                  !tokenBalance?.farmings.find(
+                    (farming) => farming.protocol === protocol,
+                  )?.value) &&
+                  !isGettingBalance &&
+                  "--"}
+              </div>
             </div>
           )}
         </div>

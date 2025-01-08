@@ -116,7 +116,14 @@ export async function GET(req: Request) {
           curr.protocol === "Scallop" &&
           !withdrawPositionScallop.includes(curr.token_in)
         ) {
+          // const displayThreshold = (10 / 10) * coin.decimal; // 10 unit
+          // const amountIn =
+          //   Number(curr.amount_in) > displayThreshold
+          //     ? Number(curr.amount_in)
+          //     : 0;
+
           acc.name = coin.name;
+          // acc.value = (Number(acc.value) + amountIn).toString();
           acc.value = (Number(acc.value) + Number(curr.amount_in)).toString();
           acc.liquidityTypename = curr.token_out;
           acc.liquidityValue = Number(curr.amount_out) + acc.liquidityValue;
@@ -175,7 +182,13 @@ export async function GET(req: Request) {
     if (coin.name === "BUCK") {
       balance = balance < 10 ? 0 : balance;
     }
-    balance = balance < 0 ? 0 : balance;
+    const displayThreshold = (10 / 10) * coin.decimal; // 10 unit
+    balance = balance < displayThreshold ? 0 : balance;
+    if (coin.name === "SUI") {
+      console.log(displayThreshold);
+      console.log(balance);
+      console.log("SUI-------------------------");
+    }
 
     return {
       name: coin.name,

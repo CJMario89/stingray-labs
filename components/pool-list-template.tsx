@@ -366,7 +366,6 @@ const PoolListTemplate = ({ investor }: { investor?: string }) => {
   const {
     data: pools,
     isPending,
-    isLoading,
     refetch,
     isSuccess,
   } = useGetPools({
@@ -457,8 +456,7 @@ const PoolListTemplate = ({ investor }: { investor?: string }) => {
 
       <div className="flex flex-col gap-4">
         {isPending &&
-          !isLoading &&
-          Array.from(Array(3)).map((_, i) => (
+          Array.from(Array(8)).map((_, i) => (
             <div key={i} className="skeleton h-[60px] w-full rounded-md" />
           ))}
         {pools?.map((pool) => {
@@ -532,18 +530,21 @@ const PoolListTemplate = ({ investor }: { investor?: string }) => {
             </div>
           );
         })}
-        {pools?.length === 0 && isSuccess && (
-          <div className="mt-24 flex flex-col items-center gap-4">
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                push("/stingray-pools");
-              }}
-            >
-              Go to invest
-            </button>
-          </div>
-        )}
+        {Boolean(investor) &&
+          Boolean(account) &&
+          pools?.length === 0 &&
+          isSuccess && (
+            <div className="mt-24 flex flex-col items-center gap-4">
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  push("/stingray-pools");
+                }}
+              >
+                Go to invest
+              </button>
+            </div>
+          )}
       </div>
     </div>
   );

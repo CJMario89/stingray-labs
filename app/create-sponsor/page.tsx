@@ -9,13 +9,13 @@ import toast from "react-hot-toast";
 const Page = () => {
   const items = [
     {
-      title: "Number of Vouchers",
+      title: "Total vouhcers per user",
       dataIndex: "numberOfVouchers",
       type: "number",
-      placeholder: "Enter number of vouchers",
+      placeholder: "Enter total voucher per user",
     },
     {
-      title: "Amount per Voucher",
+      title: "Amount per voucher",
       dataIndex: "amountPerVoucher",
       type: "number",
       placeholder: "Enter amount per voucher",

@@ -26,13 +26,14 @@ const useGetCoins = () => {
         throw new Error("No coins found");
       }
       if (coins.data.length > 0) {
-        return tx.splitCoins(tx.object(coins.data[0].coinObjectId), [amount]);
-      } else {
-        const coinId = tx.mergeCoins(
+        console.log("coins.data", coins.data.slice(1));
+        tx.mergeCoins(
           tx.object(coins.data[0].coinObjectId),
           coins.data.slice(1).map((c) => tx.object(c.coinObjectId)),
         );
-        return tx.splitCoins(coinId, [amount]);
+        return tx.splitCoins(tx.object(coins.data[0].coinObjectId), [amount]);
+      } else {
+        return tx.splitCoins(tx.object(coins.data[0].coinObjectId), [amount]);
       }
     },
   });
